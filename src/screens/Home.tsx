@@ -1,10 +1,16 @@
-import {withNavbar} from "../components/Navbar";
+import {withNavbar} from "../components/navbar/withNavbar.tsx";
+import {SnippetCard} from "../components/snippet-card/SnippetCard.tsx";
+import {Box} from "@mui/material";
 
 const HomeScreen = () => {
     return (
-        <div>
-            Chona
-        </div>
+        <Box sx={{display: 'flex', flexDirection: 'column', padding: '16px', gap: '8px'}}>
+            {
+                Array(10).fill(null).map(() => (
+                    <SnippetCard/>
+                ))
+            }
+        </Box>
     )
 }
 
