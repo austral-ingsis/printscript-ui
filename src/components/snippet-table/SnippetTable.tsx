@@ -1,35 +1,59 @@
-import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {
+    Box,
+    Button,
+    IconButton,
+    InputBase,
+    styled,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow
+} from "@mui/material";
+import {Snippet} from "../../types/Snippet.ts";
+import {Add, Search} from "@mui/icons-material";
+import {SnippetRow} from "./SnippetRow.tsx";
 
-export const SnippetTable = () => {
+export const SnippetTable = ({snippets}: { snippets: Snippet[] }) => {
     return (
-        <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <>
+            <Box display="flex" flexDirection="row" justifyContent="space-between">
+                <Box sx={{background: 'white', width: '30%', display: 'flex'}}>
+                    <InputBase
+                        sx={{ ml: 1, flex: 1 }}
+                        placeholder="Search Snippet"
+                        inputProps={{ 'aria-label': 'search' }}
+                    />
+                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+                        <Search />
+                    </IconButton>
+                </Box>
+                <Button variant="contained" disableRipple sx={{boxShadow: 0}}>
+                    <Add/>
+                    Add Snippet
+                </Button>
+            </Box>
+            <Table size="medium" sx={{borderSpacing: "0 10px", borderCollapse: "separate"}}>
                 <TableHead>
-                    <TableRow>
-                        <TableCell>Dessert (100g serving)</TableCell>
-                        <TableCell align="right">Calories</TableCell>
-                        <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                        <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                        <TableCell align="right">Protein&nbsp;(g)</TableCell>
+                    <TableRow sx={{fontWeight: 'bold'}}>
+                        <StyledTableCell sx={{fontWeight: "bold"}}>Name</StyledTableCell>
+                        <StyledTableCell sx={{fontWeight: "bold"}}>Language</StyledTableCell>
+                        <StyledTableCell sx={{fontWeight: "bold"}}>Author</StyledTableCell>
+                        <StyledTableCell sx={{fontWeight: "bold"}}>Conformance</StyledTableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {[].map((row: any) => (
-                        <TableRow
-                            key={row.name}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        >
-                            <TableCell component="th" scope="row">
-                                {row.name}
-                            </TableCell>
-                            <TableCell align="right">{row.calories}</TableCell>
-                            <TableCell align="right">{row.fat}</TableCell>
-                            <TableCell align="right">{row.carbs}</TableCell>
-                            <TableCell align="right">{row.protein}</TableCell>
-                        </TableRow>
+                    {snippets && snippets.map((snippet) => (
+                        <SnippetRow key={snippet.id} snippet={snippet}/>
                     ))}
                 </TableBody>
             </Table>
-        </TableContainer>
-    );
+        </>
+    )
 }
+
+
+export const StyledTableCell = styled(TableCell)`
+  border: 0;
+  align-items: center;
+`
