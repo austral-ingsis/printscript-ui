@@ -50,9 +50,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
           </TableHead>
           <TableBody>
             {snippets && snippets.map((snippet) => (
-                <Box onClick={() => handleClickSnippet(snippet.id)} key={snippet.id}>
-                  <SnippetRow snippet={snippet}/>
-                </Box>
+                <SnippetRow onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet}/>
             ))}
           </TableBody>
         </Table>

@@ -25,16 +25,15 @@ const HomeScreen = () => {
     }
   }, [paramsId]);
 
+  const handleCloseModal = () => setSnippetId(null)
+
+
   return (
       <>
         <SnippetTable handleClickSnippet={setSnippetId} snippets={Array(10).fill(snippet)}/>
-        {
-            snippetId && (
-                <Drawer open={!!snippetId} anchor={"right"} onClose={() => setSnippetId(null)}>
-                  <SnippetDetail id={snippetId}/>
-                </Drawer>
-            )
-        }
+        <Drawer open={!!snippetId} anchor={"right"} onClose={handleCloseModal}>
+          {snippetId && <SnippetDetail handleCloseModal={handleCloseModal} id={snippetId}/>}
+        </Drawer>
       </>
   )
 }
