@@ -1,6 +1,6 @@
-import {Snippet} from "../../types/Snippet.ts";
-import {alpha, styled, TableRow} from "@mui/material";
+import {alpha, Skeleton, styled, TableRow} from "@mui/material";
 import {StyledTableCell} from "./SnippetTable.tsx";
+import {SnippetDescriptor} from "../../utils/snippet.ts";
 
 const StyledTableRow = styled(TableRow)(({theme}) => ({
   backgroundColor: 'white',
@@ -35,13 +35,26 @@ const StyledTableRow = styled(TableRow)(({theme}) => ({
 }));
 
 
-export const SnippetRow = ({snippet, onClick}: { snippet: Snippet, onClick: () => void }) => {
+export const SnippetRow = ({snippet, onClick}: { snippet: SnippetDescriptor, onClick: () => void }) => {
   return (
       <StyledTableRow onClick={onClick} sx={{backgroundColor: 'white', border: 0, height: '75px'}}>
         <StyledTableCell>{snippet.name}</StyledTableCell>
         <StyledTableCell>{snippet.language}</StyledTableCell>
         <StyledTableCell>{snippet.author}</StyledTableCell>
-        <StyledTableCell>{snippet.status}</StyledTableCell>
+        <StyledTableCell>{snippet.compliance}</StyledTableCell>
       </StyledTableRow>
   )
 }
+
+export const LoadingSnippetRow = () => {
+  return (
+      <TableRow sx={{height: '75px', padding: 0}}>
+        <StyledTableCell colSpan={4} sx={{
+          padding: 0
+        }}>
+          <Skeleton height={"75px"} width={"100%"} variant={"rectangular"}/>
+        </StyledTableCell>
+      </TableRow>
+  )
+}
+

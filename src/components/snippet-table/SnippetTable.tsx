@@ -10,17 +10,18 @@ import {
   TableHead,
   TableRow
 } from "@mui/material";
-import {Snippet} from "../../types/Snippet.ts";
 import {Add, Search} from "@mui/icons-material";
-import {SnippetRow} from "./SnippetRow.tsx";
+import {LoadingSnippetRow, SnippetRow} from "./SnippetRow.tsx";
+import {SnippetDescriptor} from "../../utils/snippet.ts";
 
 type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
-  snippets: Snippet[];
+  snippets?: SnippetDescriptor[];
+  loading: boolean;
 }
 
 export const SnippetTable = (props: SnippetTableProps) => {
-  const {snippets, handleClickSnippet} = props;
+  const {snippets, handleClickSnippet, loading} = props;
   return (
       <>
         <Box display="flex" flexDirection="row" justifyContent="space-between">
@@ -49,9 +50,23 @@ export const SnippetTable = (props: SnippetTableProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {snippets && snippets.map((snippet) => (
-                <SnippetRow onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet}/>
-            ))}
+            {
+              loading ? (
+                  <>
+                    {Array.from({length: 10}).map((_, index) => (
+                        <LoadingSnippetRow key={index}/>
+                    ))}
+                  </>
+              ) : (
+                  <>
+                    {
+                        snippets && snippets.map((snippet) => (
+                            <SnippetRow onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet}/>
+                        ))
+                    }
+                  </>
+              )
+            }
           </TableBody>
         </Table>
       </>
