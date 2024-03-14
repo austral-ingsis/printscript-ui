@@ -10,19 +10,20 @@ import {
     TableHead,
     TableRow
 } from "@mui/material";
-import { Snippet } from "../../types/Snippet.ts";
-import { Add, Search } from "@mui/icons-material";
-import { SnippetRow } from "./SnippetRow.tsx";
 import { AddSnippetModal } from "./AddSnippetModal.tsx";
 import { useState } from "react";
+import {Add, Search} from "@mui/icons-material";
+import {LoadingSnippetRow, SnippetRow} from "./SnippetRow.tsx";
+import {SnippetDescriptor} from "../../utils/snippet.ts";
 
 type SnippetTableProps = {
     handleClickSnippet: (id: string) => void;
-    snippets: Snippet[];
+    snippets?: SnippetDescriptor[];
+  loading: boolean;
 }
 
 export const SnippetTable = (props: SnippetTableProps) => {
-    const { snippets, handleClickSnippet } = props;
+    const { snippets, handleClickSnippet , loading} = props;
     const [addModalOpened, setAddModalOpened] = useState(false);
     return (
         <>
@@ -51,10 +52,22 @@ export const SnippetTable = (props: SnippetTableProps) => {
                         <StyledTableCell sx={{ fontWeight: "bold" }}>Conformance</StyledTableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
-                    {snippets && snippets.map((snippet) => (
-                        <SnippetRow onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet} />
+                <TableBody>{
+              loading ? (
+                  <>
+                    {Array.from({length: 10}).map((_, index) => (
+                        <LoadingSnippetRow key={index}/>
                     ))}
+                  </>
+              ) : (
+                  <>
+                    {
+                    snippets && snippets.map((snippet) => (
+                        <SnippetRow onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet} />))
+                    }
+                  </>
+              )
+                    }
                 </TableBody>
             </Table>
             <AddSnippetModal open={addModalOpened} onClose={() => setAddModalOpened(false)} />

@@ -8,6 +8,8 @@ export type ComplianceEnum =
 export type SnippetDescriptor = {
   id: string
   name: string
+  language: string
+  author: string
   compliance: ComplianceEnum
 }
 

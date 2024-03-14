@@ -5,7 +5,7 @@ import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
 
 const snippetOperations: SnippetOperations = new FakeSnippetOperations();
 
-export const useGetSnippetDescriptors = () => {
+export const useGetSnippets = () => {
   return useQuery<SnippetDescriptor[], Error>('snippetDescriptors', snippetOperations.listSnippetDescriptors);
 };
 export const useGetSnippetById = (id: string) => {

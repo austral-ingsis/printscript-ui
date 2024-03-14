@@ -7,6 +7,7 @@ import "prismjs/themes/prism-okaidia.css";
 import {Box, CircularProgress, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {useGetSnippetById} from "../utils/queries.tsx";
+import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
 
 type SnippetDetailProps = {
   id: string;
@@ -34,11 +35,11 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
         </Box>
         {
           isLoading ? (<>
-            <Typography variant="h4">Loading...</Typography>
+            <Typography fontWeight={"bold"} mb={2} variant="h4">Loading...</Typography>
             <CircularProgress/>
           </>) : <>
             <Typography variant="h4" fontWeight={"bold"}>{snippet?.name ?? "Snippet"}</Typography>
-            <Box mt={4} width={"650px"}  backgroundColor={'black'} color={'white'}>
+            <Bòx mt={4} width={"650px"} minHeight={"650px"} bgcolor={'black'} color={'white'} code={code}>
               <Editor
                   value={code}
                   padding={10}
@@ -51,7 +52,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                     fontSize: 17,
                   }}
               />
-            </Box>
+            </Bòx>
           </>
         }
       </Box>
