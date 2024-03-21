@@ -1,14 +1,14 @@
-import { Box, InputLabel, Input, MenuItem, Modal, Select, Typography, SelectChangeEvent, Button } from "@mui/material";
-import { highlight, languages } from "prismjs";
-import { useState } from "react";
+import {Box, Button, Input, InputLabel, MenuItem, Modal, Select, SelectChangeEvent, Typography} from "@mui/material";
+import {highlight, languages} from "prismjs";
+import {useState} from "react";
 import Editor from "react-simple-code-editor";
 
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import { Save } from "@mui/icons-material";
+import {Save} from "@mui/icons-material";
 
-export const AddSnippetModal = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
+export const AddSnippetModal = ({open, onClose}: { open: boolean, onClose: () => void }) => {
     const [language, setLanguage] = useState("printscript");
     const [code, setCode] = useState("");
     return (
@@ -17,7 +17,7 @@ export const AddSnippetModal = ({ open, onClose }: { open: boolean, onClose: () 
             onClose={onClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            sx={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}
         >
             <Box sx={{
                 backgroundColor: 'white',
@@ -28,12 +28,12 @@ export const AddSnippetModal = ({ open, onClose }: { open: boolean, onClose: () 
                 flexDirection: 'column',
                 gap: '16px'
             }}>
-                <Box sx={{ display: 'flex', flexDirection: "row", justifyContent: "space-between" }}>
-                    <Typography id="modal-modal-title" variant="h5" component="h2">
+                <Box sx={{display: 'flex', flexDirection: "row", justifyContent: "space-between"}}>
+                    <Typography id="modal-modal-title" variant="h5" component="h2" sx={{display: 'flex', alignItems: 'center'}}>
                         Add Snippet
                     </Typography>
-                    <Button variant="contained" disableRipple sx={{ boxShadow: 0 }} onClick={onClose}>
-                        <Save />
+                    <Button variant="contained" disableRipple sx={{boxShadow: 0}} onClick={onClose}>
+                        <Save sx={{padding: "4px"}}/>
                         Save Snippet
                     </Button>
                 </Box>
@@ -43,7 +43,7 @@ export const AddSnippetModal = ({ open, onClose }: { open: boolean, onClose: () 
                     gap: '16px'
                 }}>
                     <InputLabel htmlFor="name">Name</InputLabel>
-                    <Input id="name" sx={{ width: '50%' }} />
+                    <Input id="name" sx={{width: '50%'}}/>
                 </Box>
                 <Box sx={{
                     display: 'flex',
@@ -57,16 +57,17 @@ export const AddSnippetModal = ({ open, onClose }: { open: boolean, onClose: () 
                         value={language}
                         label="Age"
                         onChange={(e: SelectChangeEvent<string>) => setLanguage(e.target.value)}
-                        sx={{ width: '50%' }}
+                        sx={{width: '50%'}}
                     >
                         <MenuItem value={"printscript"}>Printscript</MenuItem>
                         <MenuItem value={"python"}>Python</MenuItem>
                         <MenuItem value={"java"}>Java</MenuItem>
                     </Select>
                 </Box>
+                <InputLabel>Code Snippet</InputLabel>
                 <Box width={"100%"} sx={{
                     backgroundColor: 'black', color: 'white', borderRadius: "8px",
-                }} >
+                }}>
                     <Editor
                         value={code}
                         padding={10}
@@ -82,6 +83,6 @@ export const AddSnippetModal = ({ open, onClose }: { open: boolean, onClose: () 
                     />
                 </Box>
             </Box>
-        </Modal >
+        </Modal>
     )
 }
