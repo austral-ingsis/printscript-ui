@@ -1,11 +1,12 @@
 ## TODO
-- [ ] Load Snippet from File
-- [ ] Share snippet
-- [ ] Paginate list
-- [ ] Format code
-- [ ] Add test case
-- [ ] Execute test case
-- [ ] Execute snippet live
-- [ ] Download snippet
-- [ ] Define linting rules
-- [ ] Define formatting rules
+- [ ] Load Snippet from File (I)
+- [ ] Share snippet(I)
+- [ ] Paginate list (I)
+- [ ] Format code (M)
+- [ ] Add test case (F)
+- [ ] Execute test case (F)
+- [ ] Execute snippet live (F)
+- [ ] Download snippet (F)
+- [ ] Define linting rules (M) 
+- [ ] Define formatting rules (M)
+- [ ] Cypress e2e (I)
