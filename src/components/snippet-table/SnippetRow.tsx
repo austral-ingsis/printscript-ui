@@ -2,6 +2,7 @@ import {alpha, Skeleton, styled, TableRow} from "@mui/material";
 import {StyledTableCell} from "./SnippetTable.tsx";
 import {SnippetDescriptor} from "../../utils/snippet.ts";
 
+
 const StyledTableRow = styled(TableRow)(({theme}) => ({
   backgroundColor: 'white',
   border: 0,
