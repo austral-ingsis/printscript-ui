@@ -18,7 +18,6 @@ import Editor from "react-simple-code-editor";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import {Save} from "@mui/icons-material";
 import {CreateSnippetWithLang} from "../../utils/snippet.ts";
 import {fileTypes} from "../../utils/fileTypes.ts";
 
@@ -60,11 +59,11 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet, loading}: {
                 <Skeleton width={"100%"} variant={"text"} height={32}/>
             ) : (
                 <Box sx={{display: 'flex', flexDirection: "row", justifyContent: "space-between"}}>
-                  <Typography id="modal-modal-title" variant="h5" component="h2">
+                  <Typography id="modal-modal-title" variant="h5" component="h2"sx={{display: 'flex', alignItems: 'center'}}>
                     Add Snippet
                   </Typography>
                   <Button variant="contained" disableRipple sx={{boxShadow: 0}} onClick={onClose}>
-                    <Save/>
+                    <Savesx={{padding: "4px"}}/>
                     Save Snippet
                   </Button>
                 </Box>
@@ -99,7 +98,8 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet, loading}: {
               }
             </Select>
           </Box>
-          <Box width={"100%"} sx={{
+          <InputLabel>Code Snippet</InputLabel>
+                <Box width={"100%"} sx={{
             backgroundColor: 'black', color: 'white', borderRadius: "8px",
           }}>
             <Editor
@@ -122,3 +122,4 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet, loading}: {
       </Modal>
   )
 }
+
