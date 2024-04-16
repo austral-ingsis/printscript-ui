@@ -1,5 +1,6 @@
 import {ComplianceEnum, CreateSnippet, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
 import {v4 as uuid} from 'uuid'
+import {PaginatedUsers} from "../users.ts";
 
 export type StoredSnippet = {
   id: string
@@ -36,6 +37,34 @@ const INITIAL_SNIPPETS: StoredSnippet[] = [
     language: 'printscript'
   }
 ]
+
+const paginatedUsers: PaginatedUsers = {
+  count: 5,
+  page: 1,
+  page_size: 10,
+  users: [
+    {
+      name: "Chona",
+      id: "1"
+    },
+    {
+      name: "Fede",
+      id: "2"
+    },
+    {
+      name: "Mateo",
+      id: "3"
+    },
+    {
+      name: "Tomi",
+      id: "4"
+    },
+    {
+      name: "Berrets",
+      id: "5"
+    }
+  ]
+}
 
 export class FakeSnippetStore {
   private readonly snippetMap: Map<string, StoredSnippet> = new Map()
@@ -82,5 +111,14 @@ export class FakeSnippetStore {
     this.snippetMap.set(id, newSnippet)
 
     return newSnippet
+  }
+
+  getUserFriends(name: string, page: number, pageSize: number) {
+    return {
+      ...paginatedUsers,
+      page: page,
+      pageSize: pageSize,
+      users: paginatedUsers.users.filter(x => x.name.includes(name))
+    };
   }
 }

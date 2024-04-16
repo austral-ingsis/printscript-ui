@@ -2,6 +2,7 @@ import {SnippetOperations} from '../snippetOperations'
 import {FakeSnippetStore} from './fakeSnippetStore'
 import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
 import autoBind from 'auto-bind'
+import {PaginatedUsers} from "../users.ts";
 
 const DELAY: number = 1000
 
@@ -40,6 +41,12 @@ export class FakeSnippetOperations implements SnippetOperations {
   updateSnippetById(id: string, updateSnippet: UpdateSnippet): Promise<SnippetDescriptor> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.updateSnippet(id, updateSnippet)), DELAY)
+    })
+  }
+
+  getUserFriends(name: string = "", page: number = 1, pageSize: number = 10): Promise<PaginatedUsers> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.getUserFriends(name,page,pageSize)), DELAY)
     })
   }
 }

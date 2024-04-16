@@ -1,7 +1,18 @@
-import { SnippetOperations } from "./snippetOperations.ts";
+import {SnippetOperations} from "./snippetOperations.ts";
 import autoBind from "auto-bind";
 import axios from "axios";
 import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from "./snippet.ts";
+import {Simulate} from "react-dom/test-utils";
+import error = Simulate.error;
+import error = Simulate.error;
+import error = Simulate.error;
+import error = Simulate.error;
+import error = Simulate.error;
+import error = Simulate.error;
+import error = Simulate.error;
+import error = Simulate.error;
+import {PaginatedUsers} from "./users.ts";
+import {paginationParams} from "./pagination.ts";
 
 export class SnippetOperationsImpl implements SnippetOperations {
   private baseURL: string;
@@ -31,9 +42,9 @@ export class SnippetOperationsImpl implements SnippetOperations {
     }
   }
 
-  async listSnippetDescriptors(page: number,pageSize: number): Promise<PaginatedSnippets> {
+  async listSnippetDescriptors(page: number, pageSize: number): Promise<PaginatedSnippets> {
     try {
-      const response = await axios.get(`${this.baseURL}/snippets?page=${page}&page_size=${pageSize}`);
+      const response = await axios.get(`${this.baseURL}/snippets?${paginationParams(page, pageSize)}`);
       return response.data;
     } catch (error) {
       console.error("Error listing snippet descriptors:", error);
@@ -50,4 +61,15 @@ export class SnippetOperationsImpl implements SnippetOperations {
       throw error;
     }
   }
+
+  async getUserFriends(name: string = "", page: number = 1, pageSize: number = 1): Promise<PaginatedUsers> {
+    try {
+      const response = await axios.get(`${this.baseURL}/users?search=${name}&${paginationParams(page, pageSize)}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating snippet by ID:", error);
+      throw error;
+    }
+  }
+
 }

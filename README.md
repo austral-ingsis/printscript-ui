@@ -1,7 +1,7 @@
 ## TODO
-- [ ] Load Snippet from File (I)
+- [x] Load Snippet from File (I)
 - [ ] Share snippet (I)
-- [ ] Paginate list (I)
+- [x] Paginate list (I)
 - [ ] Format code (M)
 - [ ] Add test case (F)
 - [ ] Execute test case (F)

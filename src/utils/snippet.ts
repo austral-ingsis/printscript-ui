@@ -1,3 +1,5 @@
+import {Pagination} from "./pagination.ts";
+
 export type ComplianceEnum =
     'pending' |
     'failed' |
@@ -28,9 +30,6 @@ export type Snippet = CreateSnippet & {
   id: string
 }
 
-export type PaginatedSnippets = {
-  page: number,
-  page_size: number,
-  count: number
+export type PaginatedSnippets = Pagination & {
   snippets: SnippetDescriptor[]
 }

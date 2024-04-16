@@ -32,7 +32,6 @@ export const SnippetTable = (props: SnippetTableProps) => {
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [popoverMenuOpened, setPopoverMenuOpened] = useState(false)
   const [snippet, setSnippet] = useState<CreateSnippetWithLang | undefined>()
-  const [loadingSnippet, setLoadingSnippet] = useState(true)
 
   const popoverRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,7 +46,6 @@ export const SnippetTable = (props: SnippetTableProps) => {
       //TODO add some kind of snackbar
       return
     }
-    setLoadingSnippet(true)
     file.text().then((text) => {
       setSnippet({
         name: splitedName[0],
@@ -57,7 +55,6 @@ export const SnippetTable = (props: SnippetTableProps) => {
     }).catch(e => {
       console.error(e)
     }).finally(() => {
-      setLoadingSnippet(false)
       setAddModalOpened(true)
       // TODO there is a bug in which if you add the same file twice inside an input, it doesn't trigger this function
     })
@@ -116,7 +113,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
                            onPageChange={(_,page) => handleGoToPage(page)}
                            onRowsPerPageChange={e => handleChangePageSize(Number(e.target.value))}/>
         </Table>
-        <AddSnippetModal loading={loading || loadingSnippet} defaultSnippet={snippet} open={addModalOpened}
+        <AddSnippetModal defaultSnippet={snippet} open={addModalOpened}
                          onClose={() => setAddModalOpened(false)}/>
         <Menu anchorEl={popoverRef.current} open={popoverMenuOpened} onClick={handleClickMenu}>
           <MenuItem onClick={() => setAddModalOpened(true)}>Create snippet</MenuItem>

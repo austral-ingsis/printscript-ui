@@ -4,10 +4,12 @@ import {highlight, languages} from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import {Box, CircularProgress, Typography} from "@mui/material";
+import {Box, Button, CircularProgress, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {useGetSnippetById} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
+import {Share} from "@mui/icons-material";
+import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
 
 type SnippetDetailProps = {
   id: string;
@@ -19,6 +21,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   const [code, setCode] = useState(
       ""
   );
+  const [shareModalOppened, setShareModalOppened] = useState(false)
 
   const {data: snippet, isLoading} = useGetSnippetById(id);
 
@@ -53,8 +56,12 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                   }}
               />
             </Bòx>
+            <Button onClick={() => setShareModalOppened(true)} sx={{
+              marginTop: 2
+            }} variant={"contained"} startIcon={<Share/>}>Share snippet</Button>
           </>
         }
+        <ShareSnippetModal open={shareModalOppened} onClose={() => setShareModalOppened(false)}/>
       </Box>
   );
 }
