@@ -16,8 +16,8 @@ import {AddSnippetModal} from "./AddSnippetModal.tsx";
 import {useRef, useState} from "react";
 import {Add, Search} from "@mui/icons-material";
 import {LoadingSnippetRow, SnippetRow} from "./SnippetRow.tsx";
-import {CreateSnippet, SnippetDescriptor} from "../../utils/snippet.ts";
-import {isValidFile} from "../../utils/validFiles.ts";
+import {CreateSnippetWithLang, SnippetDescriptor} from "../../utils/snippet.ts";
+import {getFileLanguage} from "../../utils/fileTypes.ts";
 
 type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
@@ -29,7 +29,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
   const {snippets, handleClickSnippet, loading} = props;
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [popoverMenuOpened, setPopoverMenuOpened] = useState(false)
-  const [snippet, setSnippet] = useState<CreateSnippet | undefined>()
+  const [snippet, setSnippet] = useState<CreateSnippetWithLang | undefined>()
   const [loadingSnippet, setLoadingSnippet] = useState(true)
 
   const popoverRef = useRef<HTMLButtonElement>(null);
@@ -39,7 +39,9 @@ export const SnippetTable = (props: SnippetTableProps) => {
     if (!files || !files.length) return
     const file = files[0]
     const splitedName = file.name.split(".")
-    if (!isValidFile(splitedName.at(-1))) {
+    const fileType = getFileLanguage(splitedName.at(-1))
+    console.log(fileType)
+    if (!fileType) {
       //TODO add some kind of snackbar
       return
     }
@@ -47,7 +49,8 @@ export const SnippetTable = (props: SnippetTableProps) => {
     file.text().then((text) => {
       setSnippet({
         name: splitedName[0],
-        content: text
+        content: text,
+        language: fileType.value
       })
     }).catch(e => {
       console.error(e)
@@ -114,7 +117,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
           <MenuItem onClick={() => setAddModalOpened(true)}>Create snippet</MenuItem>
           <MenuItem onClick={() => inputRef?.current?.click()}>Load snippet from file</MenuItem>
         </Menu>
-        <input hidden  type={"file"} ref={inputRef} multiple={false}
+        <input hidden type={"file"} ref={inputRef} multiple={false}
                onChange={e => handleLoadSnippet(e?.target?.files)}/>
       </>
   )

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  capitalize,
   Input,
   InputLabel,
   MenuItem,
@@ -18,24 +19,26 @@ import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
 import {Save} from "@mui/icons-material";
-import {CreateSnippet} from "../../utils/snippet.ts";
+import {CreateSnippetWithLang} from "../../utils/snippet.ts";
+import {fileTypes} from "../../utils/fileTypes.ts";
 
 export const AddSnippetModal = ({open, onClose, defaultSnippet, loading}: {
   open: boolean,
   onClose: () => void,
-  defaultSnippet?: CreateSnippet,
+  defaultSnippet?: CreateSnippetWithLang
   loading?: boolean
 }) => {
-  const [language, setLanguage] = useState("printscript");
+  const [language, setLanguage] = useState( defaultSnippet?.language ?? "printscript");
   const [code, setCode] = useState(defaultSnippet?.content ?? "");
 
   useEffect(() => {
-    if(defaultSnippet?.content){
+    if (defaultSnippet) {
       setCode(defaultSnippet?.content)
+      setLanguage(defaultSnippet?.language)
     }
-  }, [defaultSnippet?.content]);
+  }, [defaultSnippet]);
 
-    return (
+  return (
       <Modal
           open={open}
           onClose={onClose}
@@ -89,9 +92,11 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet, loading}: {
                 onChange={(e: SelectChangeEvent<string>) => setLanguage(e.target.value)}
                 sx={{width: '50%'}}
             >
-              <MenuItem value={"printscript"}>Printscript</MenuItem>
-              <MenuItem value={"python"}>Python</MenuItem>
-              <MenuItem value={"java"}>Java</MenuItem>
+              {
+                fileTypes.map(x => (
+                    <MenuItem key={x.value} value={x.value}>{capitalize((x.value))}</MenuItem>
+                ))
+              }
             </Select>
           </Box>
           <Box width={"100%"} sx={{
@@ -104,7 +109,9 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet, loading}: {
                 highlight={(code) => highlight(code, languages.js, 'javascript')}
                 style={{
                   borderRadius: "8px",
+                  overflow: "auto",
                   minHeight: "300px",
+                  maxHeight: "600px",
                   width: "100%",
                   fontFamily: "monospace",
                   fontSize: 17,
