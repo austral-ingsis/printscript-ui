@@ -1,6 +1,6 @@
 import {SnippetOperations} from '../snippetOperations'
 import {FakeSnippetStore} from './fakeSnippetStore'
-import {CreateSnippet, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
+import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
 import autoBind from 'auto-bind'
 
 const DELAY: number = 1000
@@ -25,9 +25,15 @@ export class FakeSnippetOperations implements SnippetOperations {
 
   }
 
-  listSnippetDescriptors(): Promise<SnippetDescriptor[]> {
+  listSnippetDescriptors(): Promise<PaginatedSnippets> {
+    const response: PaginatedSnippets = {
+      page: 0,
+      page_size: 10,
+      count: 20,
+      snippets: this.fakeStore.listSnippetDescriptors()
+    }
     return new Promise(resolve => {
-      setTimeout(() => resolve(this.fakeStore.listSnippetDescriptors()), DELAY)
+      setTimeout(() => resolve(response), DELAY)
     })
   }
 

@@ -27,3 +27,10 @@ export type UpdateSnippet = {
 export type Snippet = CreateSnippet & {
   id: string
 }
+
+export type PaginatedSnippets = {
+  page: number,
+  page_size: number,
+  count: number
+  snippets: SnippetDescriptor[]
+}

@@ -10,6 +10,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  TablePagination,
   TableRow
 } from "@mui/material";
 import {AddSnippetModal} from "./AddSnippetModal.tsx";
@@ -18,6 +19,7 @@ import {Add, Search} from "@mui/icons-material";
 import {LoadingSnippetRow, SnippetRow} from "./SnippetRow.tsx";
 import {CreateSnippetWithLang, SnippetDescriptor} from "../../utils/snippet.ts";
 import {getFileLanguage} from "../../utils/fileTypes.ts";
+import {usePaginationContext} from "../../contexts/paginationContext.tsx";
 
 type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
@@ -34,13 +36,13 @@ export const SnippetTable = (props: SnippetTableProps) => {
 
   const popoverRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const {page, page_size: pageSize, count, handleChangePageSize, handleGoToPage} = usePaginationContext()
 
   const handleLoadSnippet = async (files?: FileList | null) => {
     if (!files || !files.length) return
     const file = files[0]
     const splitedName = file.name.split(".")
     const fileType = getFileLanguage(splitedName.at(-1))
-    console.log(fileType)
     if (!fileType) {
       //TODO add some kind of snackbar
       return
@@ -57,7 +59,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
     }).finally(() => {
       setLoadingSnippet(false)
       setAddModalOpened(true)
-      // TODO there is a bug in wich if you add the same file twice inside an input, it doesn't trigger this function
+      // TODO there is a bug in which if you add the same file twice inside an input, it doesn't trigger this function
     })
   }
 
@@ -110,6 +112,9 @@ export const SnippetTable = (props: SnippetTableProps) => {
             )
           }
           </TableBody>
+          <TablePagination count={count} page={page} rowsPerPage={pageSize}
+                           onPageChange={(_,page) => handleGoToPage(page)}
+                           onRowsPerPageChange={e => handleChangePageSize(Number(e.target.value))}/>
         </Table>
         <AddSnippetModal loading={loading || loadingSnippet} defaultSnippet={snippet} open={addModalOpened}
                          onClose={() => setAddModalOpened(false)}/>

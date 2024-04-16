@@ -5,11 +5,20 @@ import {useEffect, useState} from "react";
 import {SnippetDetail} from "./SnippetDetail.tsx";
 import {Drawer} from "@mui/material";
 import {useGetSnippets} from "../utils/queries.tsx";
+import {usePaginationContext} from "../contexts/paginationContext.tsx";
 
 const HomeScreen = () => {
   const {id: paramsId} = useParams<{ id: string }>();
   const [snippetId, setSnippetId] = useState<string | null>(null)
-  const {data: snippets, isLoading} = useGetSnippets();
+  const {page, page_size, count, handleChangeCount} = usePaginationContext()
+  const {data, isLoading} = useGetSnippets(page, page_size)
+
+  useEffect(() => {
+    if (data?.count && data.count != count) {
+      handleChangeCount(data.count)
+    }
+  }, [data?.count]);
+
 
   useEffect(() => {
     if (paramsId) {
@@ -23,8 +32,8 @@ const HomeScreen = () => {
   return (
       <>
         {
-          snippets || isLoading ?
-              (<SnippetTable loading={isLoading} handleClickSnippet={setSnippetId} snippets={snippets}/>)
+          data?.snippets || isLoading ?
+              (<SnippetTable loading={isLoading} handleClickSnippet={setSnippetId} snippets={data?.snippets}/>)
               :
               "Loading..."
         }

@@ -1,12 +1,12 @@
 import {useMutation, UseMutationResult, useQuery} from 'react-query';
-import {CreateSnippet, Snippet, SnippetDescriptor, UpdateSnippet} from './snippet.ts';
+import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from './snippet.ts';
 import {SnippetOperations} from "./snippetOperations.ts";
 import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
 
 const snippetOperations: SnippetOperations = new FakeSnippetOperations();
 
-export const useGetSnippets = () => {
-  return useQuery<SnippetDescriptor[], Error>('snippetDescriptors', snippetOperations.listSnippetDescriptors);
+export const useGetSnippets = (page: number = 0,pageSize: number = 10) => {
+  return useQuery<PaginatedSnippets, Error>('snippetDescriptors',() => snippetOperations.listSnippetDescriptors(page,pageSize));
 };
 export const useGetSnippetById = (id: string) => {
   return useQuery<Snippet | undefined, Error>(['snippet', id], () => snippetOperations.getSnippetById(id), {

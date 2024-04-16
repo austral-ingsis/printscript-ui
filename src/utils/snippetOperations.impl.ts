@@ -1,7 +1,7 @@
 import { SnippetOperations } from "./snippetOperations.ts";
 import autoBind from "auto-bind";
 import axios from "axios";
-import { CreateSnippet, Snippet, SnippetDescriptor, UpdateSnippet } from "./snippet.ts";
+import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from "./snippet.ts";
 
 export class SnippetOperationsImpl implements SnippetOperations {
   private baseURL: string;
@@ -31,9 +31,9 @@ export class SnippetOperationsImpl implements SnippetOperations {
     }
   }
 
-  async listSnippetDescriptors(): Promise<SnippetDescriptor[]> {
+  async listSnippetDescriptors(page: number,pageSize: number): Promise<PaginatedSnippets> {
     try {
-      const response = await axios.get(`${this.baseURL}/snippets`);
+      const response = await axios.get(`${this.baseURL}/snippets?page=${page}&page_size=${pageSize}`);
       return response.data;
     } catch (error) {
       console.error("Error listing snippet descriptors:", error);

@@ -1,7 +1,7 @@
-import {CreateSnippet, Snippet, SnippetDescriptor, UpdateSnippet} from './snippet'
+import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from './snippet'
 
 export interface SnippetOperations {
-  listSnippetDescriptors(): Promise<SnippetDescriptor[]>
+  listSnippetDescriptors(page: number,pageSize: number): Promise<PaginatedSnippets>
 
   createSnippet(createSnippet: CreateSnippet): Promise<SnippetDescriptor>
 
