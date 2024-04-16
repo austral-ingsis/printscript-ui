@@ -18,6 +18,7 @@ import Editor from "react-simple-code-editor";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
+import {Save} from "@mui/icons-material";
 import {CreateSnippetWithLang} from "../../utils/snippet.ts";
 import {fileTypes} from "../../utils/fileTypes.ts";
 
@@ -63,7 +64,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet, loading}: {
                     Add Snippet
                   </Typography>
                   <Button variant="contained" disableRipple sx={{boxShadow: 0}} onClick={onClose}>
-                    <Savesx={{padding: "4px"}}/>
+                    <Save sx={{padding: "4px"}}/>
                     Save Snippet
                   </Button>
                 </Box>
