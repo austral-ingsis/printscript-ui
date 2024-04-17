@@ -32,3 +32,9 @@ export const useUpdateSnippetById = (): UseMutationResult<SnippetDescriptor, Err
 export const useGetUsers = (name: string = "", page: number = 0, pageSize: number = 10) => {
   return useQuery<PaginatedUsers, Error>('users', () => snippetOperations.getUserFriends(name,page, pageSize));
 };
+
+export const useShareSnippet = () => {
+  return useMutation<Snippet, Error, { snippetId: string; userId: string }>(
+      ({snippetId, userId}) => snippetOperations.shareSnippet(snippetId, userId)
+  );
+};

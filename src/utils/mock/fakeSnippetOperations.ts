@@ -3,6 +3,7 @@ import {FakeSnippetStore} from './fakeSnippetStore'
 import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
 import autoBind from 'auto-bind'
 import {PaginatedUsers} from "../users.ts";
+import {name} from "axios";
 
 const DELAY: number = 1000
 
@@ -23,7 +24,6 @@ export class FakeSnippetOperations implements SnippetOperations {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.getSnippetById(id)), DELAY)
     })
-
   }
 
   listSnippetDescriptors(): Promise<PaginatedSnippets> {
@@ -47,6 +47,13 @@ export class FakeSnippetOperations implements SnippetOperations {
   getUserFriends(name: string = "", page: number = 1, pageSize: number = 10): Promise<PaginatedUsers> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.getUserFriends(name,page,pageSize)), DELAY)
+    })
+  }
+
+  shareSnippet(snippetId: string): Promise<Snippet> {
+    return new Promise(resolve => {
+      // @ts-expect-error, it will always find it in the fake store
+      setTimeout(() => resolve(this.fakeStore.getSnippetById(snippetId)), DELAY)
     })
   }
 }

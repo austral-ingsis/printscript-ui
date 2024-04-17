@@ -8,9 +8,10 @@ type ShareSnippetModalProps = {
   open: boolean
   onClose: () => void
   onShare: (userId: string) => void
+  loading: boolean
 }
 export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
-  const {open, onClose, onShare} = props
+  const {open, onClose, onShare, loading} = props
   const [name, setName] = useState("")
   const [debouncedName, setDebouncedName] = useState("")
   const {data, isLoading} = useGetUsers(debouncedName, 1, 5)
@@ -46,7 +47,7 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
           />
           <Box mt={4} display={"flex"} width={"100%"} justifyContent={"flex-end"}>
             <Button onClick={onClose} variant={"outlined"}>Cancel</Button>
-            <Button disabled={!selectedUser} onClick={() => selectedUser && onShare(selectedUser?.id)} sx={{marginLeft: 2}} variant={"contained"}>Share</Button>
+            <Button disabled={!selectedUser || loading} onClick={() => selectedUser && onShare(selectedUser?.id)} sx={{marginLeft: 2}} variant={"contained"}>Share</Button>
           </Box>
         </Box>
       </ModalWrapper>

@@ -2,15 +2,6 @@ import {SnippetOperations} from "./snippetOperations.ts";
 import autoBind from "auto-bind";
 import axios from "axios";
 import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from "./snippet.ts";
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
-import error = Simulate.error;
-import error = Simulate.error;
-import error = Simulate.error;
-import error = Simulate.error;
-import error = Simulate.error;
-import error = Simulate.error;
-import error = Simulate.error;
 import {PaginatedUsers} from "./users.ts";
 import {paginationParams} from "./pagination.ts";
 
@@ -68,6 +59,19 @@ export class SnippetOperationsImpl implements SnippetOperations {
       return response.data;
     } catch (error) {
       console.error("Error updating snippet by ID:", error);
+      throw error;
+    }
+  }
+
+  async shareSnippet(snippetId: string, userId: string): Promise<Snippet> {
+    try {
+      const response = await axios.post(`${this.baseURL}/snippets/share`, {
+        userId,
+        snippetId
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error sharing snippet:", error);
       throw error;
     }
   }
