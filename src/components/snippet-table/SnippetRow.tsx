@@ -1,4 +1,4 @@
-import {alpha, Skeleton, styled, TableRow} from "@mui/material";
+import {alpha, Skeleton, styled, TableRow, TableRowProps} from "@mui/material";
 import {StyledTableCell} from "./SnippetTable.tsx";
 import {SnippetDescriptor} from "../../utils/snippet.ts";
 
@@ -36,9 +36,9 @@ const StyledTableRow = styled(TableRow)(({theme}) => ({
 }));
 
 
-export const SnippetRow = ({snippet, onClick}: { snippet: SnippetDescriptor, onClick: () => void }) => {
+export const SnippetRow = ({snippet, onClick, ...props}: { snippet: SnippetDescriptor, onClick: () => void } & TableRowProps) => {
   return (
-      <StyledTableRow onClick={onClick} sx={{backgroundColor: 'white', border: 0, height: '75px'}}>
+      <StyledTableRow onClick={onClick} sx={{backgroundColor: 'white', border: 0, height: '75px'}} {...props}>
         <StyledTableCell>{snippet.name}</StyledTableCell>
         <StyledTableCell>{snippet.language}</StyledTableCell>
         <StyledTableCell>{snippet.author}</StyledTableCell>

@@ -18,6 +18,7 @@ export type SnippetDescriptor = {
 export type CreateSnippet = {
   name: string;
   content: string
+  language?: string
 }
 
 export type CreateSnippetWithLang = CreateSnippet & { language: string }

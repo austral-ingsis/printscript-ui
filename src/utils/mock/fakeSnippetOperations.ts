@@ -3,7 +3,6 @@ import {FakeSnippetStore} from './fakeSnippetStore'
 import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
 import autoBind from 'auto-bind'
 import {PaginatedUsers} from "../users.ts";
-import {name} from "axios";
 
 const DELAY: number = 1000
 
@@ -26,13 +25,14 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  listSnippetDescriptors(): Promise<PaginatedSnippets> {
+  listSnippetDescriptors(page: number,pageSize: number): Promise<PaginatedSnippets> {
     const response: PaginatedSnippets = {
-      page: 0,
-      page_size: 10,
+      page: page,
+      page_size: pageSize,
       count: 20,
-      snippets: this.fakeStore.listSnippetDescriptors()
+      snippets: page == 0 ? this.fakeStore.listSnippetDescriptors().splice(0,pageSize) : this.fakeStore.listSnippetDescriptors().splice(1,2)
     }
+
     return new Promise(resolve => {
       setTimeout(() => resolve(response), DELAY)
     })

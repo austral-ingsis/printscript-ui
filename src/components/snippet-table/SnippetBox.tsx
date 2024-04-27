@@ -1,8 +1,5 @@
-// @ts-expect-error No defs for the following import:
-import Snake from 'snake-game-react';
 import {ReactNode, useEffect, useState} from "react";
 import {Box, BoxProps} from "@mui/material";
-import {snippetData} from "../../types/Snippet.ts";
 
 type SnippetBoxProps = {
   code: string;
@@ -26,9 +23,7 @@ const SnippetBox = (props: SnippetBoxProps) => {
       <Box {...props}>
         {
           showBox ? (
-              <Snake
-                  {...snippetData}
-              />
+              <></> // Add easter egg here
           ) : children
         }
       </Box>

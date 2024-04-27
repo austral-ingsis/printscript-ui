@@ -4,13 +4,14 @@ import axios from "axios";
 import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from "./snippet.ts";
 import {PaginatedUsers} from "./users.ts";
 import {paginationParams} from "./pagination.ts";
+import {BACKEND_URL} from "./constants.ts";
 
 export class SnippetOperationsImpl implements SnippetOperations {
   private baseURL: string;
 
   constructor() {
     autoBind(this);
-    this.baseURL = "http://localhost:8080"; // Adjust this if your backend base URL is different
+    this.baseURL = BACKEND_URL;
   }
 
   async createSnippet(createSnippet: CreateSnippet): Promise<SnippetDescriptor> {

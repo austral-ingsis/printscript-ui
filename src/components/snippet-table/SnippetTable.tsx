@@ -103,14 +103,18 @@ export const SnippetTable = (props: SnippetTableProps) => {
                 <>
                   {
                       snippets && snippets.map((snippet) => (
-                          <SnippetRow onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet}/>))
+                          <div data-testid={"snippet-row"}>
+                            <SnippetRow data-testid={"snippet-row-" + snippet.id}
+                                        onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet}/>
+                          </div>
+                      ))
                   }
                 </>
             )
           }
           </TableBody>
           <TablePagination count={count} page={page} rowsPerPage={pageSize}
-                           onPageChange={(_,page) => handleGoToPage(page)}
+                           onPageChange={(_, page) => handleGoToPage(page)}
                            onRowsPerPageChange={e => handleChangePageSize(Number(e.target.value))}/>
         </Table>
         <AddSnippetModal defaultSnippet={snippet} open={addModalOpened}

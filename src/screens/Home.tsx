@@ -31,12 +31,7 @@ const HomeScreen = () => {
 
   return (
       <>
-        {
-          data?.snippets || isLoading ?
-              (<SnippetTable loading={isLoading} handleClickSnippet={setSnippetId} snippets={data?.snippets}/>)
-              :
-              "Loading..."
-        }
+        <SnippetTable loading={isLoading} handleClickSnippet={setSnippetId} snippets={data?.snippets}/>
         <Drawer open={!!snippetId} anchor={"right"} onClose={handleCloseModal}>
           {snippetId && <SnippetDetail handleCloseModal={handleCloseModal} id={snippetId}/>}
         </Drawer>

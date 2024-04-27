@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   capitalize,
+  CircularProgress,
   Input,
   InputLabel,
   MenuItem,
@@ -17,9 +18,10 @@ import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
 import {Save} from "@mui/icons-material";
-import {CreateSnippetWithLang} from "../../utils/snippet.ts";
+import {CreateSnippet, CreateSnippetWithLang} from "../../utils/snippet.ts";
 import {fileTypes} from "../../utils/fileTypes.ts";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
+import {useCreateSnippet} from "../../utils/queries.tsx";
 
 export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
   open: boolean,
@@ -28,6 +30,17 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
 }) => {
   const [language, setLanguage] = useState(defaultSnippet?.language ?? "printscript");
   const [code, setCode] = useState(defaultSnippet?.content ?? "");
+  const [snippetName, setSnippetName] = useState(defaultSnippet?.name ?? "")
+  const {mutate: createSnippet, isLoading: loadingSnippet} = useCreateSnippet()
+
+  const handleCreateSnippet = () => {
+    const newSnippet: CreateSnippet = {
+      name: snippetName,
+      content: code,
+      language: language
+    }
+    createSnippet(newSnippet)
+  }
 
   useEffect(() => {
     if (defaultSnippet) {
@@ -44,8 +57,11 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
                         sx={{display: 'flex', alignItems: 'center'}}>
               Add Snippet
             </Typography>
-            <Button variant="contained" disableRipple sx={{boxShadow: 0}} onClick={onClose}>
-              <Save sx={{padding: "4px"}}/>
+            <Button disabled={!snippetName || !code || !language || loadingSnippet} variant="contained" disableRipple
+                    sx={{boxShadow: 0}} onClick={handleCreateSnippet}>
+              <Box pr={1} display={"flex"} alignItems={"center"} justifyContent={"center"}>
+                {loadingSnippet ? <CircularProgress size={24}/> : <Save/>}
+              </Box>
               Save Snippet
             </Button>
           </Box>
@@ -56,7 +72,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
           gap: '16px'
         }}>
           <InputLabel htmlFor="name">Name</InputLabel>
-          <Input defaultValue={defaultSnippet?.name} id="name" sx={{width: '50%'}}/>
+          <Input onChange={e => setSnippetName(e.target.value)} value={snippetName} id="name" sx={{width: '50%'}}/>
         </Box>
         <Box sx={{
           display: 'flex',
@@ -74,7 +90,8 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
           >
             {
               fileTypes.map(x => (
-                  <MenuItem key={x.value} value={x.value}>{capitalize((x.value))}</MenuItem>
+                  <MenuItem data-testid={`menu-option-${x.value}`} key={x.value}
+                            value={x.value}>{capitalize((x.value))}</MenuItem>
               ))
             }
           </Select>
@@ -86,6 +103,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
           <Editor
               value={code}
               padding={10}
+              data-testid={"add-snippet-code-editor"}
               onValueChange={(code) => setCode(code)}
               highlight={(code) => highlight(code, languages.js, 'javascript')}
               style={{
