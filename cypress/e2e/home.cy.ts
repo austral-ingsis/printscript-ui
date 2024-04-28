@@ -1,6 +1,10 @@
 import {BACKEND_URL, FRONTEND_URL} from "../../src/utils/constants";
 
 describe('Home', () => {
+  before(() => {
+    process.env.FRONTEND_URL = Cypress.env("FRONTEND_URL");
+    process.env.BACKEND_URL = Cypress.env("BACKEND_URL");
+  })
   it('Renders home', () => {
     cy.visit(FRONTEND_URL)
     /* ==== Generated with Cypress Studio ==== */
@@ -23,7 +27,7 @@ describe('Home', () => {
 
   it('Can add snippets manually', () => {
     cy.visit(FRONTEND_URL)
-    cy.intercept('POST', BACKEND_URL+"snippets", (req) => {
+    cy.intercept('POST', BACKEND_URL+"/snippets", (req) => {
       req.reply((res) => {
         expect(res.body).to.include.keys("id","name","content","language")
         expect(res.statusCode).to.eq(200);

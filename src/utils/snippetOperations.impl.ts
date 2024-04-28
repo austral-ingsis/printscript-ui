@@ -15,6 +15,7 @@ export class SnippetOperationsImpl implements SnippetOperations {
   }
 
   async createSnippet(createSnippet: CreateSnippet): Promise<SnippetDescriptor> {
+    console.log(this.baseURL)
     try {
       const response = await axios.post(`${this.baseURL}/snippets`, createSnippet);
       return response.data;

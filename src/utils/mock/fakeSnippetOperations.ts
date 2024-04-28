@@ -3,8 +3,10 @@ import {FakeSnippetStore} from './fakeSnippetStore'
 import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
 import autoBind from 'auto-bind'
 import {PaginatedUsers} from "../users.ts";
+import {SnippetOperationsImpl} from "../snippetOperations.impl.ts";
 
 const DELAY: number = 1000
+const realOperatinons = new SnippetOperationsImpl()
 
 export class FakeSnippetOperations implements SnippetOperations {
   private readonly fakeStore = new FakeSnippetStore()
@@ -14,9 +16,7 @@ export class FakeSnippetOperations implements SnippetOperations {
   }
 
   createSnippet(createSnippet: CreateSnippet): Promise<SnippetDescriptor> {
-    return new Promise(resolve => {
-      setTimeout(() => resolve(this.fakeStore.createSnippet(createSnippet)), DELAY)
-    })
+    return realOperatinons.createSnippet(createSnippet)
   }
 
   getSnippetById(id: string): Promise<Snippet | undefined> {
