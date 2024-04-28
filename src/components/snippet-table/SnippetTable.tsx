@@ -20,6 +20,7 @@ import {LoadingSnippetRow, SnippetRow} from "./SnippetRow.tsx";
 import {CreateSnippetWithLang, SnippetDescriptor} from "../../utils/snippet.ts";
 import {getFileLanguage} from "../../utils/fileTypes.ts";
 import {usePaginationContext} from "../../contexts/paginationContext.tsx";
+import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
 
 type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
@@ -36,19 +37,20 @@ export const SnippetTable = (props: SnippetTableProps) => {
   const popoverRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const {page, page_size: pageSize, count, handleChangePageSize, handleGoToPage} = usePaginationContext()
+  const {createSnackbar} = useSnackbarContext()
 
   const handleLoadSnippet = async (files?: FileList | null) => {
     if (!files || !files.length) return
     const file = files[0]
-    const splitedName = file.name.split(".")
-    const fileType = getFileLanguage(splitedName.at(-1))
+    const splitName = file.name.split(".")
+    const fileType = getFileLanguage(splitName.at(-1))
     if (!fileType) {
-      //TODO add some kind of snackbar
+      createSnackbar('error', `File type ${splitName.at(-1)} not supported`)
       return
     }
     file.text().then((text) => {
       setSnippet({
-        name: splitedName[0],
+        name: splitName[0],
         content: text,
         language: fileType.value
       })
@@ -103,10 +105,8 @@ export const SnippetTable = (props: SnippetTableProps) => {
                 <>
                   {
                       snippets && snippets.map((snippet) => (
-                          <div data-testid={"snippet-row"}>
-                            <SnippetRow data-testid={"snippet-row-" + snippet.id}
-                                        onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet}/>
-                          </div>
+                          <SnippetRow data-testid={"snippet-row"}
+                                      onClick={() => handleClickSnippet(snippet.id)} key={snippet.id} snippet={snippet}/>
                       ))
                   }
                 </>
@@ -123,7 +123,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
           <MenuItem onClick={() => setAddModalOpened(true)}>Create snippet</MenuItem>
           <MenuItem onClick={() => inputRef?.current?.click()}>Load snippet from file</MenuItem>
         </Menu>
-        <input hidden type={"file"} ref={inputRef} multiple={false}
+        <input hidden type={"file"} ref={inputRef} multiple={false} data-testid={"upload-file-input"}
                onChange={e => handleLoadSnippet(e?.target?.files)}/>
       </>
   )

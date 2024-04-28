@@ -46,6 +46,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     if (defaultSnippet) {
       setCode(defaultSnippet?.content)
       setLanguage(defaultSnippet?.language)
+      setSnippetName(defaultSnippet?.name)
     }
   }, [defaultSnippet]);
 
