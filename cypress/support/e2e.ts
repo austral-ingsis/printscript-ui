@@ -15,6 +15,33 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+import {loginViaAuth0Ui} from "./auth-provider-commands/auth0";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+Cypress.Commands.add('loginToAuth0', (username: string, password: string) => {
+  const log = Cypress.log({
+    displayName: 'AUTH0 LOGIN',
+    message: [`🔐 Authenticating | ${username}`],
+    autoEnd: false,
+  })
+  log.snapshot('before')
+
+  cy.session(
+      `auth0-${username}`,
+      () => {
+        loginViaAuth0Ui(username, password)
+      },
+      {
+        validate: () => {
+          // Validate presence of access token in localStorage.
+          cy.wrap(localStorage)
+              .invoke('getItem', 'authAccessToken')
+              .should('exist')
+        },
+      }
+  )
+  log.snapshot('after')
+  log.end()
+})

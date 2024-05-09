@@ -1,5 +1,6 @@
 import { defineConfig } from "cypress";
 import dotenv from 'dotenv'
+import {FRONTEND_URL} from "./src/utils/constants";
 dotenv.config()
 
 export default defineConfig({
@@ -8,6 +9,7 @@ export default defineConfig({
       config.env = process.env
       return config
     },
-    experimentalStudio: true
+    experimentalStudio: true,
+    baseUrl: FRONTEND_URL,
   },
 });
