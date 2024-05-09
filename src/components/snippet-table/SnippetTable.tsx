@@ -26,10 +26,11 @@ type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
   snippets?: SnippetDescriptor[];
   loading: boolean;
+  handleSearchSnippet: (snippetName: string) => void;
 }
 
 export const SnippetTable = (props: SnippetTableProps) => {
-  const {snippets, handleClickSnippet, loading} = props;
+  const {snippets, handleClickSnippet, loading,handleSearchSnippet} = props;
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [popoverMenuOpened, setPopoverMenuOpened] = useState(false)
   const [snippet, setSnippet] = useState<CreateSnippetWithLang | undefined>()
@@ -74,6 +75,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
                 sx={{ml: 1, flex: 1}}
                 placeholder="Search Snippet"
                 inputProps={{'aria-label': 'search'}}
+                onChange={e => handleSearchSnippet(e.target.value)}
             />
             <IconButton type="button" sx={{p: '10px'}} aria-label="search">
               <Search/>

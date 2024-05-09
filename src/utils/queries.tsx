@@ -6,8 +6,8 @@ import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
 
 const snippetOperations: SnippetOperations = new FakeSnippetOperations();
 
-export const useGetSnippets = (page: number = 0, pageSize: number = 10) => {
-  return useQuery<PaginatedSnippets, Error>(['snippetDescriptors',page,pageSize], () => snippetOperations.listSnippetDescriptors(page, pageSize));
+export const useGetSnippets = (page: number = 0, pageSize: number = 10, sippetName?: string) => {
+  return useQuery<PaginatedSnippets, Error>(['snippetDescriptors',page,pageSize,sippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize,sippetName));
 };
 
 export const useGetSnippetById = (id: string) => {

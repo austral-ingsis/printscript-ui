@@ -2,7 +2,7 @@ import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnip
 import {PaginatedUsers} from "./users.ts";
 
 export interface SnippetOperations {
-  listSnippetDescriptors(page: number,pageSize: number): Promise<PaginatedSnippets>
+  listSnippetDescriptors(page: number,pageSize: number,sippetName?: string): Promise<PaginatedSnippets>
 
   createSnippet(createSnippet: CreateSnippet): Promise<SnippetDescriptor>
 

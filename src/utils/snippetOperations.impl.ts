@@ -35,9 +35,9 @@ export class SnippetOperationsImpl implements SnippetOperations {
     }
   }
 
-  async listSnippetDescriptors(page: number, pageSize: number): Promise<PaginatedSnippets> {
+  async listSnippetDescriptors(page: number, pageSize: number,sippetName?: string): Promise<PaginatedSnippets> {
     try {
-      const response = await axios.get(`${this.baseURL}/snippets?${paginationParams(page, pageSize)}`);
+      const response = await axios.get(`${this.baseURL}/snippets?name=${sippetName}&${paginationParams(page, pageSize)}`);
       return response.data;
     } catch (error) {
       console.error("Error listing snippet descriptors:", error);
