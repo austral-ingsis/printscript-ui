@@ -17,9 +17,6 @@
 import './commands'
 import {loginViaAuth0Ui} from "./auth-provider-commands/auth0";
 
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
-
 Cypress.Commands.add('loginToAuth0', (username: string, password: string) => {
   const log = Cypress.log({
     displayName: 'AUTH0 LOGIN',
