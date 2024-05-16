@@ -8,11 +8,9 @@ import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mu
 import CloseIcon from '@mui/icons-material/Close';
 import {
   useDeleteSnippet,
-  useFormatSnippet,
-  useGetSnippetById,
-  useShareSnippet,
   useUpdateSnippetById
 } from "../utils/queries.tsx";
+import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
 import {BugReport, Delete, Download, PlayArrow, Save, Share, StopRounded} from "@mui/icons-material";
 import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
@@ -20,7 +18,7 @@ import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx"
 import {Snippet} from "../utils/snippet.ts";
 import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
-import {queryClient} from "../App.tsx";
+import {DeleteConfirmationModal} from "../components/snippet-detail/DeleteConfirmationModal.tsx";
 
 type SnippetDetailProps = {
   id: string;
@@ -56,6 +54,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
       ""
   );
   const [shareModalOppened, setShareModalOppened] = useState(false)
+  const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false)
   const [testModalOpened, setTestModalOpened] = useState(false);
   const [runSnippet, setRunSnippet] = useState(false);
 
@@ -126,7 +125,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Delete"}>
-                <IconButton onClick={() => deleteSnippet(id)} >
+                <IconButton onClick={() => setDeleteConfirmationModalOpen(true)} >
                   <Delete color={"error"} />
                 </IconButton>
               </Tooltip>
@@ -137,7 +136,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                     value={code}
                     padding={10}
                     onValueChange={(code) => setCode(code)}
-                    highlight={(code) => highlight(code, languages.js, 'javascript')}
+                    highlight={(code) => highlight(code, languages.js, "javascript")}
                     maxLength={1000}
                     style={{
                       minHeight: "500px",
@@ -148,7 +147,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
               </Bòx>
             </Box>
             <Box pt={1} flex={1} marginTop={2}>
-              <Alert severity="info">Output</Alert>
+              <Alert severity="info">Execution</Alert>
               <SnippetExecution snippet={snippet} run={runSnippet}/>
             </Box>
           </>
@@ -157,6 +156,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                            onClose={() => setShareModalOppened(false)}
                            onShare={handleShareSnippet}/>
         <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)}/>
+        <DeleteConfirmationModal id={id} open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} setCloseDetails={handleCloseModal}/>
       </Box>
   );
 }

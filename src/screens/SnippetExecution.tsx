@@ -1,5 +1,5 @@
 import {Snippet} from "../utils/snippet.ts";
-import {Button, Input, OutlinedInput, Typography} from "@mui/material";
+import {OutlinedInput} from "@mui/material";
 import {highlight, languages} from "prismjs";
 import Editor from "react-simple-code-editor";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
@@ -27,7 +27,7 @@ export const SnippetExecution = ({snippet, run}: {snippet?: Snippet, run: boolea
             <Editor
               value={code}
               padding={10}
-              onValueChange={(code) => setCode(code)}
+              onValueChange={(code) => setInput(code)}
               highlight={(code) => highlight(code, languages.js, 'javascript')}
               maxLength={1000}
               style={{

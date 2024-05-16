@@ -17,10 +17,10 @@ import {AddSnippetModal} from "./AddSnippetModal.tsx";
 import {useRef, useState} from "react";
 import {Add, Search} from "@mui/icons-material";
 import {LoadingSnippetRow, SnippetRow} from "./SnippetRow.tsx";
-import {CreateSnippetWithLang, Snippet} from "../../utils/snippet.ts";
+import {CreateSnippetWithLang, getFileLanguage, Snippet} from "../../utils/snippet.ts";
 import {usePaginationContext} from "../../contexts/paginationContext.tsx";
 import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
-import {getFileLanguage} from "../../utils/mock/fakeSnippetStore.ts";
+import {useGetFileTypes} from "../../utils/queries.tsx";
 
 type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
@@ -39,12 +39,13 @@ export const SnippetTable = (props: SnippetTableProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const {page, page_size: pageSize, count, handleChangePageSize, handleGoToPage} = usePaginationContext()
   const {createSnackbar} = useSnackbarContext()
+  const {data: fileTypes} = useGetFileTypes();
 
   const handleLoadSnippet = async (files?: FileList | null) => {
     if (!files || !files.length) return
     const file = files[0]
     const splitName = file.name.split(".")
-    const fileType = getFileLanguage(splitName.at(-1))
+    const fileType = getFileLanguage(fileTypes ?? [], splitName.at(-1))
     if (!fileType) {
       createSnackbar('error', `File type ${splitName.at(-1)} not supported`)
       return

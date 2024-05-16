@@ -21,6 +21,7 @@ import {Save} from "@mui/icons-material";
 import {CreateSnippet, CreateSnippetWithLang} from "../../utils/snippet.ts";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
 import {useCreateSnippet, useGetFileTypes} from "../../utils/queries.tsx";
+import {queryClient} from "../../App.tsx";
 
 export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     open: boolean,
@@ -30,7 +31,9 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     const [language, setLanguage] = useState(defaultSnippet?.language ?? "printscript");
     const [code, setCode] = useState(defaultSnippet?.content ?? "");
     const [snippetName, setSnippetName] = useState(defaultSnippet?.name ?? "")
-    const {mutateAsync: createSnippet, isLoading: loadingSnippet} = useCreateSnippet()
+    const {mutateAsync: createSnippet, isLoading: loadingSnippet} = useCreateSnippet({
+        onSuccess: () => queryClient.invalidateQueries('listSnippets')
+    })
     const {data: fileTypes} = useGetFileTypes();
 
     const handleCreateSnippet = async () => {
