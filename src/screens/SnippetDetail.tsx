@@ -18,7 +18,7 @@ import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx"
 import {Snippet} from "../utils/snippet.ts";
 import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
-import {DeleteConfirmationModal} from "../components/snippet-detail/DeleteConfirmationModal.tsx";
+import {queryClient} from "../App.tsx";
 
 type SnippetDetailProps = {
   id: string;
@@ -67,7 +67,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
       await queryClient.invalidateQueries('listSnippets')
     },
   })
-  const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById()
+  const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({onSuccess: () => queryClient.invalidateQueries(['snippet', id])})
 
   useEffect(() => {
     if (snippet) {
@@ -120,7 +120,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Save changes"}>
-                <IconButton color={"primary"} onClick={() => updateSnippet(id, {content: code})} disabled={isUpdateSnippetLoading || snippet?.content === code} >
+                <IconButton color={"primary"} onClick={() => updateSnippet({id: id, updateSnippet: {content: code}})} disabled={isUpdateSnippetLoading || snippet?.content === code} >
                   <Save />
                 </IconButton>
               </Tooltip>
@@ -147,7 +147,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
               </Bòx>
             </Box>
             <Box pt={1} flex={1} marginTop={2}>
-              <Alert severity="info">Execution</Alert>
+              <Alert severity="info">Output</Alert>
               <SnippetExecution snippet={snippet} run={runSnippet}/>
             </Box>
           </>
@@ -156,7 +156,6 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                            onClose={() => setShareModalOppened(false)}
                            onShare={handleShareSnippet}/>
         <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)}/>
-        <DeleteConfirmationModal id={id} open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} setCloseDetails={handleCloseModal}/>
       </Box>
   );
 }

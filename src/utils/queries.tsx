@@ -23,12 +23,14 @@ export const useCreateSnippet = ({onSuccess}: {onSuccess: () => void}): UseMutat
   return useMutation<Snippet, Error, CreateSnippet>(createSnippet => snippetOperations.createSnippet(createSnippet), {onSuccess});
 };
 
-export const useUpdateSnippetById = (): UseMutationResult<Snippet, Error, {
+export const useUpdateSnippetById = ({onSuccess}: {onSuccess: () => void}): UseMutationResult<Snippet, Error, {
   id: string;
   updateSnippet: UpdateSnippet
 }> => {
   return useMutation<Snippet, Error, { id: string; updateSnippet: UpdateSnippet }>(
-      ({id, updateSnippet}) => snippetOperations.updateSnippetById(id, updateSnippet)
+      ({id, updateSnippet}) => snippetOperations.updateSnippetById(id, updateSnippet),{
+        onSuccess,
+    }
   );
 };
 

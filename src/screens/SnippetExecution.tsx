@@ -8,7 +8,7 @@ import {useState} from "react";
 export const SnippetExecution = ({snippet, run}: {snippet?: Snippet, run: boolean}) => {
   // Here you should provide all the logic to connect to your sockets.
   const [input, setInput] = useState("")
-  const [output, setOutput] = useState(["some", "output", "from", "the", "snippet"])
+  const [output, setOutput] = useState([])
 
   //TODO: get the output from the server
   const code = output.join("\n")

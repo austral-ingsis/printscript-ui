@@ -5,7 +5,7 @@ import FormattingRulesList from "../components/formatting-rules/FormattingRulesL
 
 const RulesScreen = () => {
     return (
-        <Box display={"flex"}>
+        <Box display={"flex"} flexDirection={"column"}>
             <Typography variant={"h3"}>
                 Rules
             </Typography>
