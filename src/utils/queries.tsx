@@ -19,8 +19,8 @@ export const useGetSnippetById = (id: string) => {
   });
 };
 
-export const useCreateSnippet = (): UseMutationResult<Snippet, Error, CreateSnippet> => {
-  return useMutation<Snippet, Error, CreateSnippet>(createSnippet => snippetOperations.createSnippet(createSnippet));
+export const useCreateSnippet = ({onSuccess}: {onSuccess: () => void}): UseMutationResult<Snippet, Error, CreateSnippet> => {
+  return useMutation<Snippet, Error, CreateSnippet>(createSnippet => snippetOperations.createSnippet(createSnippet), {onSuccess});
 };
 
 export const useUpdateSnippetById = (): UseMutationResult<Snippet, Error, {

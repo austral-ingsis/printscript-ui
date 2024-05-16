@@ -144,15 +144,14 @@ const fileTypes: FileType[] = [
     extension: "py",
   },
   {
-    language: "Java",
+    language: "java",
     extension: "java",
+  },
+  {
+    language: 'golang',
+    extension: 'go'
   }
 ]
-export const getFileLanguage = (fileExt?: string) => {
-  return fileExt && fileTypes?.find(x => x.extension == fileExt)
-}
-
-
 
 export class FakeSnippetStore {
   private readonly snippetMap: Map<string, Snippet> = new Map()
