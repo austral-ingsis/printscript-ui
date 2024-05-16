@@ -11,6 +11,12 @@ export type StoredSnippet = {
   language: string
 }
 
+export type Rule = {
+  name: string,
+  isActive: boolean,
+  value?: string | number | null,
+}
+
 const INITIAL_SNIPPETS: StoredSnippet[] = [
   {
     id: '9af91631-cdfc-4341-9b8e-3694e5cb3672',
@@ -66,6 +72,56 @@ const paginatedUsers: PaginatedUsers = {
   ]
 }
 
+const formattingRules: Rule[] = [
+  {
+    name: "indentation",
+    isActive: true,
+    value: 3
+  },
+  {
+    name: "open-if-block-on-same-line",
+    isActive: false,
+  },
+  {
+    name: "max-line-length",
+    isActive: true,
+    value: 100
+  },
+  {
+    name: "no-trailing-spaces",
+    isActive: false,
+    value: null
+  },
+  {
+    name: "no-multiple-empty-lines",
+    isActive: false,
+    value: null,
+  }
+]
+
+const lintingRules: Rule[] = [
+  {
+    name: "no-expressions-in-print-line",
+    isActive: true,
+    value: null
+  },
+  {
+    name: "no-unused-vars",
+    isActive: true,
+    value: null
+  },
+  {
+    name: "no-undef-vars",
+    isActive: false,
+    value: null
+  },
+  {
+    name: "no-unused-params",
+    isActive: false,
+    value: null
+  },
+]
+
 export class FakeSnippetStore {
   private readonly snippetMap: Map<string, StoredSnippet> = new Map()
 
@@ -120,5 +176,17 @@ export class FakeSnippetStore {
       pageSize: pageSize,
       users: paginatedUsers.users.filter(x => x.name.includes(name))
     };
+  }
+
+  getFormatRules(): Rule[] {
+    return formattingRules
+  }
+
+  getLintingRules(): Rule[] {
+    return lintingRules
+  }
+
+  formatSnippet(snippetContent: string): string {
+    return `//Mocked format of snippet :) \n${snippetContent}`
   }
 }

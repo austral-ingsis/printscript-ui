@@ -78,4 +78,23 @@ export class SnippetOperationsImpl implements SnippetOperations {
     }
   }
 
+  async getFormatRules(): Promise<Rule[]> {
+    try {
+      const response = await axios.get(`${this.baseURL}/rules/format`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching format rules:", error);
+      throw error;
+    }
+  }
+
+  async getLintingRules(): Promise<Rule[]> {
+    try {
+      const response = await axios.get(`${this.baseURL}/rules/linting`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching linting rules:", error);
+      throw error;
+    }
+  }
 }

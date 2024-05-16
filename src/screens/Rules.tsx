@@ -1,14 +1,17 @@
 import {withNavbar} from "../components/navbar/withNavbar.tsx";
-import {Box, Card, Typography} from "@mui/material";
+import {Box, Typography} from "@mui/material";
+import LintingRulesList from "../components/linting-rules/LintingRulesList.tsx";
+import FormattingRulesList from "../components/formatting-rules/FormattingRulesList.tsx";
 
 const RulesScreen = () => {
     return (
-        <Box>
-            <Typography>
+        <Box flex>
+            <Typography variant={"h3"}>
                 Rules
             </Typography>
-            <Card>
-            </Card>
+          <LintingRulesList />
+          <FormattingRulesList/>
+
         </Box>
     )
 }

@@ -38,3 +38,17 @@ export const useShareSnippet = () => {
       ({snippetId, userId}) => snippetOperations.shareSnippet(snippetId, userId)
   );
 };
+
+export const useGetFormatRules = () => {
+  return useQuery<Rule[], Error>('formatRules', () => snippetOperations.getFormatRules());
+}
+
+export const useGetLintingRules = () => {
+  return useQuery<Rule[], Error>('lintingRules', () => snippetOperations.getLintingRules());
+}
+
+export const useFormatSnippet = () => {
+  return useMutation<string, Error, string>(
+      snippetContent => snippetOperations.formatSnippet(snippetContent)
+  );
+}

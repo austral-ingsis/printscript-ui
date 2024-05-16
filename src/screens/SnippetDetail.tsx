@@ -4,15 +4,16 @@ import {highlight, languages} from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import {Box, CircularProgress, IconButton, Typography} from "@mui/material";
+import {Box, Button, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
-import {useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
+import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
 import {BugReport, Download, PlayArrow, Share, StopRounded} from "@mui/icons-material";
 import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
 import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx";
 import {Snippet} from "../utils/snippet.ts";
 import {SnippetExecution} from "./SnippetExecution.tsx";
+import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
 type SnippetDetailProps = {
   id: string;
@@ -24,6 +25,7 @@ const DownloadButton = ({snippet}: { snippet?: Snippet }) => {
   const file = new Blob([snippet.content], {type: 'text/plain'});
 
   return (
+    <Tooltip title={"Download"}>
       <IconButton sx={{
         cursor: "pointer"
       }}>
@@ -37,6 +39,7 @@ const DownloadButton = ({snippet}: { snippet?: Snippet }) => {
           <Download/>
         </a>
       </IconButton>
+    </Tooltip>
   )
 }
 
@@ -51,6 +54,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
 
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
+  const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
 
   useEffect(() => {
     if (snippet) {
@@ -58,9 +62,18 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
     }
   }, [snippet]);
 
+  useEffect(() => {
+    if (formatSnippetData) {
+      setCode(formatSnippetData)
+    }
+  }, [formatSnippetData])
+
+
   async function handleShareSnippet(userId: string) {
     shareSnippet({snippetId: id, userId})
   }
+
+  console.log("format snippet:", formatSnippetData)
 
   return (
       <Box p={4} minWidth={'60vw'}>
@@ -74,16 +87,27 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
           </>) : <>
             <Typography variant="h4" fontWeight={"bold"}>{snippet?.name ?? "Snippet"}</Typography>
             <Box display="flex" flexDirection="row" gap="8px" padding="8px">
-              <IconButton onClick={() => setShareModalOppened(true)}>
-                <Share/>
-              </IconButton>
-              <IconButton onClick={() => setTestModalOpened(true)}>
-                <BugReport/>
-              </IconButton>
+              <Tooltip title={"Share"}>
+                <IconButton onClick={() => setShareModalOppened(true)}>
+                  <Share/>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={"Test"}>
+                <IconButton onClick={() => setTestModalOpened(true)}>
+                  <BugReport/>
+                </IconButton>
+              </Tooltip>
               <DownloadButton snippet={snippet}/>
-              <IconButton onClick={() => setRunSnippet(!runSnippet)}>
-                {runSnippet ? <StopRounded/> : <PlayArrow/>}
-              </IconButton>
+              <Tooltip title={runSnippet ? "Stop run" : "Run"}>
+                <IconButton onClick={() => setRunSnippet(!runSnippet)}>
+                  {runSnippet ? <StopRounded/> : <PlayArrow/>}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={"Format"}>
+                <IconButton onClick={() => formatSnippet(code)}>
+                  <ReadMoreIcon />
+                </IconButton>
+              </Tooltip>
             </Box>
             <Box display={"flex"} gap={2}>
               <Bòx flex={1} height={"fit-content"} overflow={"none"} minHeight={"500px"} bgcolor={'black'} color={'white'} code={code}>

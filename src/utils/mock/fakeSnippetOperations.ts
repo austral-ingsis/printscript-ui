@@ -56,4 +56,22 @@ export class FakeSnippetOperations implements SnippetOperations {
       setTimeout(() => resolve(this.fakeStore.getSnippetById(snippetId)), DELAY)
     })
   }
+
+  getFormatRules(): Promise<Rule[]> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.getFormatRules()), DELAY)
+    })
+  }
+
+  getLintingRules(): Promise<Rule[]> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.getLintingRules()), DELAY)
+    })
+  }
+
+  formatSnippet(snippetContent: string): Promise<string> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.formatSnippet(snippetContent)), DELAY)
+    })
+  }
 }
