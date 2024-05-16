@@ -7,18 +7,11 @@ export type ComplianceEnum =
     'compliant'
 
 
-export type SnippetDescriptor = {
-  id: string
-  name: string
-  language: string
-  author: string
-  compliance: ComplianceEnum
-}
-
 export type CreateSnippet = {
   name: string;
-  content: string
-  language?: string
+  content: string;
+  language: string;
+  extension: string;
 }
 
 export type CreateSnippetWithLang = CreateSnippet & { language: string }
@@ -29,8 +22,12 @@ export type UpdateSnippet = {
 
 export type Snippet = CreateSnippet & {
   id: string
-}
+} & SnippetStatus
 
+type SnippetStatus = {
+  compliance: ComplianceEnum;
+  author: string;
+}
 export type PaginatedSnippets = Pagination & {
-  snippets: SnippetDescriptor[]
+  snippets: Snippet[]
 }

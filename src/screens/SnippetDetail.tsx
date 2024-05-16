@@ -6,14 +6,15 @@ import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
 import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
-import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
+import {useDeleteSnippet, useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
-import {BugReport, Download, PlayArrow, Share, StopRounded} from "@mui/icons-material";
+import {BugReport, Delete, Download, PlayArrow, Share, StopRounded} from "@mui/icons-material";
 import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
 import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx";
 import {Snippet} from "../utils/snippet.ts";
 import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
+import {queryClient} from "../App.tsx";
 
 type SnippetDetailProps = {
   id: string;
@@ -29,7 +30,7 @@ const DownloadButton = ({snippet}: { snippet?: Snippet }) => {
       <IconButton sx={{
         cursor: "pointer"
       }}>
-        <a download={`${snippet.name}.${snippet.language === "printscript" ? "ps" : "py"}`} target="_blank"
+        <a download={`${snippet.name}.${snippet.extension}`} target="_blank"
            rel="noreferrer" href={URL.createObjectURL(file)} style={{
           textDecoration: "none",
           color: "inherit",
@@ -55,6 +56,12 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
   const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
+  const {mutate: deleteSnippet} = useDeleteSnippet({
+    onSuccess: async () => {
+      handleCloseModal();
+      await queryClient.invalidateQueries('listSnippets')
+    },
+  })
 
   useEffect(() => {
     if (snippet) {
@@ -72,8 +79,6 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   async function handleShareSnippet(userId: string) {
     shareSnippet({snippetId: id, userId})
   }
-
-  console.log("format snippet:", formatSnippetData)
 
   return (
       <Box p={4} minWidth={'60vw'}>
@@ -106,6 +111,11 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
               <Tooltip title={"Format"}>
                 <IconButton onClick={() => formatSnippet(code)} disabled={isFormatLoading}>
                   <ReadMoreIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={"Delete"}>
+                <IconButton onClick={() => deleteSnippet(id)} >
+                  <Delete color={"error"} />
                 </IconButton>
               </Tooltip>
             </Box>

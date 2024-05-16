@@ -1,5 +1,5 @@
 ## TODO
-- [x] Load Snippet from File (I)
+- [x] Load FileType from File (I)
 - [ ] Share snippet (I)
 - [x] Paginate list (I)
 - [x] Format code (M)

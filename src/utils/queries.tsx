@@ -1,13 +1,16 @@
 import {useMutation, UseMutationResult, useQuery} from 'react-query';
-import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from './snippet.ts';
+import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippet.ts';
 import {SnippetOperations} from "./snippetOperations.ts";
 import {PaginatedUsers} from "./users.ts";
 import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
+import {TestCase} from "../types/TestCase.ts";
+import {Rule} from "./mock/fakeSnippetStore.ts";
+import {FileType} from "../types/FileType.ts";
 
-const snippetOperations: SnippetOperations = new FakeSnippetOperations();
+const snippetOperations: SnippetOperations = new FakeSnippetOperations(); // TODO: Replace with your implementation
 
-export const useGetSnippets = (page: number = 0, pageSize: number = 10, sippetName?: string) => {
-  return useQuery<PaginatedSnippets, Error>(['snippetDescriptors',page,pageSize,sippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize,sippetName));
+export const useGetSnippets = (page: number = 0, pageSize: number = 10, snippetName?: string) => {
+  return useQuery<PaginatedSnippets, Error>(['listSnippets', page,pageSize,snippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize,snippetName));
 };
 
 export const useGetSnippetById = (id: string) => {
@@ -16,15 +19,15 @@ export const useGetSnippetById = (id: string) => {
   });
 };
 
-export const useCreateSnippet = (): UseMutationResult<SnippetDescriptor, Error, CreateSnippet> => {
-  return useMutation<SnippetDescriptor, Error, CreateSnippet>(createSnippet => snippetOperations.createSnippet(createSnippet));
+export const useCreateSnippet = (): UseMutationResult<Snippet, Error, CreateSnippet> => {
+  return useMutation<Snippet, Error, CreateSnippet>(createSnippet => snippetOperations.createSnippet(createSnippet));
 };
 
-export const useUpdateSnippetById = (): UseMutationResult<SnippetDescriptor, Error, {
+export const useUpdateSnippetById = (): UseMutationResult<Snippet, Error, {
   id: string;
   updateSnippet: UpdateSnippet
 }> => {
-  return useMutation<SnippetDescriptor, Error, { id: string; updateSnippet: UpdateSnippet }>(
+  return useMutation<Snippet, Error, { id: string; updateSnippet: UpdateSnippet }>(
       ({id, updateSnippet}) => snippetOperations.updateSnippetById(id, updateSnippet)
   );
 };
@@ -39,6 +42,39 @@ export const useShareSnippet = () => {
   );
 };
 
+
+export const useGetTestCases = () => {
+  return useQuery<TestCase[] | undefined, Error>(['testCases'], () => snippetOperations.getTestCases(), {});
+};
+
+
+export const usePostTestCase = () => {
+  return useMutation<TestCase, Error, Partial<TestCase>>(
+      (tc) => snippetOperations.postTestCase(tc)
+  );
+};
+
+
+export const useRemoveTestCase = ({onSuccess}: {onSuccess: () => void}) => {
+  return useMutation<string, Error, string>(
+      ['removeTestCase'],
+      (id) => snippetOperations.removeTestCase(id),
+      {
+        onSuccess,
+      }
+  );
+};
+
+export type TestCaseResult = "success" | "fail"
+
+export const useTestSnippet = () => {
+  return useMutation<TestCaseResult, Error, Partial<TestCase>>(
+      (tc) => snippetOperations.testSnippet(tc)
+  )
+}
+
+
+
 export const useGetFormatRules = () => {
   return useQuery<Rule[], Error>('formatRules', () => snippetOperations.getFormatRules());
 }
@@ -51,4 +87,18 @@ export const useFormatSnippet = () => {
   return useMutation<string, Error, string>(
       snippetContent => snippetOperations.formatSnippet(snippetContent)
   );
+}
+
+export const useDeleteSnippet = ({onSuccess}: {onSuccess: () => void}) => {
+  return useMutation<string, Error, string>(
+      id => snippetOperations.deleteSnippet(id),
+      {
+        onSuccess,
+      }
+  );
+}
+
+
+export const useGetFileTypes = () => {
+  return useQuery<FileType[], Error>('fileTypes', () => snippetOperations.getFileTypes());
 }

@@ -17,14 +17,14 @@ import {AddSnippetModal} from "./AddSnippetModal.tsx";
 import {useRef, useState} from "react";
 import {Add, Search} from "@mui/icons-material";
 import {LoadingSnippetRow, SnippetRow} from "./SnippetRow.tsx";
-import {CreateSnippetWithLang, SnippetDescriptor} from "../../utils/snippet.ts";
-import {getFileLanguage} from "../../utils/fileTypes.ts";
+import {CreateSnippetWithLang, Snippet} from "../../utils/snippet.ts";
 import {usePaginationContext} from "../../contexts/paginationContext.tsx";
 import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
+import {getFileLanguage} from "../../utils/mock/fakeSnippetStore.ts";
 
 type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
-  snippets?: SnippetDescriptor[];
+  snippets?: Snippet[];
   loading: boolean;
   handleSearchSnippet: (snippetName: string) => void;
 }
@@ -53,7 +53,8 @@ export const SnippetTable = (props: SnippetTableProps) => {
       setSnippet({
         name: splitName[0],
         content: text,
-        language: fileType.value
+        language: fileType.language,
+        extension: fileType.extension
       })
     }).catch(e => {
       console.error(e)
@@ -73,7 +74,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
           <Box sx={{background: 'white', width: '30%', display: 'flex'}}>
             <InputBase
                 sx={{ml: 1, flex: 1}}
-                placeholder="Search Snippet"
+                placeholder="Search FileType"
                 inputProps={{'aria-label': 'search'}}
                 onChange={e => handleSearchSnippet(e.target.value)}
             />

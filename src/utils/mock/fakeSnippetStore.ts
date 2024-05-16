@@ -1,15 +1,9 @@
-import {ComplianceEnum, CreateSnippet, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
+import {ComplianceEnum, CreateSnippet, Snippet, UpdateSnippet} from '../snippet'
 import {v4 as uuid} from 'uuid'
 import {PaginatedUsers} from "../users.ts";
-
-export type StoredSnippet = {
-  id: string
-  name: string
-  content: string
-  compliance: ComplianceEnum
-  author: string
-  language: string
-}
+import {TestCase} from "../../types/TestCase.ts";
+import {TestCaseResult} from "../queries.tsx";
+import {FileType} from "../../types/FileType.ts";
 
 export type Rule = {
   name: string,
@@ -17,14 +11,15 @@ export type Rule = {
   value?: string | number | null,
 }
 
-const INITIAL_SNIPPETS: StoredSnippet[] = [
+const INITIAL_SNIPPETS: Snippet[] = [
   {
     id: '9af91631-cdfc-4341-9b8e-3694e5cb3672',
     name: 'Super Snippet',
     content: 'let a : number = 5;\nlet b : number = 5;\n\nprintln(a + b);',
     compliance: 'pending',
     author: 'John Doe',
-    language: 'printscript'
+    language: 'printscript',
+    extension: 'prs'
   },
   {
     id: 'c48cf644-fbc1-4649-a8f4-9dd7110640d9',
@@ -32,7 +27,8 @@ const INITIAL_SNIPPETS: StoredSnippet[] = [
     content: 'let a : number = 5;\nlet b : number = 5;\n\nprintln(a + b);',
     compliance: 'not-compliant',
     author: 'John Doe',
-    language: 'printscript'
+    language: 'printscript',
+    extension: 'prs'
   },
   {
     id: '34bf4b7a-d4a1-48be-bb26-7d9a3be46227',
@@ -40,7 +36,8 @@ const INITIAL_SNIPPETS: StoredSnippet[] = [
     content: 'let a : number = 5;\nlet b : number = 5;\n\nprintln(a + b);',
     compliance: 'compliant',
     author: 'John Doe',
-    language: 'printscript'
+    language: 'printscript',
+    extension: 'prs'
   }
 ]
 
@@ -122,39 +119,77 @@ const lintingRules: Rule[] = [
   },
 ]
 
+const fakeTestCases: TestCase[] = [
+  {
+    id: uuid(),
+    name: "Test Case 1",
+    input: ["A", "B"],
+    output: ["C", "D"]
+  },
+  {
+    id: uuid(),
+    name: "Test Case 2",
+    input: ["E", "F"],
+    output: ["G", "H"]
+  },
+]
+
+const fileTypes: FileType[] = [
+  {
+    language: "printscript",
+    extension: "prs",
+  },
+  {
+    language: "python",
+    extension: "py",
+  },
+  {
+    language: "Java",
+    extension: "java",
+  }
+]
+export const getFileLanguage = (fileExt?: string) => {
+  return fileExt && fileTypes?.find(x => x.extension == fileExt)
+}
+
+
+
 export class FakeSnippetStore {
-  private readonly snippetMap: Map<string, StoredSnippet> = new Map()
+  private readonly snippetMap: Map<string, Snippet> = new Map()
+  private readonly testCaseMap: Map<string, TestCase> = new Map()
 
   constructor() {
     INITIAL_SNIPPETS.forEach(snippet => {
       this.snippetMap.set(snippet.id, snippet)
     })
+
+    fakeTestCases.forEach(testCase => {
+      this.testCaseMap.set(testCase.id, testCase)
+    })
   }
 
-  listSnippetDescriptors(): SnippetDescriptor[] {
+  listSnippetDescriptors(): Snippet[] {
     return Array.from(this.snippetMap, ([, value]) => value)
   }
 
-  createSnippet(createSnippet: CreateSnippet): SnippetDescriptor {
-    const snippet: StoredSnippet = {
-      id: uuid(),
-      name: createSnippet.name,
-      content: createSnippet.content,
-      compliance: 'compliant',
-      author: 'John Doe',
-      language: 'printscript'
+  createSnippet(createSnippet: CreateSnippet): Snippet {
+    const id = uuid();
+    const newSnippet = {
+      id,
+      compliance: 'compliant' as ComplianceEnum,
+      author: 'yo',
+      ...createSnippet
     }
+    this.snippetMap.set(id, newSnippet)
 
-    this.snippetMap.set(snippet.id, snippet)
-
-    return snippet
+    return newSnippet
   }
 
   getSnippetById(id: string): Snippet | undefined {
     return this.snippetMap.get(id)
   }
 
-  updateSnippet(id: string, updateSnippet: UpdateSnippet): SnippetDescriptor {
+  updateSnippet(id: string, updateSnippet: UpdateSnippet): Snippet {
     const existingSnippet = this.snippetMap.get(id)
 
     if (existingSnippet === undefined)
@@ -188,5 +223,34 @@ export class FakeSnippetStore {
 
   formatSnippet(snippetContent: string): string {
     return `//Mocked format of snippet :) \n${snippetContent}`
+  }
+
+  getTestCases(): TestCase[] {
+    return Array.from(this.testCaseMap, ([, value]) => value)
+  }
+
+  postTestCase(testCase: Partial<TestCase>): TestCase {
+    const id = testCase.id ?? uuid()
+    const newTestCase = {...testCase, id} as TestCase
+    this.testCaseMap.set(id,newTestCase)
+    return newTestCase
+  }
+
+  removeTestCase(id: string): string {
+    this.testCaseMap.delete(id)
+    return id
+  }
+
+  deleteSnippet(id: string): string {
+    this.snippetMap.delete(id)
+    return id
+  }
+
+  testSnippet(): TestCaseResult {
+    return Math.random() > 0.5 ? "success" : "fail"
+  }
+
+  getFileTypes(): FileType[] {
+    return fileTypes
   }
 }

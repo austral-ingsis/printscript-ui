@@ -1,12 +1,13 @@
 import {SnippetOperations} from '../snippetOperations'
-import {FakeSnippetStore} from './fakeSnippetStore'
-import {CreateSnippet, PaginatedSnippets, Snippet, SnippetDescriptor, UpdateSnippet} from '../snippet'
+import {FakeSnippetStore, Rule} from './fakeSnippetStore'
+import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from '../snippet'
 import autoBind from 'auto-bind'
 import {PaginatedUsers} from "../users.ts";
-import {SnippetOperationsImpl} from "../snippetOperations.impl.ts";
+import {TestCase} from "../../types/TestCase.ts";
+import {TestCaseResult} from "../queries.tsx";
+import {FileType} from "../../types/FileType.ts";
 
 const DELAY: number = 1000
-const realOperatinons = new SnippetOperationsImpl()
 
 export class FakeSnippetOperations implements SnippetOperations {
   private readonly fakeStore = new FakeSnippetStore()
@@ -15,8 +16,10 @@ export class FakeSnippetOperations implements SnippetOperations {
     autoBind(this)
   }
 
-  createSnippet(createSnippet: CreateSnippet): Promise<SnippetDescriptor> {
-    return realOperatinons.createSnippet(createSnippet)
+  createSnippet(createSnippet: CreateSnippet): Promise<Snippet> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.createSnippet(createSnippet)), DELAY)
+    })
   }
 
   getSnippetById(id: string): Promise<Snippet | undefined> {
@@ -38,7 +41,7 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  updateSnippetById(id: string, updateSnippet: UpdateSnippet): Promise<SnippetDescriptor> {
+  updateSnippetById(id: string, updateSnippet: UpdateSnippet): Promise<Snippet> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.updateSnippet(id, updateSnippet)), DELAY)
     })
@@ -72,6 +75,42 @@ export class FakeSnippetOperations implements SnippetOperations {
   formatSnippet(snippetContent: string): Promise<string> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.formatSnippet(snippetContent)), DELAY)
+    })
+  }
+
+  getTestCases(): Promise<TestCase[]> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.getTestCases()), DELAY)
+    })
+  }
+
+  postTestCase(testCase: TestCase): Promise<TestCase> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.postTestCase(testCase)), DELAY)
+    })
+  }
+
+  removeTestCase(id: string): Promise<string> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.removeTestCase(id)), DELAY)
+    })
+  }
+
+  testSnippet(): Promise<TestCaseResult> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.testSnippet()), DELAY)
+    })
+  }
+
+  deleteSnippet(id: string): Promise<string> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.deleteSnippet(id)), DELAY)
+    })
+  }
+
+  getFileTypes(): Promise<FileType[]> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(this.fakeStore.getFileTypes()), DELAY)
     })
   }
 }
