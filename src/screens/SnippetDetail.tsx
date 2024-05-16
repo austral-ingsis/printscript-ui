@@ -6,9 +6,15 @@ import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
 import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
-import {useDeleteSnippet, useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
+import {
+  useDeleteSnippet,
+  useFormatSnippet,
+  useGetSnippetById,
+  useShareSnippet,
+  useUpdateSnippetById
+} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
-import {BugReport, Delete, Download, PlayArrow, Share, StopRounded} from "@mui/icons-material";
+import {BugReport, Delete, Download, PlayArrow, Save, Share, StopRounded} from "@mui/icons-material";
 import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
 import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx";
 import {Snippet} from "../utils/snippet.ts";
@@ -62,6 +68,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
       await queryClient.invalidateQueries('listSnippets')
     },
   })
+  const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById()
 
   useEffect(() => {
     if (snippet) {
@@ -111,6 +118,11 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
               <Tooltip title={"Format"}>
                 <IconButton onClick={() => formatSnippet(code)} disabled={isFormatLoading}>
                   <ReadMoreIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={"Save changes"}>
+                <IconButton color={"primary"} onClick={() => updateSnippet(id, {content: code})} disabled={isUpdateSnippetLoading || snippet?.content === code} >
+                  <Save />
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Delete"}>
