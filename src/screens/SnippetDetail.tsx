@@ -4,7 +4,7 @@ import {highlight, languages} from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import {Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
+import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
@@ -125,8 +125,8 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                 />
               </Bòx>
             </Box>
-            <Box pt={1} flex={1}>
-              <Typography variant={"h5"}>Output</Typography>
+            <Box pt={1} flex={1} marginTop={2}>
+              <Alert severity="info">Output</Alert>
               <SnippetExecution snippet={snippet} run={runSnippet}/>
             </Box>
           </>

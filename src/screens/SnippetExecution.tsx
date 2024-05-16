@@ -1,14 +1,42 @@
 import {Snippet} from "../utils/snippet.ts";
-import {Typography} from "@mui/material";
+import {Button, Input, OutlinedInput, Typography} from "@mui/material";
+import {highlight, languages} from "prismjs";
+import Editor from "react-simple-code-editor";
+import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
+import {useState} from "react";
 
 export const SnippetExecution = ({snippet, run}: {snippet?: Snippet, run: boolean}) => {
+  // Here you should provide all the logic to connect to your sockets.
+  const [input, setInput] = useState("")
+  const [output, setOutput] = useState(["some", "output", "from", "the", "snippet"])
 
-    // Here you should provide all the logic to connect to your sockets.
-    const output: string[] = [];
+  //TODO: get the output from the server
+  const code = output.join("\n")
+
+  const handleEnter = (event) => {
+    if (event.key === 'Enter') {
+      //TODO: logic to send inputs to server
+      setOutput([...output, input])
+      setInput("")
+    }
+  };
 
     return (
-        output.map((o) => (
-            <Typography>{o}</Typography>
-        ))
+      <>
+        <Bòx flex={1} overflow={"none"} minHeight={200} bgcolor={'black'} color={'white'} code={code}>
+            <Editor
+              value={code}
+              padding={10}
+              onValueChange={(code) => setCode(code)}
+              highlight={(code) => highlight(code, languages.js, 'javascript')}
+              maxLength={1000}
+              style={{
+                  fontFamily: "monospace",
+                  fontSize: 17,
+              }}
+            />
+        </Bòx>
+        <OutlinedInput onKeyDown={handleEnter} value={input} onChange={e => setInput(e.target.value)} placeholder="Type here" fullWidth/>
+      </>
     )
 }
