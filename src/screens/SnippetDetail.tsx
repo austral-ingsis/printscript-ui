@@ -4,7 +4,7 @@ import {highlight, languages} from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import {Box, Button, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
+import {Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
@@ -104,7 +104,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Format"}>
-                <IconButton onClick={() => formatSnippet(code)}>
+                <IconButton onClick={() => formatSnippet(code)} disabled={isFormatLoading}>
                   <ReadMoreIcon />
                 </IconButton>
               </Tooltip>
