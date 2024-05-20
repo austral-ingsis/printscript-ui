@@ -1,7 +1,13 @@
-import {BACKEND_URL, FRONTEND_URL} from "../../src/utils/constants";
+import {AUTH0_PASSWORD, AUTH0_USERNAME, BACKEND_URL, FRONTEND_URL} from "../../src/utils/constants";
 import {CreateSnippet} from "../../src/utils/snippet";
 
 describe('Home', () => {
+  beforeEach(() => {
+    // cy.loginToAuth0( TODO DE-Comment when auth0 is ready
+    //     AUTH0_USERNAME,
+    //     AUTH0_PASSWORD
+    // )
+  })
   before(() => {
     process.env.FRONTEND_URL = Cypress.env("FRONTEND_URL");
     process.env.BACKEND_URL = Cypress.env("BACKEND_URL");
@@ -31,7 +37,8 @@ describe('Home', () => {
     const snippetData: CreateSnippet = {
       name: "Test name",
       content: "print(1)",
-      language: "printscript"
+      language: "printscript",
+      extension: ".ps"
     }
 
     cy.intercept('GET', BACKEND_URL+"/snippets*", (req) => {
