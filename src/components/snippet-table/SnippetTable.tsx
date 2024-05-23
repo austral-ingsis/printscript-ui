@@ -41,8 +41,12 @@ export const SnippetTable = (props: SnippetTableProps) => {
   const {createSnackbar} = useSnackbarContext()
   const {data: fileTypes} = useGetFileTypes();
 
-  const handleLoadSnippet = async (files?: FileList | null) => {
-    if (!files || !files.length) return
+  const handleLoadSnippet = async (target: EventTarget & HTMLInputElement) => {
+    const files = target.files
+    if (!files || !files.length) {
+      createSnackbar('error',"Please select at leat one file")
+      return
+    }
     const file = files[0]
     const splitName = file.name.split(".")
     const fileType = getFileLanguage(fileTypes ?? [], splitName.at(-1))
@@ -61,7 +65,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
       console.error(e)
     }).finally(() => {
       setAddModalOpened(true)
-      // TODO there is a bug in which if you add the same file twice inside an input, it doesn't trigger this function
+      target.value = ""
     })
   }
 
@@ -128,7 +132,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
           <MenuItem onClick={() => inputRef?.current?.click()}>Load snippet from file</MenuItem>
         </Menu>
         <input hidden type={"file"} ref={inputRef} multiple={false} data-testid={"upload-file-input"}
-               onChange={e => handleLoadSnippet(e?.target?.files)}/>
+               onChange={e => handleLoadSnippet(e?.target)}/>
       </>
   )
 }

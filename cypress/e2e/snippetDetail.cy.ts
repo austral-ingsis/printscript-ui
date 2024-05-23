@@ -29,10 +29,6 @@ describe('Add snippet tests', () => {
     cy.wait(2000)
   })
 
-  it('Can test a snippet ', () => {
-    // TODO how to test a non real snippet?
-  })
-
   it('Can run snippets', function() {
     cy.get('[data-testid="PlayArrowIcon"]').click();
     cy.get('.css-1hpabnv > .MuiBox-root > div > .npm__react-simple-code-editor__textarea').should("have.length.greaterThan",0);

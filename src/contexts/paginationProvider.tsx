@@ -8,12 +8,10 @@ export const PaginationProvider = ({children}: { children: ReactNode }) => {
 
   const handleGoToPage = (page: number) => {
     setPage(page)
-    // TODO change the page in the params
   }
 
   const handleChangePageSize = (pageSize: number) => {
     setPageSize(pageSize)
-    // TODO change the page in the params
   }
 
   const handleChangeCount = (newCount: number) => {
