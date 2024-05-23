@@ -7,7 +7,6 @@ import "prismjs/themes/prism-okaidia.css";
 import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {
-  useDeleteSnippet,
   useUpdateSnippetById
 } from "../utils/queries.tsx";
 import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
@@ -19,6 +18,7 @@ import {Snippet} from "../utils/snippet.ts";
 import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import {queryClient} from "../App.tsx";
+import {DeleteConfirmationModal} from "../components/snippet-detail/DeleteConfirmationModal.tsx";
 
 type SnippetDetailProps = {
   id: string;
@@ -61,12 +61,6 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
   const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
-  const {mutate: deleteSnippet} = useDeleteSnippet({
-    onSuccess: async () => {
-      handleCloseModal();
-      await queryClient.invalidateQueries('listSnippets')
-    },
-  })
   const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({onSuccess: () => queryClient.invalidateQueries(['snippet', id])})
 
   useEffect(() => {
@@ -156,6 +150,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                            onClose={() => setShareModalOppened(false)}
                            onShare={handleShareSnippet}/>
         <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)}/>
+        <DeleteConfirmationModal open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} id={snippet?.id ?? ""} setCloseDetails={handleCloseModal} />
       </Box>
   );
 }
