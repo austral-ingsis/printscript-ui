@@ -1,7 +1,8 @@
-import {AppBar, Box, Button, Container, Toolbar, Typography} from "@mui/material";
+import {AppBar, Box, Button, Container, Toolbar, Typography, styled} from "@mui/material";
 import {Code, Rule} from "@mui/icons-material";
 import {ReactNode} from "react";
 import {useLocation} from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 type PageType = {
     title: string;
@@ -19,7 +20,16 @@ const pages: PageType[] = [{
     icon: <Rule/>
 }];
 
+const StyledButton = styled(Button)(({}) => ({
+  backgroundColor: 'white',
+  '&:hover': {
+    backgroundColor: 'white',
+  },
+}));
+
+
 export const Navbar = () => {
+    const {loginWithRedirect} = useAuth0();
     const location = useLocation();
     return (
         <AppBar position="static" elevation={0}>
@@ -60,6 +70,7 @@ export const Navbar = () => {
                             </Button>
                         ))}
                     </Box>
+                    <StyledButton onClick={()=> loginWithRedirect()}>Login</StyledButton>
                 </Toolbar>
             </Container>
         </AppBar>
