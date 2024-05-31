@@ -1,48 +1,21 @@
-import './App.css';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import HomeScreen from './screens/Home';
-import RulesScreen from './screens/Rules';
-import { LoginPage } from './LoginPage.tsx';
-import PrivateRoute from './utils/PrivateRoute.tsx';
-import NoPermissionsPage from './screens/NoPermissionsPage';
-import CallbackPage from './screens/CallbackPage.tsx';
-import { AuthenticationGuard } from './components/authenticationGuard/authenticationGuard.tsx';
-
-const router = createBrowserRouter([
-    {
-        path: '/login',
-        element: <LoginPage />
-    },
-    {
-        path: '/',
-        element: (
-            <AuthenticationGuard component={HomeScreen}/>
-        )
-    },
-    {
-        path: '/rules',
-        element: (
-            <AuthenticationGuard component={RulesScreen}/>
-        )
-    },
-    {
-        path: '/no-permissions',
-        element: <NoPermissionsPage />
-    },
-    {
-        path:'callback',
-        element: <CallbackPage/>
-    }
-]);
+import "./App.css";
+import { QueryClient, QueryClientProvider } from "react-query";
+import HomeScreen from "./screens/Home";
+import RulesScreen from "./screens/Rules";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 export const queryClient = new QueryClient();
 const App = () => {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-        </QueryClientProvider>
-    );
-}
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/rules" element={<RulesScreen />} />
+        </Routes>
+      </Router>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
