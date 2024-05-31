@@ -29,7 +29,7 @@ const StyledButton = styled(Button)(({}) => ({
 
 
 export const Navbar = () => {
-    const {loginWithRedirect} = useAuth0();
+    const {logout} = useAuth0();
     const location = useLocation();
     return (
         <AppBar position="static" elevation={0}>
@@ -70,7 +70,9 @@ export const Navbar = () => {
                             </Button>
                         ))}
                     </Box>
-                    <StyledButton onClick={()=> loginWithRedirect()}>Login</StyledButton>
+                    <StyledButton  onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
+      Log Out
+    </StyledButton>
                 </Toolbar>
             </Container>
         </AppBar>
