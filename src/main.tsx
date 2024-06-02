@@ -16,7 +16,10 @@ createRoot(document.getElementById("root")!).render(
           clientId={AUTH0_CLIENT_ID}
           authorizationParams={{
             redirect_uri: window.location.origin,
+            audience: "https://snippet-auth.com"
           }}
+          useRefreshTokens={true}
+          cacheLocation={"localstorage"}
         >
           <App />
         </Auth0Provider>
