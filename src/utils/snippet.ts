@@ -33,6 +33,13 @@ export type PaginatedSnippets = Pagination & {
   snippets: Snippet[]
 }
 
+export type SnippetDescriptor  = {
+  name: string;
+  language: string;
+  compliance: ComplianceEnum;
+  author: string;
+}
+
 export const getFileLanguage = (fileTypes: FileType[], fileExt?: string) => {
   return fileExt && fileTypes?.find(x => x.extension == fileExt)
 }

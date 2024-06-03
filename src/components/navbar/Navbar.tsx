@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   AppBar,
   Box,
@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { Code, Rule } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
-import { GetTokenSilentlyOptions, useAuth0 } from "@auth0/auth0-react";
+import { useAuth0 } from "@auth0/auth0-react";
 import LoginButton from "../login-button/loginButton";
 import LogoutButton from "../logout-button/LogOutButton";
 
@@ -32,27 +32,10 @@ const pages: PageType[] = [
   },
 ];
 
-const audience= import.meta.env.VITE_REACT_APP_AUTH0_AUDIENCE
 
 export const Navbar = () => {
-  const { isAuthenticated, getAccessTokenSilently} = useAuth0();
+  const { isAuthenticated } = useAuth0();
   const location = useLocation();
-  const [tokenClaims, setTokenClaims] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchTokenClaims = async () => {
-      try {
-        const accessToken = await getAccessTokenSilently()
-        setTokenClaims(JSON.stringify(accessToken));
-      } catch (error) {
-        console.error("Error fetching token claims:", error);
-      }
-    };
-  
-    if (isAuthenticated) {
-      fetchTokenClaims();
-    }
-  }, [isAuthenticated, getAccessTokenSilently]);
   
 
   return (

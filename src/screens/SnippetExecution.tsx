@@ -3,17 +3,17 @@ import {OutlinedInput} from "@mui/material";
 import {highlight, languages} from "prismjs";
 import Editor from "react-simple-code-editor";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
-import {useState} from "react";
+import {KeyboardEventHandler, useState} from "react";
 
 export const SnippetExecution = ({snippet, run}: {snippet?: Snippet, run: boolean}) => {
   // Here you should provide all the logic to connect to your sockets.
   const [input, setInput] = useState("")
-  const [output, setOutput] = useState([])
+  const [output, setOutput] = useState<string[]>([])
 
   //TODO: get the output from the server
   const code = output.join("\n")
 
-  const handleEnter = (event) => {
+  const handleEnter: KeyboardEventHandler<HTMLInputElement | HTMLTextAreaElement> = (event) => {
     if (event.key === 'Enter') {
       //TODO: logic to send inputs to server
       setOutput([...output, input])
