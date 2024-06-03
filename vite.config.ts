@@ -10,5 +10,9 @@ export default defineConfig(({ mode }) => {
       'process.env.BACKEND_URL': JSON.stringify(env.BACKEND_URL)
     },
     plugins: [react()],
+    preview: {
+      host: true,
+      port: 5173,
+    }
   }
 })
