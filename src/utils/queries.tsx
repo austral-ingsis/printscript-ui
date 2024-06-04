@@ -4,8 +4,8 @@ import {SnippetOperations} from "./snippetOperations.ts";
 import {PaginatedUsers} from "./users.ts";
 import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
 import {TestCase} from "../types/TestCase.ts";
-import {Rule} from "./mock/fakeSnippetStore.ts";
 import {FileType} from "../types/FileType.ts";
+import {Rule} from "../types/Rule.ts";
 
 const snippetOperations: SnippetOperations = new FakeSnippetOperations(); // TODO: Replace with your implementation
 
@@ -81,8 +81,24 @@ export const useGetFormatRules = () => {
   return useQuery<Rule[], Error>('formatRules', () => snippetOperations.getFormatRules());
 }
 
+export const useModifyFormatRules = ({onSuccess}: {onSuccess: () => void}) => {
+  return useMutation<Rule[], Error, Rule[]>(
+      rule => snippetOperations.modifyFormatRule(rule),
+      {onSuccess}
+  );
+}
+
+
 export const useGetLintingRules = () => {
   return useQuery<Rule[], Error>('lintingRules', () => snippetOperations.getLintingRules());
+}
+
+
+export const useModifyLintingRules = ({onSuccess}: {onSuccess: () => void}) => {
+  return useMutation<Rule[], Error, Rule[]>(
+      rule => snippetOperations.modifyLintingRule(rule),
+      {onSuccess}
+  );
 }
 
 export const useFormatSnippet = () => {

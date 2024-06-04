@@ -4,12 +4,7 @@ import {PaginatedUsers} from "../users.ts";
 import {TestCase} from "../../types/TestCase.ts";
 import {TestCaseResult} from "../queries.tsx";
 import {FileType} from "../../types/FileType.ts";
-
-export type Rule = {
-  name: string,
-  isActive: boolean,
-  value?: string | number | null,
-}
+import {Rule} from "../../types/Rule.ts";
 
 const INITIAL_SNIPPETS: Snippet[] = [
   {
@@ -69,50 +64,59 @@ const paginatedUsers: PaginatedUsers = {
   ]
 }
 
-const formattingRules: Rule[] = [
+const INITIAL_FORMATTING_RULES: Rule[] = [
   {
+    id: '1',
     name: "indentation",
     isActive: true,
     value: 3
   },
   {
+    id: '2',
     name: "open-if-block-on-same-line",
     isActive: false,
   },
   {
+    id: '3',
     name: "max-line-length",
     isActive: true,
     value: 100
   },
   {
+    id: '4',
     name: "no-trailing-spaces",
     isActive: false,
     value: null
   },
   {
+    id: '5',
     name: "no-multiple-empty-lines",
     isActive: false,
     value: null,
   }
 ]
 
-const lintingRules: Rule[] = [
+const INITIAL_LINTING_RULES: Rule[] = [
   {
+    id: '1',
     name: "no-expressions-in-print-line",
     isActive: true,
     value: null
   },
   {
+    id: '2',
     name: "no-unused-vars",
     isActive: true,
     value: null
   },
   {
+    id: '3',
     name: "no-undef-vars",
     isActive: false,
     value: null
   },
   {
+    id: '4',
     name: "no-unused-params",
     isActive: false,
     value: null
@@ -156,6 +160,8 @@ const fileTypes: FileType[] = [
 export class FakeSnippetStore {
   private readonly snippetMap: Map<string, Snippet> = new Map()
   private readonly testCaseMap: Map<string, TestCase> = new Map()
+  private formattingRules: Rule[] = [];
+  private lintingRules: Rule[] = [];
 
   constructor() {
     INITIAL_SNIPPETS.forEach(snippet => {
@@ -165,6 +171,8 @@ export class FakeSnippetStore {
     fakeTestCases.forEach(testCase => {
       this.testCaseMap.set(testCase.id, testCase)
     })
+    this.formattingRules = INITIAL_FORMATTING_RULES
+    this.lintingRules = INITIAL_LINTING_RULES
   }
 
   listSnippetDescriptors(): Snippet[] {
@@ -213,11 +221,11 @@ export class FakeSnippetStore {
   }
 
   getFormatRules(): Rule[] {
-    return formattingRules
+    return this.formattingRules
   }
 
   getLintingRules(): Rule[] {
-    return lintingRules
+    return this.lintingRules
   }
 
   formatSnippet(snippetContent: string): string {
@@ -251,5 +259,15 @@ export class FakeSnippetStore {
 
   getFileTypes(): FileType[] {
     return fileTypes
+  }
+
+  modifyFormattingRule(newRules: Rule[]): Rule[] {
+    this.formattingRules = newRules;
+    return newRules;
+  }
+
+  modifyLintingRule(newRules: Rule[]): Rule[] {
+    this.lintingRules = newRules
+    return newRules
   }
 }

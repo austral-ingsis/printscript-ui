@@ -8,20 +8,24 @@ import {
   ListItemText, TextField,
   Typography
 } from "@mui/material";
-import {Rule} from "../../utils/mock/fakeSnippetStore.ts";
-import {useGetLintingRules} from "../../utils/queries.tsx";
+import {useGetLintingRules, useModifyLintingRules} from "../../utils/queries.tsx";
+import {queryClient} from "../../App.tsx";
+import {Rule} from "../../types/Rule.ts";
 
 const LintingRulesList = () => {
-  const [rules, setRules] = useState<Rule[]>([]);
+  const [rules, setRules] = useState<Rule[] | undefined>([]);
 
   const {data, isLoading} = useGetLintingRules();
+  const {mutateAsync, isLoading: isLoadingMutate} = useModifyLintingRules({
+    onSuccess: () => queryClient.invalidateQueries('lintingRules')
+  })
 
   useEffect(() => {
     setRules(data)
   }, [data]);
 
-  const handleValueChange = (rule, newValue) => {
-    const newRules = rules.map(r => {
+  const handleValueChange = (rule: Rule, newValue: string | number) => {
+    const newRules = rules?.map(r => {
       if (r.name === rule.name) {
         return {...r, value: newValue}
       } else {
@@ -31,13 +35,13 @@ const LintingRulesList = () => {
     setRules(newRules)
   };
 
-  const handleNumberChange = (rule) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNumberChange = (rule: Rule) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value, 10);
     handleValueChange(rule, isNaN(value) ? 0 : value);
   };
 
   const toggleRule = (rule: Rule) => () => {
-    const newRules = rules.map(r => {
+    const newRules = rules?.map(r => {
       if (r.name === rule.name) {
         return {...r, isActive: !r.isActive}
       } else {
@@ -52,7 +56,7 @@ const LintingRulesList = () => {
       <Typography variant={"h6"}>Linting rules</Typography>
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-          isLoading ?  <Typography style={{height: 80}}>Loading...</Typography> :
+          isLoading || isLoadingMutate ?  <Typography style={{height: 80}}>Loading...</Typography> :
           rules?.map((rule) => {
           return (
             <ListItem
@@ -84,7 +88,7 @@ const LintingRulesList = () => {
           )
         })}
       </List>
-      <Button disabled={isLoading} variant={"contained"} onClick={() => console.log(rules)}>Save</Button>
+      <Button disabled={isLoading} variant={"contained"} onClick={() => mutateAsync(rules ?? [])}>Save</Button>
     </Card>
 
   );

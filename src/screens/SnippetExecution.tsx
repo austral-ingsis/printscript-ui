@@ -1,19 +1,18 @@
-import {Snippet} from "../utils/snippet.ts";
 import {OutlinedInput} from "@mui/material";
 import {highlight, languages} from "prismjs";
 import Editor from "react-simple-code-editor";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
 import {useState} from "react";
 
-export const SnippetExecution = ({snippet, run}: {snippet?: Snippet, run: boolean}) => {
+export const SnippetExecution = () => {
   // Here you should provide all the logic to connect to your sockets.
-  const [input, setInput] = useState("")
-  const [output, setOutput] = useState([])
+  const [input, setInput] = useState<string>("")
+  const [output, setOutput] = useState<string[]>([]);
 
   //TODO: get the output from the server
   const code = output.join("\n")
 
-  const handleEnter = (event) => {
+  const handleEnter = (event: { key: string }) => {
     if (event.key === 'Enter') {
       //TODO: logic to send inputs to server
       setOutput([...output, input])

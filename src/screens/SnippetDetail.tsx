@@ -142,7 +142,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
             </Box>
             <Box pt={1} flex={1} marginTop={2}>
               <Alert severity="info">Output</Alert>
-              <SnippetExecution snippet={snippet} run={runSnippet}/>
+              <SnippetExecution />
             </Box>
           </>
         }
