@@ -8,6 +8,8 @@ COPY package.json .
 RUN npm install
 # copy the source code to the working directory
 COPY . .
+# copy env
+COPY .env .
 # build the project
 RUN npm run build
 
