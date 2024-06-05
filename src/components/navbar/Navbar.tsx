@@ -1,7 +1,7 @@
 import {AppBar, Box, Button, Container, Toolbar, Typography} from "@mui/material";
 import {Code, Rule} from "@mui/icons-material";
 import {ReactNode} from "react";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 
 type PageType = {
     title: string;
@@ -21,6 +21,7 @@ const pages: PageType[] = [{
 
 export const Navbar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     return (
         <AppBar position="static" elevation={0}>
             <Container maxWidth="xl">
@@ -42,7 +43,7 @@ export const Navbar = () => {
                         {pages.map((page) => (
                             <Button
                                 key={page.title}
-                                href={page.path}
+                                onClick={() => navigate(`${page.path}`)}
                                 sx={{
                                     my: 2,
                                     color: 'white',
