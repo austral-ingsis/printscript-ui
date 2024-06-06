@@ -35,6 +35,7 @@ WORKDIR /app/printscript-ui
 
 # copy the dist file (project builded) to the working directory
 COPY --from=BUILD_IMAGE /app/printscript-ui/dist /app/printscript-ui/dist
+
 # expose the port
 EXPOSE 5173
 
