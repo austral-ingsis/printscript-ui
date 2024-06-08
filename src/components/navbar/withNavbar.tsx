@@ -7,7 +7,7 @@ import { withAuthenticationRequired } from "@auth0/auth0-react";
 export const withNavbar = (WrappedComponent: ComponentType<unknown>) => {
   const AuthComponent = withAuthenticationRequired(WrappedComponent, {loginOptions: {
     authorizationParams: {
-      scope: "read:snippets write:snippets change:rules"
+      scope: "read:snippets write:snippets change:rules offline_access"
     }
   }});
   return () => (

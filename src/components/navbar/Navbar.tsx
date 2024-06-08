@@ -12,6 +12,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import LoginButton from "../login-button/loginButton";
 import LogoutButton from "../logout-button/LogOutButton";
+import {AccessTokenDisplayer} from "../utils/AccessTokenDisplayer.tsx";
 
 type PageType = {
   title: string;
