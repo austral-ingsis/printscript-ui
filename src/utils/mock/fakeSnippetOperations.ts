@@ -7,6 +7,7 @@ import {TestCase} from "../../types/TestCase.ts";
 import {TestCaseResult} from "../queries.tsx";
 import {FileType} from "../../types/FileType.ts";
 import {Rule} from "../../types/Rule.ts";
+import {getAccessToken} from "../auth0.ts";
 
 const DELAY: number = 1000
 
@@ -62,6 +63,7 @@ export class FakeSnippetOperations implements SnippetOperations {
   }
 
   getFormatRules(): Promise<Rule[]> {
+    getAccessToken().then(r => console.log(r))
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.getFormatRules()), DELAY)
     })
