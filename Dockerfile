@@ -4,7 +4,6 @@ COPY package.json .
 RUN npm install
 # copy the source code to the working directory
 COPY . .
-
 # Set environment variables
 ARG VITE_FRONTEND_URL
 ARG VITE_BACKEND_URL
