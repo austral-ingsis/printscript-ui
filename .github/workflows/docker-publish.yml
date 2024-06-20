@@ -41,6 +41,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # Use build arguments to pass environment variables to the Docker build process
           build-args: |
             VITE_FRONTEND_URL=${{ secrets.VITE_FRONTEND_URL }}
             VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }}

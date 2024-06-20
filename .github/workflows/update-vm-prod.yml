@@ -1,4 +1,4 @@
-name: update production vm
+name: Update production VM
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: update development vm
+name: Update development VM
 
 on:
   push:
