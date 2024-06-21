@@ -1,6 +1,6 @@
 # First Stage: Build the Application
 FROM node:22-alpine as BUILD_IMAGE
-WORKDIR /app
+WORKDIR /app/printscript-ui
 
 # Copy package.json and package-lock.json
 COPY package.json .
@@ -31,10 +31,10 @@ RUN npm run build
 
 # Second Stage: Production Image
 FROM node:22-alpine as PRODUCTION_IMAGE
-WORKDIR /app
+WORKDIR /app/printscript-ui
 
 # Copy the build output from the build stage
-COPY --from=BUILD_IMAGE /app/dist /app/dist
+COPY --from=BUILD_IMAGE /app/printscript-ui/dist /app/printscript-ui/dist
 
 # Expose port 5173
 EXPOSE 5173
