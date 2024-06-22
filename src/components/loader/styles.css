@@ -1,0 +1,36 @@
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  gap: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.loader-container div {
+  color: rgb(171, 170, 170);
+}
+
+.pala {
+  stroke-dasharray: 10000;
+  stroke-dashoffset: 10000;
+  animation: dash 3s forwards infinite;
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 10000;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 10000;
+  }
+}

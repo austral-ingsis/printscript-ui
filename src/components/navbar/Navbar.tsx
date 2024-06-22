@@ -9,10 +9,7 @@ import {
 } from "@mui/material";
 import { Code, Rule } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
-import LoginButton from "../login-button/loginButton";
 import LogoutButton from "../logout-button/LogOutButton";
-import {AccessTokenDisplayer} from "../utils/AccessTokenDisplayer.tsx";
 
 type PageType = {
   title: string;
@@ -33,11 +30,8 @@ const pages: PageType[] = [
   },
 ];
 
-
 export const Navbar = () => {
-  const { isAuthenticated } = useAuth0();
   const location = useLocation();
-  
 
   return (
     <AppBar position="static" elevation={0}>
@@ -87,7 +81,7 @@ export const Navbar = () => {
               </Button>
             ))}
           </Box>
-          {isAuthenticated ? <LogoutButton /> : <LoginButton />}
+          <LogoutButton />
         </Toolbar>
       </Container>
     </AppBar>

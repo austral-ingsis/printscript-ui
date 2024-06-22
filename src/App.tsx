@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import HomeScreen from "./screens/Home";
 import RulesScreen from "./screens/Rules";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import LoginScreen from "./screens/Login";
+import AuthGuard from "./guards/AuthGuard";
 
 export const queryClient = new QueryClient();
 const App = () => {
@@ -10,8 +12,11 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route path="/" element={<HomeScreen />} />
-          <Route path="/rules" element={<RulesScreen />} />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route element={<AuthGuard />}>
+            <Route path="/" element={<HomeScreen />} />
+            <Route path="/rules" element={<RulesScreen />} />
+          </Route>
         </Routes>
       </Router>
     </QueryClientProvider>
