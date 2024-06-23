@@ -6,7 +6,8 @@ import { FileType } from '../../types/FileType';
 import { TestCase } from '../../types/TestCase';
 import { TestCaseResult } from '../queries';
 import { PaginatedUsers } from '../users';
-import { FakeSnippetStore, Rule } from './fakeSnippetStore';
+import { FakeSnippetStore} from './fakeSnippetStore';
+import { Rule } from '../../types/Rule';
 import { useAuth0 } from '@auth0/auth0-react';
 
 const DELAY: number = 1000;
