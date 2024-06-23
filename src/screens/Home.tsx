@@ -16,7 +16,9 @@ const HomeScreen = () => {
   const [snippetId, setSnippetId] = useState<string | null>(null);
   const { page, page_size, count, handleChangeCount } = usePaginationContext();
   const { getAccessTokenSilently } = useAuth0();
-  const [data, setData] = useState<{ snippets: any[]; count: number } | null>(null);
+  const [data, setData] = useState<{ snippets: any[]; count: number } | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ const HomeScreen = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setData(response.data);
+        setData({ snippets: response.data, count: response.data.length });
       } catch (error) {
         console.error("Error fetching snippets", error);
       } finally {
