@@ -271,3 +271,5 @@ export class FakeSnippetStore {
     return newRules
   }
 }
+
+export { Rule };

@@ -21,6 +21,12 @@ export class WorkingSnippetOperations implements SnippetOperations {
     this.accessToken = accessToken;
     autoBind(this);
   }
+    modifyFormatRule(newRules: Rule[]): Promise<Rule[]> {
+        throw new Error('Method not implemented.');
+    }
+    modifyLintingRule(newRules: Rule[]): Promise<Rule[]> {
+        throw new Error('Method not implemented.');
+    }
 
   async createSnippet(createSnippet: CreateSnippet): Promise<Snippet> {
     const response = await axios.post(`${API_BASE_URL}/snippet`, createSnippet, {
