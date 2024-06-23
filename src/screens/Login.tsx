@@ -14,7 +14,7 @@ export default function LoginScreen() {
         onClick={() =>
           loginWithPopup({
             authorizationParams: {
-              scope: "read:snippets write:snippets change:rules",
+              scope: "read:snippets write:snippets change:rules offline_access",
             },
           })
         }

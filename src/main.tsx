@@ -11,13 +11,17 @@ createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <PaginationProvider>
       <SnackbarProvider>
-        <Auth0Provider
+      <Auth0Provider
           domain={AUTH0_DOMAIN}
           clientId={AUTH0_CLIENT_ID}
           authorizationParams={{
-            display: "popup",
             redirect_uri: window.location.origin,
+            audience: "https://snippet-auth.com",
+            scope: "read:snippets write:snippets change:rules offline_access",
           }}
+          useRefreshTokens={true}
+          cacheLocation={"localstorage"}
+          
         >
           <App />
         </Auth0Provider>

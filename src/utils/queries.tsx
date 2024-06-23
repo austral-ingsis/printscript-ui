@@ -10,7 +10,7 @@ import { useWorkingSnippetOperations } from '../hooks/useWorkingSnippetOperation
 
 export const useGetSnippets = (page: number = 0, pageSize: number = 10, snippetName?: string) => {
     const snippetOperations = useWorkingSnippetOperations()
-    return useQuery<PaginatedSnippets, Error>(['listSnippets', page, pageSize, snippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize, snippetName));
+    return useQuery<PaginatedSnippets, Error>(['listSnippets', page, pageSize, snippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize));
 };
 
 export const useGetSnippetById = (id: string) => {
@@ -54,7 +54,7 @@ export const useShareSnippet = () => {
 
 export const useGetTestCases = (snippetId: string) => {
   const snippetOperations = useWorkingSnippetOperations()
-    return useQuery<TestCase[] | undefined, Error>('testCases', () => snippetOperations.getTestCases(snippetId), {});
+    return useQuery<TestCase[] | undefined, Error>('testCases', () => snippetOperations.getTestCases(), {});
 };
 
 
