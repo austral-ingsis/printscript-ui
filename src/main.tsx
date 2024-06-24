@@ -17,11 +17,10 @@ createRoot(document.getElementById("root")!).render(
           authorizationParams={{
             redirect_uri: window.location.origin,
             audience: "https://snippet-auth.com",
-            scope: "read:snippets write:snippets change:rules offline_access",
+            scope: "read:snippets write:snippets change:rules offline_access openid profile email",
           }}
           useRefreshTokens={true}
           cacheLocation={"localstorage"}
-          
         >
           <App />
         </Auth0Provider>

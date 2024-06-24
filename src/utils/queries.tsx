@@ -39,15 +39,15 @@ export const useUpdateSnippetById = ({onSuccess}: { onSuccess: () => void }): Us
     );
 };
 
-export const useGetUsers = (name: string = "", page: number = 0, pageSize: number = 10) => {
+export const useGetUsers = (snippetId: string, name: string = "", page: number = 0, pageSize: number = 10) => {
   const snippetOperations = useWorkingSnippetOperations()
-    return useQuery<PaginatedUsers, Error>(['users', name, page, pageSize], () => snippetOperations.getUserFriends(name, page, pageSize));
+    return useQuery<PaginatedUsers, Error>(['users', name, page, pageSize], () => snippetOperations.getUserFriends(snippetId,name, page, pageSize));
 };
 
 export const useShareSnippet = () => {
   const snippetOperations = useWorkingSnippetOperations()
-    return useMutation<Snippet, Error, { snippetId: string; userId: string }>(
-        ({snippetId, userId}) => snippetOperations.shareSnippet(snippetId, userId)
+    return useMutation<Snippet, Error, { assetId: string; userId: string, userName: string }>(
+        ({assetId, userId, userName}) => snippetOperations.shareSnippet(assetId, userId, userName)
     );
 };
 

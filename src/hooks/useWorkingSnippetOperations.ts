@@ -7,10 +7,14 @@ export const useWorkingSnippetOperations= ()=>{
 
     const auth0 = useAuth0()
     const [token, setToken] = useState('')
+    const [nickname,setNickname ] = useState('')
 
     useEffect(()=>{
         auth0.getAccessTokenSilently().then((token)=>setToken(token))
+        auth0.getIdTokenClaims().then((token)=> {
+            console.log(token)
+            setNickname(token.nickname)})
     },[])
 
-    return new WorkingSnippetOperations(token)
+    return new WorkingSnippetOperations(token, nickname)
 }

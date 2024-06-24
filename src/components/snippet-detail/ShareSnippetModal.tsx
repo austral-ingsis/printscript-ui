@@ -7,14 +7,15 @@ import {User} from "../../utils/users.ts";
 type ShareSnippetModalProps = {
   open: boolean
   onClose: () => void
-  onShare: (userId: string) => void
+  onShare: (userId: string, userName: string) => void
   loading: boolean
+  id: string
 }
 export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
   const {open, onClose, onShare, loading} = props
   const [name, setName] = useState("")
   const [debouncedName, setDebouncedName] = useState("")
-  const {data, isLoading} = useGetUsers(debouncedName, 1, 5)
+  const {data, isLoading} = useGetUsers(props.id,debouncedName, 1, 5)
   const [selectedUser, setSelectedUser] = useState<User | undefined>()
 
   useEffect(() => {
@@ -37,9 +38,9 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
               renderInput={(params) => <TextField {...params} label="Type the user's name"/>}
               options={data?.users ?? []}
               isOptionEqualToValue={(option, value) =>
-                  option.id === value.id
+                  option.userId === value.userId
               }
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={(option) => option.userName}
               loading={isLoading}
               value={selectedUser}
               onInputChange={(_: unknown, newValue: string | null) => newValue && setName(newValue)}
@@ -47,7 +48,7 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
           />
           <Box mt={4} display={"flex"} width={"100%"} justifyContent={"flex-end"}>
             <Button onClick={onClose} variant={"outlined"}>Cancel</Button>
-            <Button disabled={!selectedUser || loading} onClick={() => selectedUser && onShare(selectedUser?.id)} sx={{marginLeft: 2}} variant={"contained"}>Share</Button>
+            <Button disabled={!selectedUser || loading} onClick={() => selectedUser && onShare(selectedUser?.userId, selectedUser?.userName)} sx={{marginLeft: 2}} variant={"contained"}>Share</Button>
           </Box>
         </Box>
       </ModalWrapper>

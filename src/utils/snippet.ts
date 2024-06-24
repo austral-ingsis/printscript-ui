@@ -27,7 +27,7 @@ export type Snippet = CreateSnippet & {
 
 type SnippetStatus = {
   compliance: ComplianceEnum;
-  author: string;
+  userName: string;
 }
 export type PaginatedSnippets = Pagination & {
   snippets: Snippet[]
@@ -37,7 +37,7 @@ export type SnippetDescriptor  = {
   name: string;
   language: string;
   compliance: ComplianceEnum;
-  author: string;
+  userName: string;
 }
 
 export const getFileLanguage = (fileTypes: FileType[], fileExt?: string) => {

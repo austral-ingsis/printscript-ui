@@ -76,8 +76,8 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   }, [formatSnippetData])
 
 
-  async function handleShareSnippet(userId: string) {
-    shareSnippet({snippetId: id, userId})
+  async function handleShareSnippet(userId: string, userName: string) {
+    shareSnippet({assetId: id, userId, userName })
   }
 
   return (
@@ -148,7 +148,8 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
         }
         <ShareSnippetModal loading={loadingShare || isLoading} open={shareModalOppened}
                            onClose={() => setShareModalOppened(false)}
-                           onShare={handleShareSnippet}/>
+                           onShare={handleShareSnippet}
+                           id={id}/>
         <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)} snippetId={id}/>
         <DeleteConfirmationModal open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} id={snippet?.id ?? ""} setCloseDetails={handleCloseModal} />
       </Box>

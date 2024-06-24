@@ -5,7 +5,7 @@ import autoBind from 'auto-bind';
 import { FileType } from '../../types/FileType';
 import { TestCase } from '../../types/TestCase';
 import { TestCaseResult } from '../queries';
-import { PaginatedUsers } from '../users';
+import { PaginatedUsers, User } from '../users';
 import { FakeSnippetStore} from './fakeSnippetStore';
 import { Rule } from '../../types/Rule';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -17,9 +17,11 @@ export class WorkingSnippetOperations implements SnippetOperations {
   private readonly fakeStore = new FakeSnippetStore();
   private readonly tokenProvider = useAuth0();
   accessToken: string;
+  nickname: string;
 
-  constructor(accessToken: string) {
+  constructor(accessToken: string, nickName: string) {
     this.accessToken = accessToken;
+    this.nickname= nickName;
     autoBind(this);
   }
     modifyFormatRule(newRules: Rule[]): Promise<Rule[]> {
@@ -30,7 +32,11 @@ export class WorkingSnippetOperations implements SnippetOperations {
     }
 
   async createSnippet(createSnippet: CreateSnippet): Promise<Snippet> {
-    const response = await axios.post(`${API_BASE_URL}/snippet`, createSnippet, {
+    const createSnippetRequest = {
+      ...createSnippet, userName: this.nickname
+    }
+    console.log(createSnippetRequest)
+    const response = await axios.post(`${API_BASE_URL}/snippet`, createSnippetRequest, {
       headers: {
         Authorization: `Bearer ${this.accessToken}`
       }
@@ -78,8 +84,8 @@ export class WorkingSnippetOperations implements SnippetOperations {
     return response.data;
   }
 
-  async shareSnippet(snippetId: string, userId: string): Promise<Snippet> {
-    const response = await axios.post(`${API_BASE_URL}/snippet/share`, { snippetId, userId }, {
+  async shareSnippet(assetId: string, userId: string, userName: string): Promise<Snippet> {
+    const response = await axios.post(`${API_BASE_URL}/snippet/share`, { assetId, userId, userName }, {
       headers: {
         Authorization: `Bearer ${this.accessToken}`
       }
@@ -88,8 +94,13 @@ export class WorkingSnippetOperations implements SnippetOperations {
   }
 
   // Other methods stubs
-  getUserFriends(name?: string, page?: number, pageSize?: number): Promise<PaginatedUsers> {
-    throw new Error('Method not implemented.');
+  async getUserFriends(snippetId: string, name?: string, page?: number, pageSize?: number): Promise<PaginatedUsers> {
+    const response = await axios.get(`${API_BASE_URL}/snippet/share/${snippetId}`, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`
+      }
+    });
+    return {users: response.data as User[], page_size: 0, page:0, count: response.data.length}
   }
 
   getFormatRules(): Promise<Rule[]> {
