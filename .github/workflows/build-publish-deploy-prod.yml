@@ -74,5 +74,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /app/snippet-infrastructure
-            sudo docker compose pull
-            sudo docker compose up -d
+            sudo docker compose --profile full-setup pull
+            sudo docker compose --profile full-setup up -d
