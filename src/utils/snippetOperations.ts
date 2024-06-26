@@ -1,6 +1,6 @@
 import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippet'
 import {PaginatedUsers} from "./users.ts";
-import {TestCase} from "../types/TestCase.ts";
+import {TestCase, TestSnippetParams} from "../types/TestCase.ts";
 import {TestCaseResult} from "./queries.tsx";
 import {FileType} from "../types/FileType.ts";
 import {Rule} from "../types/Rule.ts";
@@ -26,7 +26,7 @@ export interface SnippetOperations {
 
   formatSnippet(snippet: string): Promise<string>
 
-  postTestCase(testCase: Partial<TestCase>): Promise<TestCase>
+  postTestCase(testCase: TestSnippetParams): Promise<TestCase>
 
   removeTestCase(id: string): Promise<string>
 

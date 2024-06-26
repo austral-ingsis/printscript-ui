@@ -3,7 +3,7 @@ import { SnippetOperations } from '../snippetOperations';
 import { CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet } from '../snippet';
 import autoBind from 'auto-bind';
 import { FileType } from '../../types/FileType';
-import { TestCase } from '../../types/TestCase';
+import { TestCase, TestSnippetParams } from '../../types/TestCase';
 import { TestCaseResult } from '../queries';
 import { PaginatedUsers, User } from '../users';
 import { FakeSnippetStore} from './fakeSnippetStore';
@@ -92,7 +92,6 @@ export class WorkingSnippetOperations implements SnippetOperations {
     return response.data;
   }
 
-  // Other methods stubs
   async getUserFriends(snippetId: string, name?: string, page?: number, pageSize?: number): Promise<PaginatedUsers> {
     const response = await axios.get(`${API_BASE_URL}/snippet/share/${snippetId}`, {
       headers: {
@@ -110,20 +109,60 @@ export class WorkingSnippetOperations implements SnippetOperations {
     throw new Error('Method not implemented.');
   }
 
-  getTestCases(): Promise<TestCase[]> {
-    throw new Error('Method not implemented.');
+  async getTestCases(snippetId: string): Promise<TestCase[]> {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/test/${snippetId}`, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`
+        }
+      });
+      const testCases: TestCase[] = response.data.map((testCase: any) => ({
+        id: testCase.id,
+        name: testCase.name,
+        inputs: testCase.inputs,
+        outputs: testCase.outputs,
+        environment: testCase.environment.map((env: any) => ({
+          key: env.key,
+          value: env.value
+        }))
+      }));
+
+      return testCases;
+    } catch (error) {
+      console.error('Error fetching test cases:', error);
+      throw error;
+    }
   }
 
   formatSnippet(snippet: string): Promise<string> {
     throw new Error('Method not implemented.');
   }
 
-  postTestCase(testCase: Partial<TestCase>): Promise<TestCase> {
-    throw new Error('Method not implemented.');
+  async postTestCase(testCase: TestSnippetParams): Promise<TestCase> {
+    const { tc, snippetId } = testCase;
+  
+    try {
+      const response = await axios.post(`${API_BASE_URL}/test/${snippetId}`, tc, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`
+        }
+      });
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error posting test case:', error);
+      throw error;
+    }
   }
+  
 
-  removeTestCase(id: string): Promise<string> {
-    throw new Error('Method not implemented.');
+  async removeTestCase(id: string): Promise<string> {
+    const response = await axios.delete(`${API_BASE_URL}/test/${id}`, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`
+      }
+    });
+    return response.data
   }
 
   testSnippet(testCase: Partial<TestCase>): Promise<TestCaseResult> {

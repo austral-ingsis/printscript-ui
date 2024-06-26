@@ -3,7 +3,7 @@ import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippe
 import {SnippetOperations} from "./snippetOperations.ts";
 import {PaginatedUsers} from "./users.ts";
 import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
-import {TestCase} from "../types/TestCase.ts";
+import {TestCase, TestSnippetParams} from "../types/TestCase.ts";
 import {FileType} from "../types/FileType.ts";
 import {Rule} from "../types/Rule.ts";
 import { useWorkingSnippetOperations } from '../hooks/useWorkingSnippetOperations.ts';
@@ -55,13 +55,13 @@ export const useShareSnippet = () => {
 
 export const useGetTestCases = (snippetId: string) => {
   const snippetOperations = useWorkingSnippetOperations()
-    return useQuery<TestCase[] | undefined, Error>('testCases', () => snippetOperations.getTestCases(), {});
+    return useQuery<TestCase[] | undefined, Error>('testCases', () => snippetOperations.getTestCases(snippetId), {});
 };
 
 
 export const usePostTestCase = () => {
   const snippetOperations = useWorkingSnippetOperations()
-    return useMutation<TestCase, Error, Partial<TestCase>>(
+    return useMutation<TestCase, Error, TestSnippetParams>(
         (tc) => snippetOperations.postTestCase(tc)
     );
 };
