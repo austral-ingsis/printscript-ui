@@ -29,11 +29,12 @@ export const useCreateSnippet = ({onSuccess}: {
 
 export const useUpdateSnippetById = ({onSuccess}: { onSuccess: () => void }): UseMutationResult<Snippet, Error, {
     id: string;
-    updateSnippet: UpdateSnippet
+    content: string;
+    name: string
 }> => {
   const snippetOperations = useWorkingSnippetOperations()
-    return useMutation<Snippet, Error, { id: string; updateSnippet: UpdateSnippet }>(
-        ({id, updateSnippet}) => snippetOperations.updateSnippetById(id, updateSnippet), {
+    return useMutation<Snippet, Error, { id: string; content: string, name: string }>(
+        ({id, content, name}) => snippetOperations.updateSnippetById(id, content, name), {
             onSuccess,
         }
     );

@@ -12,7 +12,6 @@ export const useWorkingSnippetOperations= ()=>{
     useEffect(()=>{
         auth0.getAccessTokenSilently().then((token)=>setToken(token))
         auth0.getIdTokenClaims().then((token)=> {
-            console.log(token)
             setNickname(token.nickname)})
     },[])
 

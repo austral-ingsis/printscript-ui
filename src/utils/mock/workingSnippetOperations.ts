@@ -35,7 +35,6 @@ export class WorkingSnippetOperations implements SnippetOperations {
     const createSnippetRequest = {
       ...createSnippet, userName: this.nickname
     }
-    console.log(createSnippetRequest)
     const response = await axios.post(`${API_BASE_URL}/snippet`, createSnippetRequest, {
       headers: {
         Authorization: `Bearer ${this.accessToken}`
@@ -66,8 +65,8 @@ export class WorkingSnippetOperations implements SnippetOperations {
     return response.data;
   }
 
-  async updateSnippetById(id: string, updateSnippet: UpdateSnippet): Promise<Snippet> {
-    const response = await axios.put(`${API_BASE_URL}/snippet/${id}`, updateSnippet, {
+  async updateSnippetById(id: string,content: string, name: string): Promise<Snippet> {
+    const response = await axios.put(`${API_BASE_URL}/snippet/${id}`, {content, name}, {
       headers: {
         Authorization: `Bearer ${this.accessToken}`
       }

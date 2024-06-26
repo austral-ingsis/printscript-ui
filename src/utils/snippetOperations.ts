@@ -12,7 +12,7 @@ export interface SnippetOperations {
 
   getSnippetById(id: string): Promise<Snippet | undefined>
 
-  updateSnippetById(id: string, updateSnippet: UpdateSnippet): Promise<Snippet>
+  updateSnippetById(id: string, content: string , name: string): Promise<Snippet>
 
   getUserFriends(snippetId: string, name?: string,page?: number,pageSize?: number): Promise<PaginatedUsers>
 
