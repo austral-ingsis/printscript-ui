@@ -6,6 +6,7 @@ import { PaginationProvider } from "./contexts/paginationProvider.tsx";
 import { SnackbarProvider } from "./contexts/snackbarProvider.tsx";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { AUTH0_CLIENT_ID, AUTH0_DOMAIN } from "./utils/constants.ts";
+import { Toaster } from "react-hot-toast";
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById("root")!).render(
           cacheLocation={"localstorage"}
         >
           <App />
+          <Toaster position="bottom-left"/>
         </Auth0Provider>
       </SnackbarProvider>
     </PaginationProvider>

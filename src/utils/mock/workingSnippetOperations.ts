@@ -8,6 +8,7 @@ import { TestCaseResult } from '../queries';
 import { PaginatedUsers, User } from '../users';
 import { FakeSnippetStore } from './fakeSnippetStore';
 import { FormatRule, LintRule } from '../../types/Rule';
+import toast from 'react-hot-toast';
 
 const DELAY: number = 1000;
 const API_BASE_URL = 'http://localhost:8081';
@@ -83,6 +84,9 @@ export class WorkingSnippetOperations implements SnippetOperations {
 
   async runSnippet(snippet: Snippet): Promise<string[]> {
     const response = await this.api.post(`/snippet/run/${snippet.id}`, { content: snippet.content, language: snippet.language });
+    if (response.data.error) {
+      toast.error(response.data.error)
+    }
     return response.data.outputs;
   }
 
@@ -129,6 +133,11 @@ export class WorkingSnippetOperations implements SnippetOperations {
       content: snippet.content,
       language: snippet.language
     })
+
+    if (data.error) {
+      toast.error(data.error)
+      return snippet.content
+    }
     return data.output
   }
 
