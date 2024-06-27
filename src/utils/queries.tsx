@@ -36,6 +36,12 @@ export const useUpdateSnippetById = ({onSuccess}: { onSuccess: () => void }): Us
     );
 };
 
+export const useRunSnippet = () => {
+  return useMutation<string[], Error, Snippet>(
+    snippet => snippetOperations.runSnippet(snippet)
+  )
+}
+
 export const useGetUsers = (snippetId: string, name: string = "", page: number = 0, pageSize: number = 10) => {
     return useQuery<PaginatedUsers, Error>(['users', name, page, pageSize], () => snippetOperations.getUserFriends(snippetId,name, page, pageSize));
 };
@@ -106,7 +112,7 @@ export const useModifyLintingRules = ({onSuccess}: { onSuccess: () => void }) =>
 }
 
 export const useFormatSnippet = () => {
-    return useMutation<string, Error, string>(
+    return useMutation<string, Error, Snippet>(
         snippetContent => snippetOperations.formatSnippet(snippetContent)
     );
 }

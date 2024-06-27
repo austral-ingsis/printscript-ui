@@ -40,7 +40,7 @@ export class WorkingSnippetOperations implements SnippetOperations {
     const response = await this.api.put('/rule/formatter', { rules: newRules })
     return response.data
   }
-  
+
   async modifyLintingRule(newRules: LintRule[]): Promise<LintRule[]> {
     const response = await this.api.put('/rule/linter', newRules)
     return response.data
@@ -81,20 +81,25 @@ export class WorkingSnippetOperations implements SnippetOperations {
     return response.data;
   }
 
+  async runSnippet(snippet: Snippet): Promise<string[]> {
+    const response = await this.api.post(`/snippet/run/${snippet.id}`, { content: snippet.content, language: snippet.language });
+    return response.data.outputs;
+  }
+
   async getUserFriends(snippetId: string, name?: string, page?: number, pageSize?: number): Promise<PaginatedUsers> {
     const response = await this.api.get(`/snippet/share/${snippetId}`);
     return { users: response.data as User[], page_size: 0, page: 0, count: response.data.length }
   }
 
   async getFormatRules(): Promise<FormatRule[]> {
-    const {data} = await this.api.post('/rule/formatter')
+    const { data } = await this.api.post('/rule/formatter')
     return data.rules
   }
 
   async getLintingRules(): Promise<LintRule[]> {
-    const {data} = await this.api.post('/rule/linter')
+    const { data } = await this.api.post('/rule/linter')
     return data
-    
+
   }
 
   async getTestCases(snippetId: string): Promise<TestCase[]> {
@@ -118,11 +123,13 @@ export class WorkingSnippetOperations implements SnippetOperations {
     }
   }
 
-  async formatSnippet(snippet: string): Promise<string> {
+  async formatSnippet(snippet: Snippet): Promise<string> {
     const { data } = await this.api.post('/rule/formatter/run', {
-
+      snippetId: snippet.id,
+      content: snippet.content,
+      language: snippet.language
     })
-    return ""
+    return data.output
   }
 
   async postTestCase(testCase: TestSnippetParams): Promise<TestCase> {
