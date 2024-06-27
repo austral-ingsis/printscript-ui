@@ -2,9 +2,9 @@ import {OutlinedInput} from "@mui/material";
 import {highlight, languages} from "prismjs";
 import Editor from "react-simple-code-editor";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
-export const SnippetExecution = () => {
+export const SnippetExecution = ({snippetOuput=[]}:{snippetOuput: string[]}) => {
   // Here you should provide all the logic to connect to your sockets.
   const [input, setInput] = useState<string>("")
   const [output, setOutput] = useState<string[]>([]);
@@ -19,6 +19,12 @@ export const SnippetExecution = () => {
       setInput("")
     }
   };
+
+  useEffect(()=>{
+    if(snippetOuput){
+      setOutput(snippetOuput)
+    }
+  }, [snippetOuput])
 
     return (
       <>

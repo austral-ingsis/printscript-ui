@@ -21,6 +21,7 @@ import {CreateSnippetWithLang, getFileLanguage, Snippet} from "../../utils/snipp
 import {usePaginationContext} from "../../contexts/paginationContext.tsx";
 import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
 import {useGetFileTypes} from "../../utils/queries.tsx";
+import { useAuth0 } from "@auth0/auth0-react";
 
 type SnippetTableProps = {
   handleClickSnippet: (id: string) => void;
@@ -34,6 +35,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [popoverMenuOpened, setPopoverMenuOpened] = useState(false)
   const [snippet, setSnippet] = useState<CreateSnippetWithLang | undefined>()
+  const { getIdTokenClaims } = useAuth0()
 
   const popoverRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +45,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
 
   const handleLoadSnippet = async (target: EventTarget & HTMLInputElement) => {
     const files = target.files
+    const { nickname } = await getIdTokenClaims()
     if (!files || !files.length) {
       createSnackbar('error',"Please select at leat one file")
       return
@@ -59,7 +62,8 @@ export const SnippetTable = (props: SnippetTableProps) => {
         name: splitName[0],
         content: text,
         language: fileType.language,
-        extension: fileType.extension
+        extension: fileType.extension,
+        userName: nickname
       })
     }).catch(e => {
       console.error(e)

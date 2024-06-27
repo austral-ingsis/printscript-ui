@@ -2,14 +2,14 @@ import {BACKEND_URL} from "../../src/utils/constants";
 
 describe('Add snippet tests', () => {
   beforeEach(() => {
-    // cy.loginToAuth0(
-    //     AUTH0_USERNAME,
-    //     AUTH0_PASSWORD
-    // )
+     cy.loginToAuth0(
+        Cypress.env("AUTH0_USERNAME"),
+       Cypress.env("AUTH0_PASSWORD")
+     )
   })
   it('Can add snippets manually', () => {
     cy.visit("/")
-    cy.intercept('POST', BACKEND_URL+"/snippets", (req) => {
+    cy.intercept('POST', Cypress.env("BACKEND_URL")+"/snippet", (req) => {
       req.reply((res) => {
         expect(res.body).to.include.keys("id","name","content","language")
         expect(res.statusCode).to.eq(200);
@@ -21,7 +21,7 @@ describe('Add snippet tests', () => {
     cy.get('.MuiList-root > [tabindex="0"]').click();
     cy.get('#name').type('Some snippet name');
     cy.get('#demo-simple-select').click()
-    cy.get('[data-testid="menu-option-printscript"]').click()
+    cy.get('[data-testid="menu-option-printscript 1.1"]').click()
 
     cy.get('[data-testid="add-snippet-code-editor"]').click();
     cy.get('[data-testid="add-snippet-code-editor"]').type(`const snippet: String = "some snippet" \n print(snippet)`);
@@ -32,7 +32,7 @@ describe('Add snippet tests', () => {
 
   it('Can add snippets via file', () => {
     cy.visit("/")
-    cy.intercept('POST', BACKEND_URL+"/snippets", (req) => {
+    cy.intercept('POST', Cypress.env("BACKEND_URL")+"/snippet", (req) => {
       req.reply((res) => {
         expect(res.body).to.include.keys("id","name","content","language")
         expect(res.statusCode).to.eq(200);
@@ -40,7 +40,7 @@ describe('Add snippet tests', () => {
     }).as('postRequest');
 
     /* ==== Generated with Cypress Studio ==== */
-    cy.get('[data-testid="upload-file-input"').selectFile("cypress/fixtures/example_ps.ps", {force: true})
+    cy.get('[data-testid="upload-file-input"').selectFile("cypress/fixtures/example.prs", {action: "select", force: true});
 
     cy.get('[data-testid="SaveIcon"]').click();
 

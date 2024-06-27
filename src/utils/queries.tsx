@@ -1,16 +1,15 @@
 import {useMutation, UseMutationResult, useQuery} from 'react-query';
 import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippet.ts';
-import {SnippetOperations} from "./snippetOperations.ts";
 import {PaginatedUsers} from "./users.ts";
-import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
-import {TestCase} from "../types/TestCase.ts";
+import {TestCase, TestSnippetParams} from "../types/TestCase.ts";
 import {FileType} from "../types/FileType.ts";
-import {Rule} from "../types/Rule.ts";
+import { WorkingSnippetOperations } from './mock/workingSnippetOperations.ts';
+import { FormatRule, LintRule } from '../types/Rule.ts';
 
-const snippetOperations: SnippetOperations = new FakeSnippetOperations(); // TODO: Replace with your implementation
+const snippetOperations = new WorkingSnippetOperations();
 
 export const useGetSnippets = (page: number = 0, pageSize: number = 10, snippetName?: string) => {
-    return useQuery<PaginatedSnippets, Error>(['listSnippets', page, pageSize, snippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize, snippetName));
+    return useQuery<PaginatedSnippets, Error>(['listSnippets', page, pageSize, snippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize));
 };
 
 export const useGetSnippetById = (id: string) => {
@@ -27,22 +26,29 @@ export const useCreateSnippet = ({onSuccess}: {
 
 export const useUpdateSnippetById = ({onSuccess}: { onSuccess: () => void }): UseMutationResult<Snippet, Error, {
     id: string;
-    updateSnippet: UpdateSnippet
+    content: string;
+    name: string
 }> => {
-    return useMutation<Snippet, Error, { id: string; updateSnippet: UpdateSnippet }>(
-        ({id, updateSnippet}) => snippetOperations.updateSnippetById(id, updateSnippet), {
+    return useMutation<Snippet, Error, { id: string; content: string, name: string }>(
+        ({id, content, name}) => snippetOperations.updateSnippetById(id, content, name), {
             onSuccess,
         }
     );
 };
 
-export const useGetUsers = (name: string = "", page: number = 0, pageSize: number = 10) => {
-    return useQuery<PaginatedUsers, Error>(['users', name, page, pageSize], () => snippetOperations.getUserFriends(name, page, pageSize));
+export const useRunSnippet = () => {
+  return useMutation<string[], Error, Snippet>(
+    snippet => snippetOperations.runSnippet(snippet)
+  )
+}
+
+export const useGetUsers = (snippetId: string, name: string = "", page: number = 0, pageSize: number = 10) => {
+    return useQuery<PaginatedUsers, Error>(['users', name, page, pageSize], () => snippetOperations.getUserFriends(snippetId,name, page, pageSize));
 };
 
 export const useShareSnippet = () => {
-    return useMutation<Snippet, Error, { snippetId: string; userId: string }>(
-        ({snippetId, userId}) => snippetOperations.shareSnippet(snippetId, userId)
+    return useMutation<Snippet, Error, { assetId: string; userId: string, userName: string }>(
+        ({assetId, userId, userName}) => snippetOperations.shareSnippet(assetId, userId, userName)
     );
 };
 
@@ -53,7 +59,7 @@ export const useGetTestCases = (snippetId: string) => {
 
 
 export const usePostTestCase = () => {
-    return useMutation<TestCase, Error, Partial<TestCase>>(
+    return useMutation<TestCase, Error, TestSnippetParams>(
         (tc) => snippetOperations.postTestCase(tc)
     );
 };
@@ -69,7 +75,10 @@ export const useRemoveTestCase = ({onSuccess}: { onSuccess: () => void }) => {
     );
 };
 
-export type TestCaseResult = "success" | "fail"
+export type TestCaseResult = {
+  passed: boolean;
+  error: string;
+}
 
 export const useTestSnippet = () => {
     return useMutation<TestCaseResult, Error, Partial<TestCase>>(
@@ -79,11 +88,11 @@ export const useTestSnippet = () => {
 
 
 export const useGetFormatRules = () => {
-    return useQuery<Rule[], Error>('formatRules', () => snippetOperations.getFormatRules());
+    return useQuery<FormatRule[], Error>('formatRules', () => snippetOperations.getFormatRules());
 }
 
 export const useModifyFormatRules = ({onSuccess}: { onSuccess: () => void }) => {
-    return useMutation<Rule[], Error, Rule[]>(
+    return useMutation<FormatRule[], Error, FormatRule[]>(
         rule => snippetOperations.modifyFormatRule(rule),
         {onSuccess}
     );
@@ -91,19 +100,19 @@ export const useModifyFormatRules = ({onSuccess}: { onSuccess: () => void }) => 
 
 
 export const useGetLintingRules = () => {
-    return useQuery<Rule[], Error>('lintingRules', () => snippetOperations.getLintingRules());
+    return useQuery<LintRule[], Error>('lintingRules', () => snippetOperations.getLintingRules());
 }
 
 
 export const useModifyLintingRules = ({onSuccess}: { onSuccess: () => void }) => {
-    return useMutation<Rule[], Error, Rule[]>(
+    return useMutation<LintRule[], Error, LintRule[]>(
         rule => snippetOperations.modifyLintingRule(rule),
         {onSuccess}
     );
 }
 
 export const useFormatSnippet = () => {
-    return useMutation<string, Error, string>(
+    return useMutation<string, Error, Snippet>(
         snippetContent => snippetOperations.formatSnippet(snippetContent)
     );
 }

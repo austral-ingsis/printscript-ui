@@ -7,6 +7,7 @@ import "prismjs/themes/prism-okaidia.css";
 import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {
+  useRunSnippet,
   useUpdateSnippetById
 } from "../utils/queries.tsx";
 import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
@@ -53,15 +54,16 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   const [code, setCode] = useState(
       ""
   );
+  const [snippetOutput, setSnippetOutput] = useState<string[]>([])
   const [shareModalOppened, setShareModalOppened] = useState(false)
   const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false)
   const [testModalOpened, setTestModalOpened] = useState(false);
-  const [runSnippet, setRunSnippet] = useState(false);
 
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
   const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
   const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({onSuccess: () => queryClient.invalidateQueries(['snippet', id])})
+  const {mutate: runSnippet, isLoading: isRunSnippetLoading, data: result, error} = useRunSnippet()
 
   useEffect(() => {
     if (snippet) {
@@ -75,9 +77,15 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
     }
   }, [formatSnippetData])
 
+  useEffect(() => {
+    if(result) {
+      setSnippetOutput(result)
+    }
+  }, [result])
 
-  async function handleShareSnippet(userId: string) {
-    shareSnippet({snippetId: id, userId})
+
+  async function handleShareSnippet(userId: string, userName: string) {
+    shareSnippet({assetId: id, userId, userName })
   }
 
   return (
@@ -103,18 +111,18 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                 </IconButton>
               </Tooltip>
               <DownloadButton snippet={snippet}/>
-              <Tooltip title={runSnippet ? "Stop run" : "Run"}>
-                <IconButton onClick={() => setRunSnippet(!runSnippet)}>
-                  {runSnippet ? <StopRounded/> : <PlayArrow/>}
+              <Tooltip title={isRunSnippetLoading ? "Stop run" : "Run"}>
+                <IconButton onClick={() => runSnippet(snippet)}>
+                  {isRunSnippetLoading ? <StopRounded/> : <PlayArrow/>}
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Format"}>
-                <IconButton onClick={() => formatSnippet(code)} disabled={isFormatLoading}>
+                <IconButton onClick={() => formatSnippet(snippet)} disabled={isFormatLoading}>
                   <ReadMoreIcon />
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Save changes"}>
-                <IconButton color={"primary"} onClick={() => updateSnippet({id: id, updateSnippet: {content: code}})} disabled={isUpdateSnippetLoading || snippet?.content === code} >
+                <IconButton color={"primary"} onClick={() => updateSnippet({id: id, content: code, name: snippet.name})} disabled={isUpdateSnippetLoading || snippet?.content === code} >
                   <Save />
                 </IconButton>
               </Tooltip>
@@ -142,13 +150,15 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
             </Box>
             <Box pt={1} flex={1} marginTop={2}>
               <Alert severity="info">Output</Alert>
-              <SnippetExecution />
+              <SnippetExecution snippetOuput={snippetOutput}/>
             </Box>
           </>
         }
         <ShareSnippetModal loading={loadingShare || isLoading} open={shareModalOppened}
                            onClose={() => setShareModalOppened(false)}
-                           onShare={handleShareSnippet}/>
+                           onShare={handleShareSnippet}
+                           id={id}
+                           userName={snippet?.userName}/>
         <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)} snippetId={id}/>
         <DeleteConfirmationModal open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} id={snippet?.id ?? ""} setCloseDetails={handleCloseModal} />
       </Box>

@@ -4,15 +4,15 @@ import {PaginatedUsers} from "../users.ts";
 import {TestCase} from "../../types/TestCase.ts";
 import {TestCaseResult} from "../queries.tsx";
 import {FileType} from "../../types/FileType.ts";
-import {Rule} from "../../types/Rule.ts";
+import { Rule } from '../../types/Rule.ts';
 
 const INITIAL_SNIPPETS: Snippet[] = [
   {
     id: '9af91631-cdfc-4341-9b8e-3694e5cb3672',
     name: 'Super Snippet',
     content: 'let a : number = 5;\nlet b : number = 5;\n\nprintln(a + b);',
-    compliance: 'pending',
-    author: 'John Doe',
+    complianceType: 'pending',
+    userName: 'John Doe',
     language: 'printscript',
     extension: 'prs'
   },
@@ -20,8 +20,8 @@ const INITIAL_SNIPPETS: Snippet[] = [
     id: 'c48cf644-fbc1-4649-a8f4-9dd7110640d9',
     name: 'Extra cool Snippet',
     content: 'let a : number = 5;\nlet b : number = 5;\n\nprintln(a + b);',
-    compliance: 'not-compliant',
-    author: 'John Doe',
+    complianceType: 'not-compliant',
+    userName: 'John Doe',
     language: 'printscript',
     extension: 'prs'
   },
@@ -29,8 +29,8 @@ const INITIAL_SNIPPETS: Snippet[] = [
     id: '34bf4b7a-d4a1-48be-bb26-7d9a3be46227',
     name: 'Boaring Snippet',
     content: 'let a : number = 5;\nlet b : number = 5;\n\nprintln(a + b);',
-    compliance: 'compliant',
-    author: 'John Doe',
+    complianceType: 'compliant',
+    userName: 'John Doe',
     language: 'printscript',
     extension: 'prs'
   }
@@ -42,24 +42,24 @@ const paginatedUsers: PaginatedUsers = {
   page_size: 10,
   users: [
     {
-      name: "Chona",
-      id: "1"
+      userName: "Chona",
+      userId: "1"
     },
     {
-      name: "Fede",
-      id: "2"
+      userName: "Fede",
+      userId: "2"
     },
     {
-      name: "Mateo",
-      id: "3"
+      userName: "Mateo",
+      userId: "3"
     },
     {
-      name: "Tomi",
-      id: "4"
+      userName: "Tomi",
+      userId: "4"
     },
     {
-      name: "Berrets",
-      id: "5"
+      userName: "Berrets",
+      userId: "5"
     }
   ]
 }
@@ -127,34 +127,28 @@ const fakeTestCases: TestCase[] = [
   {
     id: uuid(),
     name: "Test Case 1",
-    input: ["A", "B"],
-    output: ["C", "D"]
+    inputs: ["A", "B"],
+    outputs: ["C", "D"],
+    environment: []
   },
   {
     id: uuid(),
     name: "Test Case 2",
-    input: ["E", "F"],
-    output: ["G", "H"]
+    inputs: ["E", "F"],
+    outputs: ["G", "H"],
+    environment: []
   },
 ]
 
 const fileTypes: FileType[] = [
   {
-    language: "printscript",
+    language: "printscript 1.1",
     extension: "prs",
   },
   {
-    language: "python",
-    extension: "py",
+    language: "printscript 1.0",
+    extension: "prs",
   },
-  {
-    language: "java",
-    extension: "java",
-  },
-  {
-    language: 'golang',
-    extension: 'go'
-  }
 ]
 
 export class FakeSnippetStore {
@@ -183,7 +177,7 @@ export class FakeSnippetStore {
     const id = uuid();
     const newSnippet = {
       id,
-      compliance: 'compliant' as ComplianceEnum,
+      complianceType: 'compliant' as ComplianceEnum,
       author: 'yo',
       ...createSnippet
     }
@@ -216,7 +210,7 @@ export class FakeSnippetStore {
       ...paginatedUsers,
       page: page,
       pageSize: pageSize,
-      users: paginatedUsers.users.filter(x => x.name.includes(name))
+      users: paginatedUsers.users.filter(x => x.userName.includes(name))
     };
   }
 
@@ -253,7 +247,7 @@ export class FakeSnippetStore {
     return id
   }
 
-  testSnippet(): TestCaseResult {
+  testSnippet(): string {
     return Math.random() > 0.5 ? "success" : "fail"
   }
 

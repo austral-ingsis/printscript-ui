@@ -1,9 +1,9 @@
 import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippet'
 import {PaginatedUsers} from "./users.ts";
-import {TestCase} from "../types/TestCase.ts";
+import {TestCase, TestSnippetParams} from "../types/TestCase.ts";
 import {TestCaseResult} from "./queries.tsx";
 import {FileType} from "../types/FileType.ts";
-import {Rule} from "../types/Rule.ts";
+import { FormatRule, LintRule } from '../types/Rule.ts';
 
 export interface SnippetOperations {
   listSnippetDescriptors(page: number,pageSize: number,sippetName?: string): Promise<PaginatedSnippets>
@@ -12,21 +12,23 @@ export interface SnippetOperations {
 
   getSnippetById(id: string): Promise<Snippet | undefined>
 
-  updateSnippetById(id: string, updateSnippet: UpdateSnippet): Promise<Snippet>
+  updateSnippetById(id: string, content: string , name: string): Promise<Snippet>
 
-  getUserFriends(name?: string,page?: number,pageSize?: number): Promise<PaginatedUsers>
+  runSnippet(snippet: Snippet): Promise<string[]>
 
-  shareSnippet(snippetId: string,userId: string): Promise<Snippet>
+  getUserFriends(snippetId: string, name?: string,page?: number,pageSize?: number): Promise<PaginatedUsers>
 
-  getFormatRules(): Promise<Rule[]>
+  shareSnippet(snippetId: string,userId: string, userName: string): Promise<Snippet>
 
-  getLintingRules(): Promise<Rule[]>
+  getFormatRules(): Promise<FormatRule[]>
+
+  getLintingRules(): Promise<LintRule[]>
 
   getTestCases(snippetId: string): Promise<TestCase[]>
 
-  formatSnippet(snippet: string): Promise<string>
+  formatSnippet(snippet: Snippet): Promise<string>
 
-  postTestCase(testCase: Partial<TestCase>): Promise<TestCase>
+  postTestCase(testCase: TestSnippetParams): Promise<TestCase>
 
   removeTestCase(id: string): Promise<string>
 
@@ -36,7 +38,7 @@ export interface SnippetOperations {
 
   getFileTypes(): Promise<FileType[]>
 
-  modifyFormatRule(newRules: Rule[]): Promise<Rule[]>
+  modifyFormatRule(newRules: FormatRule[]): Promise<FormatRule[]>
 
-  modifyLintingRule(newRules: Rule[]): Promise<Rule[]>
+  modifyLintingRule(newRules: LintRule[]): Promise<LintRule[]>
 }
