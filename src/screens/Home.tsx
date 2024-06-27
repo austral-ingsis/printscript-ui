@@ -20,13 +20,14 @@ const HomeScreen = () => {
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const url = import.meta.env.VITE_REACT_APP_BACKEND_URL
 
   useEffect(() => {
     const fetchSnippets = async () => {
       setIsLoading(true);
       try {
         const token = await getAccessTokenSilently();
-        const response = await axios.get(`http://localhost:8081/snippet`, {
+        const response = await axios.get(url+"/snippet", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
