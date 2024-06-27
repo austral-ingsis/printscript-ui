@@ -11,6 +11,7 @@ const AuthGuard = () => {
       (async () =>{
         const token = await getAccessTokenSilently()
         document.cookie = `session=${token}`
+        localStorage.setItem('authAccessToken', token)
       })()
 
     }

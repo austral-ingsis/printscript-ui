@@ -165,7 +165,7 @@ export class WorkingSnippetOperations implements SnippetOperations {
     return response.data
   }
 
-  getFileTypes(): Promise<FileType[]> {
+   getFileTypes(): Promise<FileType[]> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.getFileTypes()), DELAY);
     });

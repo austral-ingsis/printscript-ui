@@ -3,10 +3,10 @@ import {CreateSnippet} from "../../src/utils/snippet";
 
 describe('Home', () => {
   beforeEach(() => {
-    // cy.loginToAuth0( TODO DE-Comment when auth0 is ready
-    //     AUTH0_USERNAME,
-    //     AUTH0_PASSWORD
-    // )
+     cy.loginToAuth0(
+        AUTH0_USERNAME,
+        AUTH0_PASSWORD
+    )
   })
   before(() => {
     process.env.FRONTEND_URL = Cypress.env("FRONTEND_URL");
@@ -14,7 +14,6 @@ describe('Home', () => {
   })
   it('Renders home', () => {
     cy.visit(FRONTEND_URL)
-    /* ==== Generated with Cypress Studio ==== */
     cy.get('.MuiTypography-h6').should('have.text', 'Printscript');
     cy.get('.MuiBox-root > .MuiInputBase-root > .MuiInputBase-input').should('be.visible');
     cy.get('.css-9jay18 > .MuiButton-root').should('be.visible');
@@ -35,10 +34,11 @@ describe('Home', () => {
   it('Can creat snippet find snippets by name', () => {
     cy.visit(FRONTEND_URL)
     const snippetData: CreateSnippet = {
+      userName: "valensecondary",
       name: "Test name",
       content: "print(1)",
       language: "printscript",
-      extension: ".ps"
+      extension: ".prs"
     }
 
     cy.intercept('GET', BACKEND_URL+"/snippets*", (req) => {
@@ -49,7 +49,7 @@ describe('Home', () => {
 
     cy.request({
       method: 'POST',
-      url: '/snippets', // Adjust if you have a different base URL configured in Cypress
+      url: '/snippet', // Adjust if you have a different base URL configured in Cypress
       body: snippetData,
       failOnStatusCode: false // Optional: set to true if you want the test to fail on non-2xx status codes
     }).then((response) => {
