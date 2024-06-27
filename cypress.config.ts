@@ -14,7 +14,11 @@ export default defineConfig({
       BACKEND_URL: process.env.VITE_REACT_APP_BACKEND_URL,
       AUTH0_USERNAME: process.env.VITE_REACT_APP_AUTH0_USERNAME,
       AUTH0_PASSWORD: process.env.VITE_REACT_APP_AUTH0_PASSWORD,
-      auth0_domain: process.env.VITE_REACT_APP_AUTH0_DOMAIN
+      auth0_domain: process.env.VITE_REACT_APP_AUTH0_DOMAIN,
+      AUTH0_URL: process.env.VITE_REACT_APP_AUTH0_URL,
+      client_secret: process.env.VITE_REACT_APP_CLIENT_SECRET,
+      client_id: process.env.VITE_REACT_APP_AUTH0_CLIENT_ID,
+      auth0_audience: process.env.VITE_REACT_APP_AUTH0_AUDIENCE
     },
     experimentalStudio: true,
     baseUrl: process.env.VITE_REACT_APP_FRONTEND_URL,

@@ -9,7 +9,6 @@ describe('Add snippet tests', () => {
   })
   it('Can add snippets manually', () => {
     cy.visit("/")
-    // CYPRESS ERROR NOT CATHCING THE REQUEST
     cy.intercept('POST', Cypress.env("BACKEND_URL")+"/snippet", (req) => {
       req.reply((res) => {
         expect(res.body).to.include.keys("id","name","content","language")
@@ -41,7 +40,7 @@ describe('Add snippet tests', () => {
     }).as('postRequest');
 
     /* ==== Generated with Cypress Studio ==== */
-    cy.get('[data-testid="upload-file-input"').selectFile("cypress/fixtures/example_prs.prs", {action: "select", force: true});
+    cy.get('[data-testid="upload-file-input"').selectFile("cypress/fixtures/example.prs", {action: "select", force: true});
 
     cy.get('[data-testid="SaveIcon"]').click();
 
