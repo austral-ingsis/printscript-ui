@@ -6,12 +6,12 @@ import { FileType } from '../../types/FileType';
 import { TestCase, TestSnippetParams } from '../../types/TestCase';
 import { TestCaseResult } from '../queries';
 import { PaginatedUsers, User } from '../users';
-import { FakeSnippetStore } from './fakeSnippetStore';
 import { FormatRule, LintRule } from '../../types/Rule';
 import toast from 'react-hot-toast';
+import { FakeFileTypeStore } from './fakeFileTypeStore';
 
 const DELAY: number = 1000;
-const API_BASE_URL = 'http://localhost:8081';
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL
 
 const getCookie = (name: string): any => {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -24,7 +24,7 @@ const getCookie = (name: string): any => {
 
 
 export class WorkingSnippetOperations implements SnippetOperations {
-  private readonly fakeStore = new FakeSnippetStore();
+  private readonly fakeStore = new FakeFileTypeStore();
   private api: AxiosInstance;
 
   constructor() {
