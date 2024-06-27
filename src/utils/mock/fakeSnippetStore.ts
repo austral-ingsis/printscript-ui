@@ -140,21 +140,13 @@ const fakeTestCases: TestCase[] = [
 
 const fileTypes: FileType[] = [
   {
-    language: "printscript",
+    language: "printscript 1.1",
     extension: "prs",
   },
   {
-    language: "python",
-    extension: "py",
+    language: "printscript 1.0",
+    extension: "prs",
   },
-  {
-    language: "java",
-    extension: "java",
-  },
-  {
-    language: 'golang',
-    extension: 'go'
-  }
 ]
 
 export class FakeSnippetStore {

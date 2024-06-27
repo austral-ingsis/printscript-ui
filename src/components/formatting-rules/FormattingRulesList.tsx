@@ -10,10 +10,10 @@ import {
 } from "@mui/material";
 import {useGetFormatRules, useModifyFormatRules} from "../../utils/queries.tsx";
 import {queryClient} from "../../App.tsx";
-import {Rule} from "../../types/Rule.ts";
+import { FormatRule } from '../../types/Rule.ts';
 
 const FormattingRulesList = () => {
-  const [rules, setRules] = useState<Rule[] | undefined>([]);
+  const [rules, setRules] = useState<FormatRule[] | undefined>([]);
 
   const {data, isLoading} = useGetFormatRules();
   const {mutateAsync, isLoading: isLoadingMutate} = useModifyFormatRules({
@@ -24,9 +24,9 @@ const FormattingRulesList = () => {
     setRules(data)
   }, [data]);
 
-  const handleValueChange = (rule: Rule, newValue: string | number) => {
+  const handleValueChange = (rule: FormatRule, newValue: string | number) => {
     const newRules = rules?.map(r => {
-      if (r.name === rule.name) {
+      if (r.type === rule.type) {
         return {...r, value: newValue}
       } else {
         return r;
@@ -35,15 +35,15 @@ const FormattingRulesList = () => {
     setRules(newRules)
   };
 
-  const handleNumberChange = (rule: Rule) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNumberChange = (rule: FormatRule) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value, 10);
     handleValueChange(rule, isNaN(value) ? 0 : value);
   };
 
-  const toggleRule = (rule: Rule) => () => {
+  const toggleRule = (rule: FormatRule) => () => {
     const newRules = rules?.map(r => {
-      if (r.name === rule.name) {
-        return {...r, isActive: !r.isActive}
+      if (r.type === rule.type) {
+        return {...r, allowed: !r.allowed}
       } else {
         return r;
       }
@@ -60,29 +60,31 @@ const FormattingRulesList = () => {
           rules?.map((rule) => {
           return (
             <ListItem
-              key={rule.name}
+              key={rule.type}
               disablePadding
               style={{height: 40}}
             >
               <Checkbox
                 edge="start"
-                checked={rule.isActive}
+                checked={rule.allowed}
                 disableRipple
                 onChange={toggleRule(rule)}
               />
-              <ListItemText primary={rule.name} />
-              {typeof rule.value === 'number' ?
+              <ListItemText primary={rule.type} />
+              {typeof rule.maxInt === 'number' ?
                 (<TextField
                   type="number"
                   variant={"standard"}
-                  value={rule.value}
+                  value={rule.maxInt}
                   onChange={handleNumberChange(rule)}
-                />) : typeof rule.value === 'string' ?
-                  (<TextField
-                    variant={"standard"}
-                    value={rule.value}
-                    onChange={e => handleValueChange(rule, e.target.value)}
-                  />) : null
+                />) 
+                // : typeof rule.value === 'string' ?
+                //   (<TextField
+                //     variant={"standard"}
+                //     value={rule.value}
+                //     onChange={e => handleValueChange(rule, e.target.value)}
+                //   />) 
+                : null
               }
             </ListItem>
           )

@@ -10,10 +10,10 @@ import {
 } from "@mui/material";
 import {useGetLintingRules, useModifyLintingRules} from "../../utils/queries.tsx";
 import {queryClient} from "../../App.tsx";
-import {Rule} from "../../types/Rule.ts";
+import { LintRule } from '../../types/Rule.ts';
 
 const LintingRulesList = () => {
-  const [rules, setRules] = useState<Rule[] | undefined>([]);
+  const [rules, setRules] = useState<LintRule[] | undefined>([]);
 
   const {data, isLoading} = useGetLintingRules();
   const {mutateAsync, isLoading: isLoadingMutate} = useModifyLintingRules({
@@ -24,30 +24,24 @@ const LintingRulesList = () => {
     setRules(data)
   }, [data]);
 
-  const handleValueChange = (rule: Rule, newValue: string | number) => {
-    const newRules = rules?.map(r => {
-      if (r.name === rule.name) {
-        return {...r, value: newValue}
-      } else {
-        return r;
-      }
-    })
+  const handleValueChange = (currentRule: string, newValue: string | number) => {
+    const newRules = {
+      ...rules,
+      [currentRule]: newValue
+    }
     setRules(newRules)
   };
 
-  const handleNumberChange = (rule: Rule) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
-    handleValueChange(rule, isNaN(value) ? 0 : value);
-  };
+  // const handleNumberChange = (rule: LintRule) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = parseInt(event.target.value, 10);
+  //   handleValueChange(rule, isNaN(value) ? 0 : value);
+  // };
 
-  const toggleRule = (rule: Rule) => () => {
-    const newRules = rules?.map(r => {
-      if (r.name === rule.name) {
-        return {...r, isActive: !r.isActive}
-      } else {
-        return r;
-      }
-    })
+  const toggleRule = (currentRule: string) => () => {
+    const newRules = {
+      ...rules,
+      [currentRule]: !rules[currentRule]
+    }
     setRules(newRules)
   }
 
@@ -57,30 +51,33 @@ const LintingRulesList = () => {
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
           isLoading || isLoadingMutate ?  <Typography style={{height: 80}}>Loading...</Typography> :
-          rules?.map((rule) => {
+          rules && Object.keys(rules).map((rule, index) => {
           return (
             <ListItem
-              key={rule.name}
+              key={rule}
               disablePadding
-              style={{height: 40}}
+              style={{height: 40, display:"grid", gridTemplateColumns: "42px 1fr 1fr", width: "100%"}}
             >
-              <Checkbox
+              {typeof rules[rule] === 'boolean' ? <Checkbox
                 edge="start"
-                checked={rule.isActive}
+                checked={rules[rule]}
                 disableRipple
                 onChange={toggleRule(rule)}
-              />
-              <ListItemText primary={rule.name} />
-              {typeof rule.value === 'number' ?
-                (<TextField
-                  type="number"
-                  variant={"standard"}
-                  value={rule.value}
-                  onChange={handleNumberChange(rule)}
-                />) : typeof rule.value === 'string' ?
+              />: <div></div>}
+              <ListItemText primary={rule} />
+              {
+              // typeof rule.value === 'number' ?
+              //   (<TextField
+              //     type="number"
+              //     variant={"standard"}
+              //     value={rule.value}
+              //     onChange={handleNumberChange(rule)}
+              //   />) 
+              //   : 
+                typeof rules[rule] === 'string' ?
                   (<TextField
                     variant={"standard"}
-                    value={rule.value}
+                    value={rules[rule]}
                     onChange={e => handleValueChange(rule, e.target.value)}
                   />) : null
               }
