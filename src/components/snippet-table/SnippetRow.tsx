@@ -41,7 +41,7 @@ export const SnippetRow = ({snippet, onClick, ...props}: { snippet: Snippet, onC
         <StyledTableCell>{snippet.name}</StyledTableCell>
         <StyledTableCell>{snippet.language}</StyledTableCell>
         <StyledTableCell>{snippet.userName}</StyledTableCell>
-        <StyledTableCell>{snippet.compliance}</StyledTableCell>
+        <StyledTableCell>{snippet.complianceType}</StyledTableCell>
       </StyledTableRow>
   )
 }

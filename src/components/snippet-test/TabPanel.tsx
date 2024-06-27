@@ -114,7 +114,7 @@ export const TabPanel = ({ value, index, test: initialTest, setTestCase, removeT
             <Button onClick={() => testSnippet(testData ?? {})} variant={"contained"} startIcon={<BugReport />} disableElevation>
               TestX
             </Button>
-            {data && (data === "success" ? <Chip label="Pass" color="success" /> : <Chip label="Fail" color="error" />)}
+            {data && (data.passed=== true ? <Chip label="Pass" color="success" /> : <Chip label="Fail" color="error" />)}
           </Box>
         </Box>
       )}

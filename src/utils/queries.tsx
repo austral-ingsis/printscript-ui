@@ -78,7 +78,10 @@ export const useRemoveTestCase = ({onSuccess}: { onSuccess: () => void }) => {
     );
 };
 
-export type TestCaseResult = "success" | "fail"
+export type TestCaseResult = {
+  passed: boolean;
+  error: string;
+}
 
 export const useTestSnippet = () => {
   const snippetOperations = useWorkingSnippetOperations()

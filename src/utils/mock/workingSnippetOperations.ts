@@ -165,8 +165,13 @@ export class WorkingSnippetOperations implements SnippetOperations {
     return response.data
   }
 
-  testSnippet(testCase: Partial<TestCase>): Promise<TestCaseResult> {
-    throw new Error('Method not implemented.');
+  async testSnippet(testCase: Partial<TestCase>): Promise<TestCaseResult> {
+    const response = await axios.post(`${API_BASE_URL}/test/run/${testCase.id}`,{
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`
+      }
+    });
+    return response.data
   }
 
   getFileTypes(): Promise<FileType[]> {

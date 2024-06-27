@@ -26,7 +26,7 @@ export type Snippet = CreateSnippet & {
 } & SnippetStatus
 
 type SnippetStatus = {
-  compliance: ComplianceEnum;
+  complianceType: ComplianceEnum;
   userName: string;
 }
 export type PaginatedSnippets = Pagination & {
@@ -36,7 +36,7 @@ export type PaginatedSnippets = Pagination & {
 export type SnippetDescriptor  = {
   name: string;
   language: string;
-  compliance: ComplianceEnum;
+  complianceType: ComplianceEnum;
   userName: string;
 }
 
