@@ -3,5 +3,4 @@ export type TestCase = {
     name: string;
     input?: string[];
     output?: string[];
-    envVars?: string;
 };

@@ -47,6 +47,17 @@ To start cypress, make sure that the UI is running and enter:
 npm run cypress
 ```
 
+## Enable Auth0
+
+This application uses https://www.npmjs.com/package/@auth0/auth0-react library for Auth0 integration, to enable it you need to change:
+* Uncomment autologin in `[App.tsx](src/App.tsx)`
+* Create a `.env` file with the required env vars:
+```
+VITE_AUTH0_DOMAIN=<domain>
+VITE_AUTH0_CLIENT_ID=<client_id>
+```
+
+
 ## Start working
 
 1. Fork the Project

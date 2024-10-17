@@ -77,16 +77,6 @@ export const TabPanel = ({value, index, test: initialTest, setTestCase, removeTe
                             options={[]}
                         />
                     </Box>
-                    <Box display="flex" flexDirection="column" gap={1}>
-                        <Typography fontWeight="bold">Environment Variables</Typography>
-                        <TextField
-                            helperText={"Comma-separated as ENV=123;VAR=456"}
-                            size="small"
-                            id="tags-filled"
-                            value={testData?.envVars ?? []}
-                            onChange={(e) => setTestData({...testData, envVars: e.target.value})}
-                        />
-                    </Box>
                     <Box display="flex" flexDirection="row" gap={1}>
                         {
                             (testData?.id && removeTestCase) && (
