@@ -58,7 +58,8 @@ npm run cypress
 ## Enable Auth0
 
 This application uses https://www.npmjs.com/package/@auth0/auth0-react library for Auth0 integration, to enable it you need to change:
-* Uncomment autologin in `[App.tsx](src/App.tsx)`
+* Uncomment autologin in [App.tsx](src/App.tsx)
+* Uncomment token retrieval for operations [queries.tsx](src/utils/queries.tsx) 
 * Create a `.env` file with the required env vars:
 ```
 VITE_AUTH0_DOMAIN=<domain>
