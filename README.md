@@ -77,7 +77,7 @@ If you get 401 loop when getting token:
 ## Tasks
 
 - [ ] Integrate Auth0 UI and private routes
-- [ ] Integrate your endpoints to the UI
+- [ ] Integrate your endpoints to the UI (Create custom "SnippetOperations")
 - [ ] Dockerize
 - [ ] CI/CD
 - [ ] Sockets*
