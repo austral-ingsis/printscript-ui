@@ -56,7 +56,6 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   const [shareModalOppened, setShareModalOppened] = useState(false)
   const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false)
   const [testModalOpened, setTestModalOpened] = useState(false);
-  const [runSnippet, setRunSnippet] = useState(false);
 
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
