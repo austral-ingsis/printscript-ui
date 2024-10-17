@@ -57,6 +57,10 @@ VITE_AUTH0_DOMAIN=<domain>
 VITE_AUTH0_CLIENT_ID=<client_id>
 ```
 
+If you get 401 loop when getting token:
+* Change application type in Auth0 to "Regular Web Application"
+* In Application Settings > Credentials > "Authentication Method" select "None" 
+
 
 ## Start working
 
