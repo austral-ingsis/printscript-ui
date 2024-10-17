@@ -39,6 +39,14 @@ npm run dev
 
 This will start the Vite development server. You can now open your browser and navigate to http://localhost:5173/ to see the application running.
 
+## Build production version
+
+To use this UI in production you should use an optimized and static version, this command will generate this version in `dist` directory:  
+
+```bash
+npm run build
+```
+
 ## Cypress
 
 To start cypress, make sure that the UI is running and enter: 
@@ -60,7 +68,6 @@ VITE_AUTH0_CLIENT_ID=<client_id>
 If you get 401 loop when getting token:
 * Change application type in Auth0 to "Regular Web Application"
 * In Application Settings > Credentials > "Authentication Method" select "None" 
-
 
 ## Start working
 
