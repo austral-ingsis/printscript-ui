@@ -1,0 +1,38 @@
+name: Master Workflow
+run-name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - production
+
+jobs:
+  continuous-integration:
+    name: continuous integration
+    uses: ./.github/workflows/cont-int.yml
+
+  continuous-delivery:
+    name: continuous delivery
+    needs: continuous-integration
+    uses: ./.github/workflows/cont-del.yml
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    with:
+      registry: ghcr.io
+      image_name: ${{ github.ref_name == 'main' && 'ingsis-students/printscript-ui' || 'ingsis-students/printscript-ui-prod' }}
+      actor: ${{ github.actor }}
+    secrets:
+      token: ${{ secrets.PAT }}
+
+  update-virtual-machine:
+    name: update virtual machine
+    needs: continuous-delivery
+    uses: ./.github/workflows/update-vm.yml
+    with:
+      host: ${{ github.ref_name == 'main' && '20.70.208.179' || '20.213.8.120' }}
+      user: ${{ github.ref_name == 'main' && 'students' || 'matichialva' }}
+    secrets:
+      key: ${{ secrets.SSH_PRIVATE_KEY }}

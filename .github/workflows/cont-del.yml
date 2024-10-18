@@ -1,0 +1,51 @@
+name: continuous delivery
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        description: 'Container registry where to publish the image'
+        required: true
+        type: string
+      image_name:
+        description: 'Image name for the Docker Image'
+        required: true
+        type: string
+      actor:
+        description: 'GitHub Actor'
+        required: true
+        type: string
+    secrets:
+      token:
+        description: 'Personal Access Token with sufficient rights to publish Docker image'
+        required: true
+
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ inputs.actor }}
+          password: ${{ secrets.token }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ inputs.registry }}/${{ inputs.image_name }}
+          build-args: |
+            GITHUB_ACTOR=${{ inputs.actor }}
+            GITHUB_TOKEN=${{ secrets.token }}
