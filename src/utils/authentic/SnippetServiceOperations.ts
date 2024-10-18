@@ -2,9 +2,10 @@ import {FileType} from "../../types/FileType.ts";
 import {Rule} from "../../types/Rule.ts";
 import {TestCase} from "../../types/TestCase.ts";
 import {TestCaseResult} from "../queries.tsx";
-import {PaginatedSnippets, CreateSnippet, Snippet, UpdateSnippet} from "../snippet.ts";
+import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from "../snippet.ts";
 import {SnippetOperations} from "../snippetOperations.ts";
 import {PaginatedUsers} from "../users.ts";
+import {useCreateSnippet} from "../../hooks/useCreateSnippet.ts";
 
 
 export class SnippetServiceOperations implements SnippetOperations {
@@ -14,10 +15,19 @@ export class SnippetServiceOperations implements SnippetOperations {
         throw new Error("Method not implemented.");
     }
 
-    createSnippet(createSnippet: CreateSnippet): Promise<Snippet> {
-        console.log(createSnippet)
-        throw new Error("Method not implemented.");
-    }
+
+    createSnippet = async (createSnippet: CreateSnippet): Promise<Snippet> => {
+        const {name, content, language, extension} = createSnippet;
+        try {
+            return await useCreateSnippet(name, content, language, extension);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error("Failed to create snippet: " + error.message);
+            } else {
+                throw new Error("Failed to create snippet: An unexpected error occurred");
+            }
+        }
+    };
 
     getSnippetById(id: string): Promise<Snippet | undefined> {
         console.log(id);
