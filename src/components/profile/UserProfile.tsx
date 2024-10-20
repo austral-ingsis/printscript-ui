@@ -3,20 +3,19 @@ import React from 'react';
 import { User } from './User.ts';
 import { Avatar, Box, Typography, Tooltip, Button } from "@mui/material";
 import LogoutIcon from '@mui/icons-material/Logout';
+import {useAuth0} from "@auth0/auth0-react";
 
 interface UserProfileProps {
     user: User;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
-    const handleLogout = () => {
-        console.log('User logged out');
-    };
+    const { logout } = useAuth0();
 
     return (
             <Tooltip title={
                 <Button
-                    onClick={handleLogout}
+                    onClick={logout}
                     variant="contained"
                     color="error"
                     startIcon={<LogoutIcon />}
