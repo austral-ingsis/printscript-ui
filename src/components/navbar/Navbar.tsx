@@ -2,6 +2,7 @@ import {AppBar, Box, Button, Container, Toolbar, Typography} from "@mui/material
 import {Code, Rule} from "@mui/icons-material";
 import {ReactNode} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
+import LoginButton from "../common/ProfileElement.tsx";
 
 type PageType = {
     title: string;
@@ -61,7 +62,9 @@ export const Navbar = () => {
                             </Button>
                         ))}
                     </Box>
+                    <LoginButton></LoginButton>
                 </Toolbar>
+
             </Container>
         </AppBar>
     );

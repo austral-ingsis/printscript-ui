@@ -1,0 +1,20 @@
+
+.duolingo-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 18px;
+    background: #58cc02;
+    border: none;
+    padding: 15px 16px;
+    box-shadow: 0 4px 0 #58a700;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.duolingo-button:active {
+    box-shadow: none;
+    transform: translateY(4px);
+}
