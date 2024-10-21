@@ -37,7 +37,7 @@ npm install
 npm run dev
 ```
 
-This will start the Vite development server. You can now open your browser and navigate to http://localhost:5174/ to see the application running.
+This will start the Vite development server. You can now open your browser and navigate to http://localhost:5173/ to see the application running.
 
 ## Cypress
 

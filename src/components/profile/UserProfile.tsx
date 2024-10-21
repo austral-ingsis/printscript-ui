@@ -15,7 +15,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
     return (
             <Tooltip title={
                 <Button
-                    onClick={logout}
+                    onClick={() => logout()}
                     variant="contained"
                     color="error"
                     startIcon={<LogoutIcon />}

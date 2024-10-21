@@ -29,6 +29,7 @@ const HomeScreen = () => {
     }
   }, [paramsId]);
 
+
   const handleCloseModal = () => setSnippetId(null)
 
   // DeBounce Function

@@ -1,44 +1,45 @@
 import './App.css';
-import {RouterProvider} from "react-router";
-import {createBrowserRouter} from "react-router-dom";
-import HomeScreen from "./screens/Home.tsx";
-import {QueryClient, QueryClientProvider} from "react-query";
-import RulesScreen from "./screens/Rules.tsx";
-import {Auth0Provider} from "@auth0/auth0-react";
+import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "react-query";
+import HomeScreen from "./screens/Home";
+import RulesScreen from "./screens/Rules";
+import CallbackPage from "./screens/CallbackPage";
+import { Auth0ProviderWithNavigate } from "./screens/Auth0ProviderWithNavigate";
 
 
-
+// Componente que envuelve las rutas con Auth0ProviderWithNavigate
+const MainLayout = () => {
+    return (
+        <Auth0ProviderWithNavigate>
+            <>
+                <Outlet />
+            </>
+        </Auth0ProviderWithNavigate>
+    );
+};
+// Configura las rutas de la aplicación
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <HomeScreen/>
-    },
-    {
-        path: '/rules',
-        element: <RulesScreen/>
+        element: <MainLayout />, // Esta ruta envuelve a todas las demás
+        children: [
+            { path: "/", element: <HomeScreen /> },
+            { path: "/rules", element: <RulesScreen /> },
+            { path: "/callback", element: <CallbackPage /> }
+        ]
     }
 ]);
 
 export const queryClient = new QueryClient();
 
 
+
 const App = () => {
-    const domain = import.meta.env.VITE_AUTH0_DOMAIN as string;
-    const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID as string;
-
-   if (domain && clientId) {
-       return (
-           <Auth0Provider clientId={clientId} domain={domain}
-                          authorizationParams={{
-                              redirect_uri: window.location.origin,
-                          }}>
-               <QueryClientProvider client={queryClient}>
-                   <RouterProvider router={router} />
-               </QueryClientProvider>
-           </Auth0Provider>
-
-       );
-   }else return null;
-
+    return (
+        <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+        </QueryClientProvider>
+    );
 };
+
 export default App;
