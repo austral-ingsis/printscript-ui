@@ -140,8 +140,12 @@ const fakeTestCases: TestCase[] = [
 
 const fileTypes: FileType[] = [
   {
-    language: "printscript",
-    extension: "prs",
+    language: "printscript 1.1",
+    extension: "ps",
+  },
+  {
+    language: "printscript 1.0",
+    extension: "ps",
   },
   {
     language: "python",

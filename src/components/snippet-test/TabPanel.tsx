@@ -8,11 +8,12 @@ type TabPanelProps = {
     index: number;
     value: number;
     test?: TestCase;
+    snippetId: string,
     setTestCase: (test: Partial<TestCase>) => void;
     removeTestCase?: (testIndex: string) => void;
 }
 
-export const TabPanel = ({value, index, test: initialTest, setTestCase, removeTestCase}: TabPanelProps) => {
+export const TabPanel = ({value, index, snippetId, test: initialTest, setTestCase, removeTestCase}: TabPanelProps) => {
     const [testData, setTestData] = useState<Partial<TestCase> | undefined>(initialTest);
 
     const {mutateAsync: testSnippet, data} = useTestSnippet();
@@ -88,7 +89,7 @@ export const TabPanel = ({value, index, test: initialTest, setTestCase, removeTe
                         <Button disabled={!testData?.name} onClick={() => setTestCase(testData ?? {})} variant={"outlined"} startIcon={<Save/>}>
                             Save
                         </Button>
-                        <Button onClick={() => testSnippet(testData ?? {})} variant={"contained"} startIcon={<BugReport/>}
+                        <Button onClick={() => testSnippet({ testCase: testData ?? {}, snippetId: snippetId})} variant={"contained"} startIcon={<BugReport/>}
                                 disableElevation>
                             Test
                         </Button>

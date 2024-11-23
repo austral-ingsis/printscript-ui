@@ -1,0 +1,9 @@
+services:
+  snippet-searcher-ui:
+    container_name: snippet-searcher-ui
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${VITE_SERVER_PORT}:80"

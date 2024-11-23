@@ -1,15 +1,16 @@
 import { defineConfig } from "cypress";
-import dotenv from 'dotenv'
-import {FRONTEND_URL} from "./src/utils/constants";
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 export default defineConfig({
+  defaultCommandTimeout: 10000,
+  requestTimeout: 10000,
   e2e: {
     setupNodeEvents(_, config) {
-      config.env = process.env
-      return config
+      config.env = process.env;
+      return config;
     },
     experimentalStudio: true,
-    baseUrl: FRONTEND_URL,
+    baseUrl: process.env.FRONTEND_URL,
   },
 });

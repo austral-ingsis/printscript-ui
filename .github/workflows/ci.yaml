@@ -13,3 +13,62 @@ jobs:
           node-version: '20.x'
       - run: npm ci
       - run: npm run build
+
+  publish-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build and Push Docker Image
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            IMAGE_NAME=ghcr.io/snippetsearcher-ingsis/snippet-searcher-ui
+          else
+            IMAGE_NAME=ghcr.io/snippetsearcher-ingsis/snippet-searcher-ui-dev
+          fi
+          docker build \
+          --build-arg VITE_AUTH0_DOMAIN=${{ secrets.VITE_AUTH0_DOMAIN }} \
+          --build-arg VITE_AUTH0_CLIENT_ID=${{ secrets.VITE_AUTH0_CLIENT_ID }} \
+          -t $IMAGE_NAME:latest .
+          docker push $IMAGE_NAME:latest
+      
+  update-container:
+    needs: publish-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine VM and SSH Key based on environment
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "VM_USER=${{ secrets.PROD_USER }}" >> $GITHUB_ENV
+            echo "VM_IP=${{ secrets.PROD_IP }}" >> $GITHUB_ENV
+            echo "SSH_KEY<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.PROD_KEY_VM }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            echo "VM_USER=${{ secrets.DEV_USER }}" >> $GITHUB_ENV
+            echo "VM_IP=${{ secrets.DEV_IP }}" >> $GITHUB_ENV
+            echo "SSH_KEY<<EOF" >> $GITHUB_ENV
+            echo "${{ secrets.DEV_KEY_VM }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          fi
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ env.SSH_KEY }}
+      - name: Restart Specific Service Container in Correct VM
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            ssh -o StrictHostKeyChecking=no ${{ env.VM_USER }}@${{ env.VM_IP }} 'cd infra && sudo docker compose pull snippet-searcher-ui && sudo docker compose up -d snippet-searcher-ui'
+          else
+            ssh -o StrictHostKeyChecking=no ${{ env.VM_USER }}@${{ env.VM_IP }} 'cd infra && sudo docker compose pull snippet-searcher-ui-dev && sudo docker compose up -d snippet-searcher-ui-dev'
+          fi

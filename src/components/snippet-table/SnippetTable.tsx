@@ -61,8 +61,6 @@ export const SnippetTable = (props: SnippetTableProps) => {
         language: fileType.language,
         extension: fileType.extension
       })
-    }).catch(e => {
-      console.error(e)
     }).finally(() => {
       setAddModalOpened(true)
       target.value = ""
