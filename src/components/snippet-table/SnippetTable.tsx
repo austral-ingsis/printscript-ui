@@ -59,6 +59,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
         name: splitName[0],
         content: text,
         language: fileType.language,
+        version: "",
         extension: fileType.extension
       })
     }).catch(e => {

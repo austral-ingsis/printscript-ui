@@ -3,7 +3,8 @@ name: Run UI Build
 on: [push]
 
 jobs:
-  build:
+  continuous-integration:
+    name: Continuous Integration
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,4 +13,60 @@ jobs:
         with:
           node-version: '20.x'
       - run: npm ci
-      - run: npm run build
+  continuous-delivery:
+    name: Continuous Delivery
+    needs: continuous-integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.PAT_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: |
+            USERNAME=${{ secrets.USERNAME }}
+            PAT_TOKEN=${{ secrets.PAT_TOKEN }}
+          tags: |
+            ghcr.io/teamverdeingsis/ui:${{ github.ref_name }}
+            ghcr.io/teamverdeingsis/ui:latest
+
+  update-virtual-machine:
+    name: Update Virtual Machine
+    needs: continuous-delivery
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set host dynamically
+        id: set-host
+        run: echo "::set-output name=host::$(if [ '${{ github.ref_name }}' == 'master' ]; then echo '4.242.32.158'; else echo '172.179.233.92'; fi)"
+
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ steps.set-host.outputs.host }}
+          username: teamVerde1
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd infra
+            sudo docker stop snippets-ui-infra || true
+            sudo docker rm snippets-ui-infra || true
+            sudo docker rmi ghcr.io/teamverdeingsis/ui:latest || true
+            sudo docker pull ghcr.io/teamverdeingsis/ui:latest
+            sudo docker compose up snippet-ui -d
+
+
+
+#sudo docker run -d --name snippets-service-infra -p 8082:8080 ghcr.io/teamverdeingsis/snippets:latest

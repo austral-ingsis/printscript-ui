@@ -1,17 +1,19 @@
-import {BACKEND_URL} from "../../src/utils/constants";
+const backendUrl = Cypress.env('VITE_BACKEND_URL');
+
 
 describe('Add snippet tests', () => {
   beforeEach(() => {
-    // cy.loginToAuth0(
-    //     AUTH0_USERNAME,
-    //     AUTH0_PASSWORD
-    // )
+    cy.loginToAuth0(
+        Cypress.env("VITE_AUTH0_USERNAME"),
+        Cypress.env("VITE_AUTH0_PASSWORD")
+    )
   })
   it('Can add snippets manually', () => {
     cy.visit("/")
-    cy.intercept('POST', BACKEND_URL+"/snippets", (req) => {
+    cy.intercept('POST',  backendUrl+"/snippets/create", (req) => {
       req.reply((res) => {
-        expect(res.body).to.include.keys("id","name","content","language")
+        console.log(res.body)
+        expect(res.body).to.include.keys("name","content","language")
         expect(res.statusCode).to.eq(200);
       });
     }).as('postRequest');
@@ -24,7 +26,7 @@ describe('Add snippet tests', () => {
     cy.get('[data-testid="menu-option-printscript"]').click()
 
     cy.get('[data-testid="add-snippet-code-editor"]').click();
-    cy.get('[data-testid="add-snippet-code-editor"]').type(`const snippet: String = "some snippet" \n print(snippet)`);
+    cy.get('[data-testid="add-snippet-code-editor"]').type(`let snippet: string = "some snippet"; \n println(snippet);`);
     cy.get('[data-testid="SaveIcon"]').click();
 
     cy.wait('@postRequest').its('response.statusCode').should('eq', 200);
@@ -32,15 +34,15 @@ describe('Add snippet tests', () => {
 
   it('Can add snippets via file', () => {
     cy.visit("/")
-    cy.intercept('POST', BACKEND_URL+"/snippets", (req) => {
+    cy.intercept('POST', backendUrl +"/snippets/create", (req) => {
       req.reply((res) => {
-        expect(res.body).to.include.keys("id","name","content","language")
+        expect(res.body).to.include.keys("name","content","language")
         expect(res.statusCode).to.eq(200);
       });
     }).as('postRequest');
 
     /* ==== Generated with Cypress Studio ==== */
-    cy.get('[data-testid="upload-file-input"').selectFile("cypress/fixtures/example_ps.ps", {force: true})
+    cy.get('[data-testid="upload-file-input"').selectFile("cypress/fixtures/example_ps.prs", {force: true})
 
     cy.get('[data-testid="SaveIcon"]').click();
 

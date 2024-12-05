@@ -21,7 +21,7 @@ export class FakeSnippetOperations implements SnippetOperations {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.createSnippet(createSnippet)), DELAY)
     })
-  }
+  } 
 
   getSnippetById(id: string): Promise<Snippet | undefined> {
     return new Promise(resolve => {

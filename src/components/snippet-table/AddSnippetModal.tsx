@@ -10,104 +10,96 @@ import {
     SelectChangeEvent,
     Typography
 } from "@mui/material";
-import {highlight, languages} from "prismjs";
-import {useEffect, useState} from "react";
+import { highlight, languages } from "prismjs";
+import { useEffect, useState } from "react";
 import Editor from "react-simple-code-editor";
+import { Save } from "@mui/icons-material";
+import { CreateSnippet, CreateSnippetWithLang } from "../../utils/snippet.ts";
+import { ModalWrapper } from "../common/ModalWrapper.tsx";
+import { useCreateSnippet, useGetFileTypes } from "../../utils/queries.tsx";
+import { queryClient } from "../../App.tsx";
 
-import "prismjs/components/prism-clike";
-import "prismjs/components/prism-javascript";
-import "prismjs/themes/prism-okaidia.css";
-import {Save} from "@mui/icons-material";
-import {CreateSnippet, CreateSnippetWithLang} from "../../utils/snippet.ts";
-import {ModalWrapper} from "../common/ModalWrapper.tsx";
-import {useCreateSnippet, useGetFileTypes} from "../../utils/queries.tsx";
-import {queryClient} from "../../App.tsx";
-
-export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
-    open: boolean,
-    onClose: () => void,
-    defaultSnippet?: CreateSnippetWithLang
-}) => {
+export const AddSnippetModal = ({ open, onClose, defaultSnippet }: { open: boolean, onClose: () => void, defaultSnippet?: CreateSnippetWithLang }) => {
     const [language, setLanguage] = useState(defaultSnippet?.language ?? "printscript");
     const [code, setCode] = useState(defaultSnippet?.content ?? "");
-    const [snippetName, setSnippetName] = useState(defaultSnippet?.name ?? "")
-    const {mutateAsync: createSnippet, isLoading: loadingSnippet} = useCreateSnippet({
-        onSuccess: () => queryClient.invalidateQueries('listSnippets')
-    })
-    const {data: fileTypes} = useGetFileTypes();
+    const [snippetName, setSnippetName] = useState(defaultSnippet?.name ?? "");
+    const [errorMessage, setErrorMessage] = useState<string | null>(null); // Nuevo estado para el error
+    const { mutateAsync: createSnippet, isLoading: loadingSnippet } = useCreateSnippet({
+        onSuccess: () => queryClient.invalidateQueries('listSnippets'),
+        onError: (error: any) => {
+            // Mostrar el mensaje de error recibido del backend
+            setErrorMessage(error.response?.data || "An unexpected error occurred.");
+        }
+    });
+    const { data: fileTypes } = useGetFileTypes();
 
     const handleCreateSnippet = async () => {
         const newSnippet: CreateSnippet = {
             name: snippetName,
             content: code,
             language: language,
-            extension: fileTypes?.find((f) => f.language === language)?.extension ?? "prs"
+            extension: fileTypes?.find((f) => f.language === language)?.extension ?? "prs",
+            version: "1.1"
+        };
+        setErrorMessage(null);  // Limpiamos el mensaje de error
+        try {
+            const result = await createSnippet(newSnippet);
+            // Si la respuesta es un error (mensaje de validación), lo mostramos
+            if (typeof result === "string") {
+                setErrorMessage(result);
+            } else {
+                onClose();  // Si el resultado es un snippet válido, cerramos el modal
+            }
+        } catch (error) {
+            console.error("Error during snippet creation:", error);
+            setErrorMessage("An unexpected error occurred.");
         }
-        await createSnippet(newSnippet);
-        onClose();
-    }
+    };
 
     useEffect(() => {
         if (defaultSnippet) {
-            setCode(defaultSnippet?.content)
-            setLanguage(defaultSnippet?.language)
-            setSnippetName(defaultSnippet?.name)
+            setCode(defaultSnippet?.content);
+            setLanguage(defaultSnippet?.language);
+            setSnippetName(defaultSnippet?.name);
         }
     }, [defaultSnippet]);
 
     return (
         <ModalWrapper open={open} onClose={onClose}>
-            {
-                <Box sx={{display: 'flex', flexDirection: "row", justifyContent: "space-between"}}>
-                    <Typography id="modal-modal-title" variant="h5" component="h2"
-                                sx={{display: 'flex', alignItems: 'center'}}>
-                        Add Snippet
-                    </Typography>
-                    <Button disabled={!snippetName || !code || !language || loadingSnippet} variant="contained"
-                            disableRipple
-                            sx={{boxShadow: 0}} onClick={handleCreateSnippet}>
-                        <Box pr={1} display={"flex"} alignItems={"center"} justifyContent={"center"}>
-                            {loadingSnippet ? <CircularProgress size={24}/> : <Save/>}
-                        </Box>
-                        Save Snippet
-                    </Button>
-                </Box>
-            }
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px'
-            }}>
-                <InputLabel htmlFor="name">Name</InputLabel>
-                <Input onChange={e => setSnippetName(e.target.value)} value={snippetName} id="name"
-                       sx={{width: '50%'}}/>
+            <Box sx={{ display: 'flex', flexDirection: "row", justifyContent: "space-between" }}>
+                <Typography id="modal-modal-title" variant="h5" component="h2" sx={{ display: 'flex', alignItems: 'center' }}>
+                    Add Snippet
+                </Typography>
+                <Button disabled={!snippetName || !code || !language || loadingSnippet} variant="contained" disableRipple sx={{ boxShadow: 0 }} onClick={handleCreateSnippet}>
+                    <Box pr={1} display={"flex"} alignItems={"center"} justifyContent={"center"}>
+                        {loadingSnippet ? <CircularProgress size={24} /> : <Save />}
+                    </Box>
+                    Save Snippet
+                </Button>
             </Box>
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px'
-            }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <InputLabel htmlFor="name">Name</InputLabel>
+                <Input onChange={e => setSnippetName(e.target.value)} value={snippetName} id="name" sx={{ width: '50%' }} />
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <InputLabel htmlFor="name">Language</InputLabel>
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={language}
-                    label="Age"
+                    label="Language"
                     onChange={(e: SelectChangeEvent<string>) => setLanguage(e.target.value)}
-                    sx={{width: '50%'}}
+                    sx={{ width: '50%' }}
                 >
-                    {
-                        fileTypes?.map(x => (
-                            <MenuItem data-testid={`menu-option-${x.language}`} key={x.language}
-                                      value={x.language}>{capitalize((x.language))}</MenuItem>
-                        ))
-                    }
+                    {fileTypes?.map(x => (
+                        <MenuItem
+                            data-testid="menu-option-printscript"
+                            key={x.language} value={x.language}>{capitalize(x.language)}</MenuItem>
+                    ))}
                 </Select>
             </Box>
             <InputLabel>Code Snippet</InputLabel>
-            <Box width={"100%"} sx={{
-                backgroundColor: 'black', color: 'white', borderRadius: "8px",
-            }}>
+            <Box width={"100%"} sx={{ backgroundColor: 'black', color: 'white', borderRadius: "8px" }}>
                 <Editor
                     value={code}
                     padding={10}
@@ -125,7 +117,13 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
                     }}
                 />
             </Box>
+            {/* Mostrar error si es necesario */}
+            {errorMessage && (
+                <Typography color="error" sx={{ marginTop: '20px' }}>
+                    {errorMessage}
+                </Typography>
+            )}
         </ModalWrapper>
-    )
-}
+    );
+};
 

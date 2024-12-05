@@ -23,6 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 
-.env*
-next-env.d.ts
-.next
+.idea

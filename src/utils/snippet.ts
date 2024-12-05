@@ -13,6 +13,7 @@ export type CreateSnippet = {
   content: string;
   language: string;
   extension: string;
+  version: string;
 }
 
 export type CreateSnippetWithLang = CreateSnippet & { language: string }
@@ -28,11 +29,19 @@ export type Snippet = CreateSnippet & {
 type SnippetStatus = {
   compliance: ComplianceEnum;
   author: string;
+  owner: string;
 }
 export type PaginatedSnippets = Pagination & {
   snippets: Snippet[]
 }
 
 export const getFileLanguage = (fileTypes: FileType[], fileExt?: string) => {
-  return fileExt && fileTypes?.find(x => x.extension == fileExt)
+  return fileExt && fileTypes?.find(x => x.extension.replace(/^\./, '') === fileExt);}
+
+export type SnippetWithError = Snippet & {
+  errors: string[]
+}
+
+export type SnippetWithLintWarns = Snippet & {
+  lintWarnings: string[];
 }

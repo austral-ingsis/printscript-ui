@@ -1,55 +1,72 @@
-import {Autocomplete, Box, Button, Divider, TextField, Typography} from "@mui/material";
-import {ModalWrapper} from "../common/ModalWrapper.tsx";
-import {useGetUsers} from "../../utils/queries.tsx";
-import {useEffect, useState} from "react";
-import {User} from "../../utils/users.ts";
+import { Autocomplete, Box, Button, Divider, TextField, Typography } from "@mui/material";
+import { ModalWrapper } from "../common/ModalWrapper.tsx";
+import { useGetUsers } from "../../utils/queries.tsx";
+import { useEffect, useState } from "react";
+import { User } from "../../utils/users.ts";
 
 type ShareSnippetModalProps = {
-  open: boolean
-  onClose: () => void
-  onShare: (userId: string) => void
-  loading: boolean
-}
+  open: boolean;
+  onClose: () => void;
+  onShare: (userId: string) => void;
+  loading: boolean;
+};
+
 export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
-  const {open, onClose, onShare, loading} = props
-  const [name, setName] = useState("")
-  const [debouncedName, setDebouncedName] = useState("")
-  const {data, isLoading} = useGetUsers(debouncedName, 1, 5)
-  const [selectedUser, setSelectedUser] = useState<User | undefined>()
+  const { open, onClose, onShare, loading } = props;
+  const [name, setName] = useState<string>(""); // Input del usuario
+  const [debouncedName, setDebouncedName] = useState<string>(""); // Entrada retrasada para la API
+  const [selectedUser, setSelectedUser] = useState<User | null>(null); // Usuario seleccionado
 
+  // Obtener usuarios desde la API
+  const { data, isLoading } = useGetUsers(debouncedName, 0, 10);
+
+  // Actualizar `debouncedName` con un retraso
   useEffect(() => {
-    const getData = setTimeout(() => {
-      setDebouncedName(name)
-    }, 3000)
-    return () => clearTimeout(getData)
-  }, [name])
+    const debounceTimeout = setTimeout(() => {
+      setDebouncedName(name.trim());
+    }, 300); // Ajuste de 300ms
+    return () => clearTimeout(debounceTimeout);
+  }, [name]);
 
-  function handleSelectUser(newValue: User | null) {
-    newValue && setSelectedUser(newValue)
-  }
+  // Manejo de selección de usuario
+  const handleSelectUser = (user: User | null) => {
+    setSelectedUser(user);
+  };
 
   return (
-      <ModalWrapper open={open} onClose={onClose}>
-        <Typography variant={"h5"}>Share your snippet</Typography>
-        <Divider/>
-        <Box mt={2}>
-          <Autocomplete
-              renderInput={(params) => <TextField {...params} label="Type the user's name"/>}
-              options={data?.users ?? []}
-              isOptionEqualToValue={(option, value) =>
-                  option.id === value.id
-              }
-              getOptionLabel={(option) => option.name}
-              loading={isLoading}
-              value={selectedUser}
-              onInputChange={(_: unknown, newValue: string | null) => newValue && setName(newValue)}
-              onChange={(_: unknown, newValue: User | null) => handleSelectUser(newValue)}
-          />
-          <Box mt={4} display={"flex"} width={"100%"} justifyContent={"flex-end"}>
-            <Button onClick={onClose} variant={"outlined"}>Cancel</Button>
-            <Button disabled={!selectedUser || loading} onClick={() => selectedUser && onShare(selectedUser?.id)} sx={{marginLeft: 2}} variant={"contained"}>Share</Button>
-          </Box>
+    <ModalWrapper open={open} onClose={onClose}>
+      <Typography variant="h5">Share your snippet</Typography>
+      <Divider />
+      <Box mt={2}>
+        <Autocomplete
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search users"
+              value={name}
+              onChange={(e) => setName(e.target.value)} // Actualizar valor de entrada
+            />
+          )}
+          options={data || []} // Opciones dinámicas desde la API
+          getOptionLabel={(option) => option.nickname || ""} // Mostrar `nickname`
+          isOptionEqualToValue={(option, value) => option.user_id === value.user_id}
+          loading={isLoading} // Mostrar estado de carga
+          onChange={(_, newValue) => handleSelectUser(newValue)} // Guardar usuario seleccionado
+        />
+        <Box mt={4} display="flex" justifyContent="flex-end">
+          <Button onClick={onClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button
+            disabled={!selectedUser || loading} // Deshabilitar si no hay usuario seleccionado
+            onClick={() => selectedUser && onShare(selectedUser.user_id)} // Compartir snippet
+            sx={{ ml: 2 }}
+            variant="contained"
+          >
+            Share
+          </Button>
         </Box>
-      </ModalWrapper>
-  )
-}
+      </Box>
+    </ModalWrapper>
+  );
+};
