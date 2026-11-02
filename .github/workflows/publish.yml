@@ -1,0 +1,14 @@
+name: Publish
+
+# La imagen se construye una sola vez, en dev. Prod usa esa misma imagen: el release es el
+# PR de dev a main en infraestructura, que lleva el mismo SHA.
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  publish:
+    permissions:
+      contents: read
+      packages: write
+    uses: PPC-INGSIS/workflow/.github/workflows/docker-publish.yml@v3
