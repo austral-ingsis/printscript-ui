@@ -1,6 +1,13 @@
-import {alpha, Skeleton, styled, TableRow, TableRowProps} from "@mui/material";
+import {alpha, Chip, Skeleton, styled, TableRow, TableRowProps} from "@mui/material";
 import {StyledTableCell} from "./SnippetTable.tsx";
-import {Snippet} from "../../utils/snippet.ts";
+import {ComplianceEnum, Snippet} from "../../utils/snippet.ts";
+
+export const COMPLIANCE_CHIP: Record<ComplianceEnum, {label: string, color: "success" | "warning" | "error" | "default"}> = {
+  compliant: {label: "Valid", color: "success"},
+  "not-compliant": {label: "Not valid", color: "warning"},
+  failed: {label: "Could not check", color: "error"},
+  pending: {label: "Pending", color: "default"},
+}
 
 const StyledTableRow = styled(TableRow)(({theme}) => ({
   backgroundColor: 'white',
@@ -41,7 +48,10 @@ export const SnippetRow = ({snippet, onClick, ...props}: { snippet: Snippet, onC
         <StyledTableCell>{snippet.name}</StyledTableCell>
         <StyledTableCell>{snippet.language}</StyledTableCell>
         <StyledTableCell>{snippet.author}</StyledTableCell>
-        <StyledTableCell>{snippet.compliance}</StyledTableCell>
+        <StyledTableCell>
+          <Chip size="small" label={COMPLIANCE_CHIP[snippet.compliance].label}
+                color={COMPLIANCE_CHIP[snippet.compliance].color}/>
+        </StyledTableCell>
       </StyledTableRow>
   )
 }

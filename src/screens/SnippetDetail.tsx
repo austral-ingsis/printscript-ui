@@ -4,17 +4,17 @@ import {highlight, languages} from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism-okaidia.css";
-import {Alert, Box, CircularProgress, IconButton, Tooltip, Typography} from "@mui/material";
+import {Alert, Box, Chip, CircularProgress, IconButton, List, ListItem, ListItemText, Menu, MenuItem, Tooltip, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {
   useUpdateSnippetById
 } from "../utils/queries.tsx";
-import {useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
+import {useDownloadSnippet, useFormatSnippet, useGetSnippetById, useShareSnippet} from "../utils/queries.tsx";
 import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
 import {BugReport, Delete, Download, Save, Share} from "@mui/icons-material";
 import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
 import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx";
-import {Snippet} from "../utils/snippet.ts";
+import {COMPLIANCE_CHIP} from "../components/snippet-table/SnippetRow.tsx";
 import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import {queryClient} from "../App.tsx";
@@ -25,26 +25,38 @@ type SnippetDetailProps = {
   handleCloseModal: () => void;
 }
 
-const DownloadButton = ({snippet}: { snippet?: Snippet }) => {
-  if (!snippet) return null;
-  const file = new Blob([snippet.content], {type: 'text/plain'});
+const DownloadButton = ({snippetId}: { snippetId: string }) => {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const {mutate: download, isLoading} = useDownloadSnippet()
+
+  const handleDownload = (formatted: boolean) => {
+    setAnchor(null)
+    download({id: snippetId, formatted}, {
+      onSuccess: ({blob, filename}) => {
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = filename
+        link.click()
+        URL.revokeObjectURL(url)
+      },
+    })
+  }
 
   return (
-    <Tooltip title={"Download"}>
-      <IconButton sx={{
-        cursor: "pointer"
-      }}>
-        <a download={`${snippet.name}.${snippet.extension}`} target="_blank"
-           rel="noreferrer" href={URL.createObjectURL(file)} style={{
-          textDecoration: "none",
-          color: "inherit",
-          display: 'flex',
-          alignItems: 'center',
-        }}>
-          <Download/>
-        </a>
-      </IconButton>
-    </Tooltip>
+    <>
+      <Tooltip title={"Download"}>
+        <span>
+          <IconButton disabled={isLoading} onClick={(e) => setAnchor(e.currentTarget)}>
+            <Download/>
+          </IconButton>
+        </span>
+      </Tooltip>
+      <Menu anchorEl={anchor} open={!!anchor} onClose={() => setAnchor(null)}>
+        <MenuItem onClick={() => handleDownload(false)}>Original</MenuItem>
+        <MenuItem onClick={() => handleDownload(true)}>Formatted</MenuItem>
+      </Menu>
+    </>
   )
 }
 
@@ -59,7 +71,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
 
   const {data: snippet, isLoading} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
-  const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
+  const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet(snippet?.language ?? "", snippet?.version ?? "")
   const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({onSuccess: () => queryClient.invalidateQueries(['snippet', id])})
 
   useEffect(() => {
@@ -101,7 +113,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                   <BugReport/>
                 </IconButton>
               </Tooltip>
-              <DownloadButton snippet={snippet}/>
+              <DownloadButton snippetId={id}/>
               {/*<Tooltip title={runSnippet ? "Stop run" : "Run"}>*/}
               {/*  <IconButton onClick={() => setRunSnippet(!runSnippet)}>*/}
               {/*    {runSnippet ? <StopRounded/> : <PlayArrow/>}*/}
@@ -140,6 +152,27 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                 />
               </Bòx>
             </Box>
+            {snippet?.lintViolations && snippet.lintViolations.length > 0 && (
+              <Box mt={2}>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography fontWeight="bold">Rules not followed</Typography>
+                  {snippet.compliance && (
+                    <Chip size="small" label={COMPLIANCE_CHIP[snippet.compliance].label}
+                          color={COMPLIANCE_CHIP[snippet.compliance].color}/>
+                  )}
+                </Box>
+                <List dense>
+                  {snippet.lintViolations.map((violation, index) => (
+                    <ListItem key={`${violation.rule}-${index}`} disableGutters>
+                      <ListItemText
+                        primary={`${violation.rule}: ${violation.message}`}
+                        secondary={`Line ${violation.line}, column ${violation.column}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            )}
             <Box pt={1} flex={1} marginTop={2}>
               <Alert severity="info">Output</Alert>
               <SnippetExecution />
@@ -149,7 +182,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
         <ShareSnippetModal loading={loadingShare || isLoading} open={shareModalOppened}
                            onClose={() => setShareModalOppened(false)}
                            onShare={handleShareSnippet}/>
-        <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)}/>
+        <TestSnippetModal open={testModalOpened} onClose={() => setTestModalOpened(false)} snippetId={id}/>
         <DeleteConfirmationModal open={deleteConfirmationModalOpen} onClose={() => setDeleteConfirmationModalOpen(false)} id={snippet?.id ?? ""} setCloseDetails={handleCloseModal} />
       </Box>
   );

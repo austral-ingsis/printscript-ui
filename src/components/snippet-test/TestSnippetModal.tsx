@@ -1,4 +1,4 @@
-import {Box,  Divider, IconButton, Tab, Tabs, Typography} from "@mui/material";
+import {Box, Divider, IconButton, Tab, Tabs, Typography} from "@mui/material";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
 import {SyntheticEvent, useState} from "react";
 import {AddRounded} from "@mui/icons-material";
@@ -9,19 +9,24 @@ import {queryClient} from "../../App.tsx";
 type TestSnippetModalProps = {
     open: boolean
     onClose: () => void
+    snippetId: string
 }
 
-export const TestSnippetModal = ({open, onClose}: TestSnippetModalProps) => {
+export const TestSnippetModal = ({open, onClose, snippetId}: TestSnippetModalProps) => {
     const [value, setValue] = useState(0);
+    const refreshTests = () => queryClient.invalidateQueries(['testCases', snippetId]);
 
-    const {data: testCases} = useGetTestCases();
-    const {mutateAsync: postTestCase} = usePostTestCase();
-    const {mutateAsync: removeTestCase} = useRemoveTestCase({
-        onSuccess: () => queryClient.invalidateQueries('testCases')
-    });
+    const {data: testCases} = useGetTestCases(snippetId);
+    const {mutateAsync: postTestCase} = usePostTestCase(snippetId);
+    const {mutateAsync: removeTestCase} = useRemoveTestCase(snippetId, {onSuccess: refreshTests});
 
     const handleChange = (_: SyntheticEvent, newValue: number) => {
         setValue(newValue);
+    };
+
+    const saveTestCase = async (testCase: Parameters<typeof postTestCase>[0]) => {
+        await postTestCase(testCase);
+        refreshTests();
     };
 
     return (
@@ -38,20 +43,20 @@ export const TestSnippetModal = ({open, onClose}: TestSnippetModalProps) => {
                     sx={{borderRight: 1, borderColor: 'divider'}}
                 >
                     {testCases?.map((testCase) => (
-                        <Tab label={testCase.name}/>
+                        <Tab key={testCase.id} label={testCase.name}/>
                     ))}
                     <IconButton disableRipple onClick={() => setValue((testCases?.length ?? 0) + 1)}>
                         <AddRounded />
                     </IconButton>
                 </Tabs>
                 {testCases?.map((testCase, index) => (
-                    <TabPanel index={index} value={value} test={testCase}
-                              setTestCase={(tc) => postTestCase(tc)}
+                    <TabPanel key={testCase.id} index={index} value={value} test={testCase} snippetId={snippetId}
+                              setTestCase={saveTestCase}
                               removeTestCase={(i) => removeTestCase(i)}
                     />
                 ))}
-                <TabPanel index={(testCases?.length ?? 0) + 1} value={value}
-                          setTestCase={(tc) => postTestCase(tc)}
+                <TabPanel index={(testCases?.length ?? 0) + 1} value={value} snippetId={snippetId}
+                          setTestCase={saveTestCase}
                 />
             </Box>
         </ModalWrapper>

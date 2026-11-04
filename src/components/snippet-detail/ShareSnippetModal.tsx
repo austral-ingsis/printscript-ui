@@ -10,23 +10,23 @@ type ShareSnippetModalProps = {
   onShare: (userId: string) => void
   loading: boolean
 }
+
+const SEARCH_DELAY_MS = 300
+
 export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
   const {open, onClose, onShare, loading} = props
   const [name, setName] = useState("")
   const [debouncedName, setDebouncedName] = useState("")
-  const {data, isLoading} = useGetUsers(debouncedName, 1, 5)
+  const {data, isLoading} = useGetUsers(debouncedName, 0, 5)
   const [selectedUser, setSelectedUser] = useState<User | undefined>()
 
+  // Searches while the user types, once they pause for a moment.
   useEffect(() => {
-    const getData = setTimeout(() => {
+    const searchLater = setTimeout(() => {
       setDebouncedName(name)
-    }, 3000)
-    return () => clearTimeout(getData)
+    }, SEARCH_DELAY_MS)
+    return () => clearTimeout(searchLater)
   }, [name])
-
-  function handleSelectUser(newValue: User | null) {
-    newValue && setSelectedUser(newValue)
-  }
 
   return (
       <ModalWrapper open={open} onClose={onClose}>
@@ -39,11 +39,12 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
               isOptionEqualToValue={(option, value) =>
                   option.id === value.id
               }
+              filterOptions={(options) => options}
               getOptionLabel={(option) => option.name}
               loading={isLoading}
-              value={selectedUser}
-              onInputChange={(_: unknown, newValue: string | null) => newValue && setName(newValue)}
-              onChange={(_: unknown, newValue: User | null) => handleSelectUser(newValue)}
+              value={selectedUser ?? null}
+              onInputChange={(_: unknown, newValue: string) => setName(newValue)}
+              onChange={(_: unknown, newValue: User | null) => setSelectedUser(newValue ?? undefined)}
           />
           <Box mt={4} display={"flex"} width={"100%"} justifyContent={"flex-end"}>
             <Button onClick={onClose} variant={"outlined"}>Cancel</Button>

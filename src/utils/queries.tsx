@@ -1,35 +1,30 @@
+import {useMemo} from 'react';
 import {useMutation, UseMutationResult, useQuery} from 'react-query';
-import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippet.ts';
-import {SnippetOperations} from "./snippetOperations.ts";
+import {useAuth0} from "@auth0/auth0-react";
+import {ComplianceEnum, CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippet.ts';
+import {DownloadedSnippet, RevalidationRun, SnippetOperations} from "./snippetOperations.ts";
+import {HttpSnippetOperations} from "./http/HttpSnippetOperations.ts";
 import {PaginatedUsers} from "./users.ts";
-import {FakeSnippetOperations} from "./mock/fakeSnippetOperations.ts";
-import {TestCase} from "../types/TestCase.ts";
+import {TestCase, TestRunResult} from "../types/TestCase.ts";
 import {FileType} from "../types/FileType.ts";
 import {Rule} from "../types/Rule.ts";
-// import {useAuth0} from "@auth0/auth0-react";
-// import {useEffect} from "react";
 
+/** Base URL of snippet-handler, e.g. http://localhost:8080 (no trailing /api). */
+const BACKEND_URL: string = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8080";
 
-export const useSnippetsOperations = () => {
-  // const {getAccessTokenSilently} = useAuth0()
-  //
-  // useEffect(() => {
-  //     getAccessTokenSilently()
-  //         .then(token => {
-  //             console.log(token)
-  //         })
-  //         .catch(error => console.error(error));
-  // });
+export const useSnippetsOperations = (): SnippetOperations => {
+  const {getAccessTokenSilently} = useAuth0();
 
-  const snippetOperations: SnippetOperations = new FakeSnippetOperations(/* getAccessTokenSilently */); // TODO: Replace with your implementation
+  return useMemo(
+      () => new HttpSnippetOperations(BACKEND_URL, () => getAccessTokenSilently()),
+      [getAccessTokenSilently]
+  );
+};
 
-  return snippetOperations
-}
-
-export const useGetSnippets = (page: number = 0, pageSize: number = 10, snippetName?: string) => {
+export const useGetSnippets = (page: number = 0, pageSize: number = 10, snippetName?: string, compliance?: ComplianceEnum) => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<PaginatedSnippets, Error>(['listSnippets', page,pageSize,snippetName], () => snippetOperations.listSnippetDescriptors(page, pageSize,snippetName));
+  return useQuery<PaginatedSnippets, Error>(['listSnippets', page, pageSize, snippetName, compliance], () => snippetOperations.listSnippetDescriptors(page, pageSize, snippetName, compliance));
 };
 
 export const useGetSnippetById = (id: string) => {
@@ -62,7 +57,10 @@ export const useUpdateSnippetById = ({onSuccess}: {onSuccess: () => void}): UseM
 export const useGetUsers = (name: string = "", page: number = 0, pageSize: number = 10) => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<PaginatedUsers, Error>(['users',name,page,pageSize], () => snippetOperations.getUserFriends(name,page, pageSize));
+  return useQuery<PaginatedUsers, Error>(['users', name, page, pageSize], () => snippetOperations.getUserFriends(name, page, pageSize), {
+    enabled: name.trim().length > 0, // an empty search would not find anybody
+    keepPreviousData: true,
+  });
 };
 
 export const useShareSnippet = () => {
@@ -74,28 +72,29 @@ export const useShareSnippet = () => {
 };
 
 
-export const useGetTestCases = () => {
+export const useGetTestCases = (snippetId: string) => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<TestCase[] | undefined, Error>(['testCases'], () => snippetOperations.getTestCases(), {});
+  return useQuery<TestCase[] | undefined, Error>(['testCases', snippetId], () => snippetOperations.getTestCases(snippetId), {
+    enabled: !!snippetId,
+  });
 };
 
 
-export const usePostTestCase = () => {
+export const usePostTestCase = (snippetId: string) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<TestCase, Error, Partial<TestCase>>(
-      (tc) => snippetOperations.postTestCase(tc)
+      (tc) => snippetOperations.postTestCase(snippetId, tc)
   );
 };
 
 
-export const useRemoveTestCase = ({onSuccess}: {onSuccess: () => void}) => {
+export const useRemoveTestCase = (snippetId: string, {onSuccess}: {onSuccess: () => void}) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<string, Error, string>(
-      ['removeTestCase'],
-      (id) => snippetOperations.removeTestCase(id),
+      (testId) => snippetOperations.removeTestCase(snippetId, testId),
       {
         onSuccess,
       }
@@ -104,11 +103,11 @@ export const useRemoveTestCase = ({onSuccess}: {onSuccess: () => void}) => {
 
 export type TestCaseResult = "success" | "fail"
 
-export const useTestSnippet = () => {
+export const useTestSnippet = (snippetId: string) => {
   const snippetOperations = useSnippetsOperations()
 
-  return useMutation<TestCaseResult, Error, Partial<TestCase>>(
-      (tc) => snippetOperations.testSnippet(tc)
+  return useMutation<TestRunResult, Error, Partial<TestCase>>(
+      (tc) => snippetOperations.testSnippet(snippetId, tc)
   )
 }
 
@@ -146,11 +145,19 @@ export const useModifyLintingRules = ({onSuccess}: {onSuccess: () => void}) => {
   );
 }
 
-export const useFormatSnippet = () => {
+export const useFormatSnippet = (language: string, version: string) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<string, Error, string>(
-      snippetContent => snippetOperations.formatSnippet(snippetContent)
+      snippetContent => snippetOperations.formatSnippet(snippetContent, language, version)
+  );
+}
+
+export const useDownloadSnippet = () => {
+  const snippetOperations = useSnippetsOperations()
+
+  return useMutation<DownloadedSnippet, Error, {id: string; formatted: boolean}>(
+      ({id, formatted}) => snippetOperations.downloadSnippet(id, formatted)
   );
 }
 
@@ -170,4 +177,23 @@ export const useGetFileTypes = () => {
   const snippetOperations = useSnippetsOperations()
 
   return useQuery<FileType[], Error>('fileTypes', () => snippetOperations.getFileTypes());
+}
+
+export const useStartRevalidation = () => {
+  const snippetOperations = useSnippetsOperations()
+
+  return useMutation<RevalidationRun, Error, {language: string; version: string}>(
+      ({language, version}) => snippetOperations.startRevalidation(language, version)
+  );
+}
+
+/** Polls the run every 2 seconds until the caller disables it (once it completed). */
+export const useGetRevalidation = (runId: string | undefined, polling: boolean) => {
+  const snippetOperations = useSnippetsOperations()
+
+  return useQuery<RevalidationRun, Error>(
+      ['revalidation', runId],
+      () => snippetOperations.getRevalidation(runId ?? ""),
+      {enabled: !!runId, refetchInterval: polling ? 2000 : false}
+  );
 }

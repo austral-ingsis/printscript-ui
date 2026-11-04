@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import {SnippetDetail} from "./SnippetDetail.tsx";
 import {Drawer} from "@mui/material";
 import {useGetSnippets} from "../utils/queries.tsx";
+import {ComplianceEnum} from "../utils/snippet.ts";
 import {usePaginationContext} from "../contexts/paginationContext.tsx";
 import useDebounce from "../hooks/useDebounce.ts";
 
@@ -13,8 +14,9 @@ const HomeScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [snippetName, setSnippetName] = useState('');
   const [snippetId, setSnippetId] = useState<string | null>(null)
+  const [compliance, setCompliance] = useState<ComplianceEnum | undefined>(undefined)
   const {page, page_size, count, handleChangeCount} = usePaginationContext()
-  const {data, isLoading} = useGetSnippets(page, page_size, snippetName)
+  const {data, isLoading} = useGetSnippets(page, page_size, snippetName, compliance)
 
   useEffect(() => {
     if (data?.count && data.count != count) {
@@ -46,7 +48,8 @@ const HomeScreen = () => {
   return (
       <>
         <SnippetTable loading={isLoading} handleClickSnippet={setSnippetId} snippets={data?.snippets}
-                      handleSearchSnippet={handleSearchSnippet}/>
+                      handleSearchSnippet={handleSearchSnippet}
+                      handleFilterCompliance={setCompliance}/>
         <Drawer open={!!snippetId} anchor={"right"} onClose={handleCloseModal}>
           {snippetId && <SnippetDetail handleCloseModal={handleCloseModal} id={snippetId}/>}
         </Drawer>

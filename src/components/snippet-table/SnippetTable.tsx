@@ -5,6 +5,7 @@ import {
   InputBase,
   Menu,
   MenuItem,
+  Select,
   styled,
   Table,
   TableBody,
@@ -17,7 +18,7 @@ import {AddSnippetModal} from "./AddSnippetModal.tsx";
 import {useRef, useState} from "react";
 import {Add, Search} from "@mui/icons-material";
 import {LoadingSnippetRow, SnippetRow} from "./SnippetRow.tsx";
-import {CreateSnippetWithLang, getFileLanguage, Snippet} from "../../utils/snippet.ts";
+import {ComplianceEnum, CreateSnippetWithLang, defaultVersion, getFileLanguage, Snippet} from "../../utils/snippet.ts";
 import {usePaginationContext} from "../../contexts/paginationContext.tsx";
 import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
 import {useGetFileTypes} from "../../utils/queries.tsx";
@@ -27,10 +28,11 @@ type SnippetTableProps = {
   snippets?: Snippet[];
   loading: boolean;
   handleSearchSnippet: (snippetName: string) => void;
+  handleFilterCompliance: (compliance: ComplianceEnum | undefined) => void;
 }
 
 export const SnippetTable = (props: SnippetTableProps) => {
-  const {snippets, handleClickSnippet, loading,handleSearchSnippet} = props;
+  const {snippets, handleClickSnippet, loading, handleSearchSnippet, handleFilterCompliance} = props;
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [popoverMenuOpened, setPopoverMenuOpened] = useState(false)
   const [snippet, setSnippet] = useState<CreateSnippetWithLang | undefined>()
@@ -59,7 +61,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
         name: splitName[0],
         content: text,
         language: fileType.language,
-        extension: fileType.extension
+        version: defaultVersion(fileTypes ?? [], fileType.language),
       })
     }).catch(e => {
       console.error(e)
@@ -87,6 +89,19 @@ export const SnippetTable = (props: SnippetTableProps) => {
               <Search/>
             </IconButton>
           </Box>
+          <Select
+              size="small"
+              displayEmpty
+              defaultValue=""
+              inputProps={{'aria-label': 'filter by validity'}}
+              onChange={e => handleFilterCompliance((e.target.value || undefined) as ComplianceEnum | undefined)}
+          >
+            <MenuItem value="">All validity</MenuItem>
+            <MenuItem value="compliant">Valid</MenuItem>
+            <MenuItem value="not-compliant">Not valid</MenuItem>
+            <MenuItem value="pending">Pending</MenuItem>
+            <MenuItem value="failed">Could not check</MenuItem>
+          </Select>
           <Button ref={popoverRef} variant="contained" disableRipple sx={{boxShadow: 0}}
                   onClick={() => setPopoverMenuOpened(true)}>
             <Add/>
