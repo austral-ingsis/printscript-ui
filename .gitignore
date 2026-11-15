@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 .env*
+!.env.example
 next-env.d.ts
 .next

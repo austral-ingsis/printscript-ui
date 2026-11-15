@@ -54,7 +54,8 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  shareSnippet(snippetId: string): Promise<Snippet> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  shareSnippet(snippetId: string, _userId: string): Promise<Snippet> {
     return new Promise(resolve => {
       // @ts-expect-error, it will always find it in the fake store
       setTimeout(() => resolve(this.fakeStore.getSnippetById(snippetId)), DELAY)

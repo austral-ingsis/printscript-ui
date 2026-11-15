@@ -20,7 +20,7 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
   useEffect(() => {
     const getData = setTimeout(() => {
       setDebouncedName(name)
-    }, 3000)
+    }, 400)
     return () => clearTimeout(getData)
   }, [name])
 
@@ -42,7 +42,7 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
               getOptionLabel={(option) => option.name}
               loading={isLoading}
               value={selectedUser}
-              onInputChange={(_: unknown, newValue: string | null) => newValue && setName(newValue)}
+              onInputChange={(_: unknown, newValue: string | null) => setName(newValue ?? "")}
               onChange={(_: unknown, newValue: User | null) => handleSelectUser(newValue)}
           />
           <Box mt={4} display={"flex"} width={"100%"} justifyContent={"flex-end"}>
