@@ -22,6 +22,7 @@ import {CreateSnippet, CreateSnippetWithLang} from "../../utils/snippet.ts";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
 import {useCreateSnippet, useGetFileTypes} from "../../utils/queries.tsx";
 import {queryClient} from "../../App.tsx";
+import {ApiErrorAlert} from "../common/ApiErrorAlert.tsx";
 
 export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     open: boolean,
@@ -35,6 +36,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
         onSuccess: () => queryClient.invalidateQueries('listSnippets')
     })
     const {data: fileTypes} = useGetFileTypes();
+    const [error, setError] = useState<unknown>(null)
 
     const handleCreateSnippet = async () => {
         const newSnippet: CreateSnippet = {
@@ -43,8 +45,22 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
             language: language,
             extension: fileTypes?.find((f) => f.language === language)?.extension ?? "prs"
         }
-        await createSnippet(newSnippet);
+        setError(null)
+        try {
+            await createSnippet(newSnippet);
+        } catch (e) {
+            // El modal sigue abierto con lo que escribió el usuario, y el error (con regla, línea y columna) a la vista.
+            setError(e)
+            return
+        }
+        setSnippetName("")
+        setCode("")
         onClose();
+    }
+
+    const handleClose = () => {
+        setError(null)
+        onClose()
     }
 
     useEffect(() => {
@@ -56,7 +72,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     }, [defaultSnippet]);
 
     return (
-        <ModalWrapper open={open} onClose={onClose}>
+        <ModalWrapper open={open} onClose={handleClose}>
             {
                 <Box sx={{display: 'flex', flexDirection: "row", justifyContent: "space-between"}}>
                     <Typography id="modal-modal-title" variant="h5" component="h2"
@@ -73,6 +89,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
                     </Button>
                 </Box>
             }
+            {error != null && <ApiErrorAlert error={error}/>}
             <Box sx={{
                 display: 'flex',
                 flexDirection: 'column',
