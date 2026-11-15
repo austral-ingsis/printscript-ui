@@ -19,6 +19,7 @@ import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import {queryClient} from "../App.tsx";
 import {DeleteConfirmationModal} from "../components/snippet-detail/DeleteConfirmationModal.tsx";
+import {ApiErrorAlert} from "../components/common/ApiErrorAlert.tsx";
 
 type SnippetDetailProps = {
   id: string;
@@ -57,10 +58,16 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false)
   const [testModalOpened, setTestModalOpened] = useState(false);
 
-  const {data: snippet, isLoading} = useGetSnippetById(id);
+  const {data: snippet, isLoading, isError, error: loadError, refetch} = useGetSnippetById(id);
   const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
   const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
-  const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({onSuccess: () => queryClient.invalidateQueries(['snippet', id])})
+  const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading, error: updateError} = useUpdateSnippetById({
+    onSuccess: async () => {
+      // El listado también cambia al guardar (por ejemplo vuelve a "pending").
+      await queryClient.invalidateQueries(['snippet', id])
+      await queryClient.invalidateQueries('listSnippets')
+    }
+  })
 
   useEffect(() => {
     if (snippet) {
@@ -88,7 +95,13 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
           isLoading ? (<>
             <Typography fontWeight={"bold"} mb={2} variant="h4">Loading...</Typography>
             <CircularProgress/>
-          </>) : <>
+          </>) : isError ? (
+              // Sin el snippet no hay nada que editar: el editor vacío dejaría guardar encima del contenido real.
+              <>
+                <Typography fontWeight={"bold"} mb={2} variant="h4">Snippet</Typography>
+                <ApiErrorAlert error={loadError} onRetry={() => refetch()}/>
+              </>
+          ) : <>
             <Typography variant="h4" fontWeight={"bold"}>{snippet?.name ?? "Snippet"}</Typography>
             <Box display="flex" flexDirection="row" gap="8px" padding="8px">
               <Tooltip title={"Share"}>
@@ -114,7 +127,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                 </IconButton>
               </Tooltip>
               <Tooltip title={"Save changes"}>
-                <IconButton color={"primary"} onClick={() => updateSnippet({id: id, updateSnippet: {content: code}})} disabled={isUpdateSnippetLoading || snippet?.content === code} >
+                <IconButton color={"primary"} onClick={() => updateSnippet({id: id, updateSnippet: {content: code}})} disabled={isUpdateSnippetLoading || !snippet || snippet.content === code} >
                   <Save />
                 </IconButton>
               </Tooltip>
@@ -124,6 +137,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
                 </IconButton>
               </Tooltip>
             </Box>
+            {updateError && <Box pb={2}><ApiErrorAlert error={updateError}/></Box>}
             <Box display={"flex"} gap={2}>
               <Bòx flex={1} height={"fit-content"} overflow={"none"} minHeight={"500px"} bgcolor={'black'} color={'white'} code={code}>
                 <Editor

@@ -7,6 +7,7 @@ import {Drawer} from "@mui/material";
 import {useGetSnippets} from "../utils/queries.tsx";
 import {usePaginationContext} from "../contexts/paginationContext.tsx";
 import useDebounce from "../hooks/useDebounce.ts";
+import {ApiErrorAlert} from "../components/common/ApiErrorAlert.tsx";
 
 const HomeScreen = () => {
   const {id: paramsId} = useParams<{ id: string }>();
@@ -14,13 +15,14 @@ const HomeScreen = () => {
   const [snippetName, setSnippetName] = useState('');
   const [snippetId, setSnippetId] = useState<string | null>(null)
   const {page, page_size, count, handleChangeCount} = usePaginationContext()
-  const {data, isLoading} = useGetSnippets(page, page_size, snippetName)
+  const {data, isLoading, isError, error, refetch} = useGetSnippets(page, page_size, snippetName)
 
   useEffect(() => {
-    if (data?.count && data.count != count) {
+    // Con 0 resultados también hay que actualizar el total (si no, el paginador queda con el valor anterior).
+    if (data && data.count != count) {
       handleChangeCount(data.count)
     }
-  }, [count, data?.count, handleChangeCount]);
+  }, [count, data, handleChangeCount]);
 
 
   useEffect(() => {
@@ -45,6 +47,7 @@ const HomeScreen = () => {
 
   return (
       <>
+        {isError && <ApiErrorAlert error={error} onRetry={() => refetch()}/>}
         <SnippetTable loading={isLoading} handleClickSnippet={setSnippetId} snippets={data?.snippets}
                       handleSearchSnippet={handleSearchSnippet}/>
         <Drawer open={!!snippetId} anchor={"right"} onClose={handleCloseModal}>

@@ -25,7 +25,7 @@ export const DeleteConfirmationModal = (props: DeleteConfirmationModalProps) => 
         <Typography variant={"h6"}>Are you sure you want to delete this snippet?</Typography>
           <Box display={"flex"} justifyContent={"center"}>
             <Button onClick={onClose} variant={"outlined"}>Cancel</Button>
-            <Button onClick={() => deleteSnippet(id)} sx={{marginLeft: 2}} variant={"contained"} color={"error"}>Delete</Button>
+            <Button disabled={!id} onClick={() => deleteSnippet(id)} sx={{marginLeft: 2}} variant={"contained"} color={"error"}>Delete</Button>
           </Box>
       </ModalWrapper>
   )
