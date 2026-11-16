@@ -3,6 +3,15 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Vite reemplaza estas variables públicas en el bundle durante `npm run build`
+ARG VITE_AUTH0_DOMAIN
+ARG VITE_AUTH0_CLIENT_ID
+ARG VITE_AUTH0_AUDIENCE
+
+ENV VITE_AUTH0_DOMAIN=$VITE_AUTH0_DOMAIN \
+    VITE_AUTH0_CLIENT_ID=$VITE_AUTH0_CLIENT_ID \
+    VITE_AUTH0_AUDIENCE=$VITE_AUTH0_AUDIENCE
+
 # Instala dependencias
 COPY package.json package-lock.json ./
 RUN npm ci

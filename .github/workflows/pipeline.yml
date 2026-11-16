@@ -16,13 +16,49 @@ jobs:
     with:
       project_type: node
 
-  publish:
+  resolve-build-config:
     needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
+    outputs:
+      auth0_domain: ${{ steps.auth0.outputs.domain }}
+      auth0_client_id: ${{ steps.auth0.outputs.client_id }}
+      auth0_audience: ${{ steps.auth0.outputs.audience }}
+    steps:
+      - name: Validate Auth0 build configuration
+        id: auth0
+        shell: bash
+        env:
+          AUTH0_DOMAIN: ${{ vars.VITE_AUTH0_DOMAIN }}
+          AUTH0_CLIENT_ID: ${{ vars.VITE_AUTH0_CLIENT_ID }}
+          AUTH0_AUDIENCE: ${{ vars.VITE_AUTH0_AUDIENCE }}
+        run: |
+          set -Eeuo pipefail
+          for variable in AUTH0_DOMAIN AUTH0_CLIENT_ID AUTH0_AUDIENCE; do
+            [[ -n "${!variable:-}" ]] || {
+              echo "::error::Missing $variable in the ${{ github.ref_name }} Environment variables."
+              exit 1
+            }
+          done
+
+          {
+            echo "domain=$AUTH0_DOMAIN"
+            echo "client_id=$AUTH0_CLIENT_ID"
+            echo "audience=$AUTH0_AUDIENCE"
+          } >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: [check, resolve-build-config]
     if: github.event_name == 'push'
     uses: printScript-ingsis-vlt/common-configurations/.github/workflows/publish.yml@main
     with:
       image_repository: ghcr.io/printscript-ingsis-vlt/printscript-ui
       environment: ${{ github.ref_name }}
+      docker_build_args: |
+        VITE_AUTH0_DOMAIN=${{ needs.resolve-build-config.outputs.auth0_domain }}
+        VITE_AUTH0_CLIENT_ID=${{ needs.resolve-build-config.outputs.auth0_client_id }}
+        VITE_AUTH0_AUDIENCE=${{ needs.resolve-build-config.outputs.auth0_audience }}
 
   notify:
     needs: publish
