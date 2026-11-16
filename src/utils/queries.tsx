@@ -74,18 +74,21 @@ export const useShareSnippet = () => {
 };
 
 
-export const useGetTestCases = () => {
+export const useGetTestCases = (snippetId: string) => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<TestCase[] | undefined, Error>(['testCases'], () => snippetOperations.getTestCases(), {});
+  return useQuery<TestCase[] | undefined, Error>(['testCases', snippetId], () => snippetOperations.getTestCases(snippetId), {
+    enabled: !!snippetId,
+  });
 };
 
 
-export const usePostTestCase = () => {
+export const usePostTestCase = ({onSuccess}: {onSuccess: () => void}) => {
   const snippetOperations = useSnippetsOperations()
 
-  return useMutation<TestCase, Error, Partial<TestCase>>(
-      (tc) => snippetOperations.postTestCase(tc)
+  return useMutation<TestCase, Error, { snippetId: string; testCase: Partial<TestCase> }>(
+      ({snippetId, testCase}) => snippetOperations.postTestCase(snippetId, testCase),
+      {onSuccess}
   );
 };
 
@@ -107,8 +110,8 @@ export type TestCaseResult = "success" | "fail"
 export const useTestSnippet = () => {
   const snippetOperations = useSnippetsOperations()
 
-  return useMutation<TestCaseResult, Error, Partial<TestCase>>(
-      (tc) => snippetOperations.testSnippet(tc)
+  return useMutation<TestCaseResult, Error, { snippetId: string; testCase: Partial<TestCase> }>(
+      ({snippetId, testCase}) => snippetOperations.testSnippet(snippetId, testCase)
   )
 }
 

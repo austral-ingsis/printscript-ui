@@ -1,5 +1,5 @@
 import {SnippetOperations} from "../snippetOperations.ts";
-import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from "../snippet.ts";
+import {ComplianceEnum, CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from "../snippet.ts";
 import {FileType} from "../../types/FileType.ts";
 import {Rule} from "../../types/Rule.ts";
 import {TestCase} from "../../types/TestCase.ts";
@@ -15,8 +15,24 @@ import {
     SnippetResponse,
     CreateSnippetRequest,
     UpdateSnippetRequest,
+    CreateSnippetTestRequest,
+    SnippetTestResponse,
+    TestListItemResponse,
+    RunTestsRequest,
+    RunTestsResponse,
+    TestStatusResponse,
+    PaginatedSnippetsResponse,
+    SnippetSummaryResponse,
 } from "./apiResponses.ts";
 
+const toComplianceEnum = (status: string): ComplianceEnum => {
+    switch (status) {
+        case "COMPLIANT": return "compliant";
+        case "NON_COMPLIANT": return "not-compliant";
+        case "FAILED": return "failed";
+        default: return "pending";
+    }
+};
 
 export class RealSnippetOperations implements SnippetOperations {
     private api: AxiosInstance;
@@ -90,9 +106,14 @@ export class RealSnippetOperations implements SnippetOperations {
         return this.toSnippet(res.data, "ps"); // provisorio: confirmá el valor en fakeSnippetStore.ts
     }
 
-    getTestCases(): Promise<TestCase[]> {
-        // backend solo tiene POST /snippet/{id}/test (crear); no hay GET/DELETE/ejecución ni "name" de test case
-        return this.fallback.getTestCases();
+    async getTestCases(snippetId: string): Promise<TestCase[]> {
+        const res = await this.api.get<TestListItemResponse[]>('/tests', {params: {snippetId}});
+        return res.data.map((t, i) => ({
+            id: t.id,
+            name: `Test ${i + 1}`,
+            input: t.inputs,
+            output: t.outputs,
+        }));
     }
 
     getUserFriends(name?: string, page?: number, pageSize?: number): Promise<PaginatedUsers> {
@@ -100,9 +121,29 @@ export class RealSnippetOperations implements SnippetOperations {
         return this.fallback.getUserFriends(name, page, pageSize);
     }
 
-    listSnippetDescriptors(page: number, pageSize: number): Promise<PaginatedSnippets> {
-        // falta GET /snippet (listado paginado) en snippet-service
-        return this.fallback.listSnippetDescriptors(page, pageSize);
+    async listSnippetDescriptors(page: number, pageSize: number, snippetName?: string): Promise<PaginatedSnippets> {
+        const res = await this.api.get<PaginatedSnippetsResponse>('/snippet', {
+            params: {page, pageSize, name: snippetName},
+        });
+        return {
+            page: res.data.page,
+            page_size: res.data.pageSize,
+            count: res.data.total,
+            snippets: res.data.snippets.map(this.toSnippetSummary),
+        };
+    }
+
+    private toSnippetSummary(s: SnippetSummaryResponse): Snippet {
+        return {
+            id: s.snippetId,
+            name: s.title,
+            content: "",
+            language: s.language,
+            version: s.languageVersion,
+            extension: "ps",
+            author: s.author,
+            compliance: toComplianceEnum(s.compliance),
+        };
     }
 
     async modifyFormatRule(newRules: Rule[]): Promise<Rule[]> {
@@ -124,10 +165,13 @@ export class RealSnippetOperations implements SnippetOperations {
         return this.fallback.modifyLintingRule(newRules);
     }
 
-    postTestCase(testCase: Partial<TestCase>): Promise<TestCase> {
-        // delegado junto con getTestCases/removeTestCase/testSnippet (ver comentario en getTestCases);
-        // TestCase del frontend tampoco tiene snippetId, que el endpoint real necesitaría en la URL
-        return this.fallback.postTestCase(testCase as TestCase);
+    async postTestCase(snippetId: string, testCase: Partial<TestCase>): Promise<TestCase> {
+        const body: CreateSnippetTestRequest = {
+            inputs: testCase.input ?? [],
+            outputs: testCase.output ?? [],
+        };
+        const res = await this.api.post<SnippetTestResponse>(`/snippet/${snippetId}/test`, body);
+        return {id: res.data.id, name: testCase.name ?? "", input: body.inputs, output: body.outputs};
     }
 
     removeTestCase(id: string): Promise<string> {
@@ -141,9 +185,20 @@ export class RealSnippetOperations implements SnippetOperations {
         return this.fallback.shareSnippet(snippetId);
     }
 
-    testSnippet(): Promise<TestCaseResult> {
-        // no existe endpoint de ejecución de tests en el backend
-        return this.fallback.testSnippet();
+    async testSnippet(snippetId: string, testCase: Partial<TestCase>): Promise<TestCaseResult> {
+        if (!testCase.id) throw new Error("No se puede correr un test case que todavía no fue guardado");
+
+        const runBody: RunTestsRequest = {snippetId, selection: {type: "SELECTED", testIds: [testCase.id]}};
+        await this.api.post<RunTestsResponse>('/tests/run', runBody);
+
+        for (let attempt = 0; attempt < 10; attempt++) {
+            await new Promise(r => setTimeout(r, 1000));
+            const res = await this.api.get<TestStatusResponse[]>('/tests/statuses', {params: {snippetId}});
+            const status = res.data.find(s => s.id === testCase.id)?.status;
+            if (status === "PASSED") return "success";
+            if (status === "FAILED" || status === "ERROR") return "fail";
+        }
+        throw new Error("Timeout esperando el resultado del test");
     }
 
     async updateSnippetById(id: string, updateSnippet: UpdateSnippet): Promise<Snippet> {

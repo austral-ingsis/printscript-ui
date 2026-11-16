@@ -37,4 +37,55 @@ export type CreateSnippetRequest = {
 
 export type UpdateSnippetRequest = {
     content: string;
+}
+
+export type CreateSnippetTestRequest = {
+    inputs: string[];
+    outputs: string[];
+};
+
+export type SnippetTestResponse = {
+    id: string;
+    snippetId: string;
+    createdAt: string;
+};
+
+export type TestListItemResponse = {
+    id: string;
+    snippetId: string;
+    createdAt: string;
+    inputs: string[];
+    outputs: string[];
+    status: string;
+};
+
+export type RunTestsRequest = {
+    snippetId: string;
+    selection: { type: "ALL" | "SELECTED"; testIds?: string[] };
+};
+
+export type RunTestsResponse = {
+    testIds: string[];
+};
+
+export type TestStatusResponse = {
+    id: string;
+    status: string;
+};
+
+export type SnippetSummaryResponse = {
+    snippetId: string;
+    title: string;
+    compliance: string;
+    author: string;
+    language: string;
+    languageVersion: string;
+    role: string;
+};
+
+export type PaginatedSnippetsResponse = {
+    page: number;
+    pageSize: number;
+    total: number;
+    snippets: SnippetSummaryResponse[];
 };
