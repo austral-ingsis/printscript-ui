@@ -47,6 +47,18 @@ To use this UI in production you should use an optimized and static version, thi
 npm run build
 ```
 
+## Docker
+
+Serves the built UI as static files on port 3000 (the reverse proxy lives in the infra repo). `VITE_*` vars are baked in at build time:
+
+```bash
+docker build -t printscript-ui \
+  --build-arg VITE_AUTH0_DOMAIN=<domain> \
+  --build-arg VITE_AUTH0_CLIENT_ID=<client_id> \
+  --build-arg VITE_AUTH0_AUDIENCE=<api identifier> .
+docker run -p 3000:3000 printscript-ui
+```
+
 ## Cypress
 
 To start cypress, make sure that the UI is running and enter: 
@@ -55,16 +67,18 @@ To start cypress, make sure that the UI is running and enter:
 npm run cypress
 ```
 
-## Enable Auth0
+## Auth0 and backend
 
-This application uses https://www.npmjs.com/package/@auth0/auth0-react library for Auth0 integration, to enable it you need to change:
-* Uncomment autologin in [App.tsx](src/App.tsx)
-* Uncomment token retrieval for operations [queries.tsx](src/utils/queries.tsx) 
-* Create a `.env` file with the required env vars:
+The UI logs in with Auth0 and calls snippet-service (`src/utils/snippetServiceOperations.ts`) with the access token.
+Create a `.env` from `.env.example`:
 ```
 VITE_AUTH0_DOMAIN=<domain>
 VITE_AUTH0_CLIENT_ID=<client_id>
+VITE_AUTH0_AUDIENCE=<api identifier>   # required: without it the token is not a JWT and the backend answers 401
 ```
+
+Requests go to `/api` on the same origin. In dev, Vite proxies `/api/*` to `http://localhost:8080/*`
+(override with `SNIPPET_SERVICE_URL`); in prod, nginx does it.
 
 If you get 401 loop when getting token:
 * Change application type in Auth0 to "Regular Web Application"
