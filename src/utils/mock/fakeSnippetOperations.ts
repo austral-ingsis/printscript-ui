@@ -4,7 +4,7 @@ import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from '../snipp
 import autoBind from 'auto-bind'
 import {PaginatedUsers} from "../users.ts";
 import {TestCase} from "../../types/TestCase.ts";
-import {TestCaseResult} from "../queries.tsx";
+import type {TestCaseResult} from "../queries.tsx";
 import {FileType} from "../../types/FileType.ts";
 import {Rule} from "../../types/Rule.ts";
 

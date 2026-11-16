@@ -4,7 +4,7 @@ import {createBrowserRouter} from "react-router-dom";
 import HomeScreen from "./screens/Home.tsx";
 import {QueryClient, QueryClientProvider} from "react-query";
 import RulesScreen from "./screens/Rules.tsx";
-// import {withAuthenticationRequired} from "@auth0/auth0-react";
+import {withAuthenticationRequired} from "@auth0/auth0-react";
 
 const router = createBrowserRouter([
     {
@@ -18,6 +18,7 @@ const router = createBrowserRouter([
 ]);
 
 export const queryClient = new QueryClient()
+
 const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
@@ -27,6 +28,6 @@ const App = () => {
 }
 
 // To enable Auth0 integration change the following line
-export default App;
+// export default App;
 // for this one:
-// export default withAuthenticationRequired(App);
+export default withAuthenticationRequired(App); //envuelvo los componentes con el autenticado de auth0, es un HOC (higher order component)
