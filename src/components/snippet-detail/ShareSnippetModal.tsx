@@ -15,14 +15,14 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
   const {open, onClose, onShare, loading} = props
   const [name, setName] = useState("")
   const [debouncedName, setDebouncedName] = useState("")
-  const {data, isLoading} = useGetUsers(debouncedName, 1, 5)
+  const {data, isLoading} = useGetUsers(debouncedName, 0, 10)
   const [selectedUser, setSelectedUser] = useState<User | undefined>()
   const [role, setRole] = useState<ShareRole>("VIEWER")
 
   useEffect(() => {
     const getData = setTimeout(() => {
       setDebouncedName(name)
-    }, 3000)
+    }, 300)
     return () => clearTimeout(getData)
   }, [name])
 
