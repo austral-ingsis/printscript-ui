@@ -14,7 +14,7 @@ import {Bòx} from "../components/snippet-table/SnippetBox.tsx";
 import {BugReport, Delete, Download, Save, Share} from "@mui/icons-material";
 import {ShareSnippetModal} from "../components/snippet-detail/ShareSnippetModal.tsx";
 import {TestSnippetModal} from "../components/snippet-test/TestSnippetModal.tsx";
-import {Snippet} from "../utils/snippet.ts";
+import {ShareRole, Snippet} from "../utils/snippet.ts";
 import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import {queryClient} from "../App.tsx";
@@ -75,8 +75,8 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   }, [formatSnippetData])
 
 
-  async function handleShareSnippet(userId: string) {
-    shareSnippet({snippetId: id, userId})
+  async function handleShareSnippet(userId: string, role: ShareRole) {
+    shareSnippet({snippetId: id, userId, role})
   }
 
   return (

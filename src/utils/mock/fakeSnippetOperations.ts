@@ -1,6 +1,6 @@
 import {SnippetOperations} from '../snippetOperations'
 import {FakeSnippetStore} from './fakeSnippetStore'
-import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from '../snippet'
+import {CreateSnippet, PaginatedSnippets, ShareRole, Snippet, UpdateSnippet} from '../snippet'
 import autoBind from 'auto-bind'
 import {PaginatedUsers} from "../users.ts";
 import {TestCase} from "../../types/TestCase.ts";
@@ -54,10 +54,10 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
-  shareSnippet(snippetId: string): Promise<Snippet> {
+  shareSnippet(snippetId: string, userId: string, role: ShareRole): Promise<void> {
+    void snippetId; void userId; void role;
     return new Promise(resolve => {
-      // @ts-expect-error, it will always find it in the fake store
-      setTimeout(() => resolve(this.fakeStore.getSnippetById(snippetId)), DELAY)
+      setTimeout(() => resolve(), DELAY)
     })
   }
 
