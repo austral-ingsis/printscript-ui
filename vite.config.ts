@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: env.BACKEND_PROXY_TARGET || 'http://localhost:8080',
           changeOrigin: true,
+          // El WebSocket de ejecución (/api/snippets/{id}/execution) también pasa por acá.
+          ws: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
