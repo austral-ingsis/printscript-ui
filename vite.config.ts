@@ -10,5 +10,15 @@ export default defineConfig(({ mode }) => {
       'process.env.BACKEND_URL': JSON.stringify(env.BACKEND_URL)
     },
     plugins: [react()],
+    server: {
+      // same-origin /api in dev, like nginx in prod (snippet-service has no CORS)
+      proxy: {
+        '/api': {
+          target: env.SNIPPET_SERVICE_URL || 'http://localhost:8080',
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/api/, ''),
+        },
+      },
+    },
   }
 })

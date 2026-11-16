@@ -12,7 +12,9 @@ createRoot(document.getElementById('root')!).render(
             domain={import.meta.env.VITE_AUTH0_DOMAIN ?? ""}
             clientId={import.meta.env.VITE_AUTH0_CLIENT_ID ?? ""}
             authorizationParams={{
-                redirect_uri: window.location.origin
+                redirect_uri: window.location.origin,
+                // without an audience Auth0 issues an opaque token, which snippet-service rejects
+                audience: import.meta.env.VITE_AUTH0_AUDIENCE
             }}
         >
             <PaginationProvider>
