@@ -1,5 +1,5 @@
 import {useMutation, UseMutationResult, useQuery} from 'react-query';
-import {CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from './snippet.ts';
+import {CreateSnippet, PaginatedSnippets, ShareRole, Snippet, UpdateSnippet} from './snippet.ts';
 import {SnippetOperations} from "./snippetOperations.ts";
 import {PaginatedUsers} from "./users.ts";
 import {RealSnippetOperations} from "./implementation/realSnippetOperations.ts";
@@ -68,8 +68,8 @@ export const useGetUsers = (name: string = "", page: number = 0, pageSize: numbe
 export const useShareSnippet = () => {
   const snippetOperations = useSnippetsOperations()
 
-  return useMutation<Snippet, Error, { snippetId: string; userId: string }>(
-      ({snippetId, userId}) => snippetOperations.shareSnippet(snippetId, userId)
+  return useMutation<void, Error, { snippetId: string; userId: string; role: ShareRole }>(
+      ({snippetId, userId, role}) => snippetOperations.shareSnippet(snippetId, userId, role)
   );
 };
 

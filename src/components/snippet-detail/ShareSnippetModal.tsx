@@ -1,13 +1,14 @@
-import {Autocomplete, Box, Button, Divider, TextField, Typography} from "@mui/material";
+import {Autocomplete, Box, Button, Divider, MenuItem, TextField, Typography} from "@mui/material";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
 import {useGetUsers} from "../../utils/queries.tsx";
 import {useEffect, useState} from "react";
 import {User} from "../../utils/users.ts";
+import {ShareRole} from "../../utils/snippet.ts";
 
 type ShareSnippetModalProps = {
   open: boolean
   onClose: () => void
-  onShare: (userId: string) => void
+  onShare: (userId: string, role: ShareRole) => void
   loading: boolean
 }
 export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
@@ -16,6 +17,7 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
   const [debouncedName, setDebouncedName] = useState("")
   const {data, isLoading} = useGetUsers(debouncedName, 1, 5)
   const [selectedUser, setSelectedUser] = useState<User | undefined>()
+  const [role, setRole] = useState<ShareRole>("VIEWER")
 
   useEffect(() => {
     const getData = setTimeout(() => {
@@ -45,9 +47,19 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
               onInputChange={(_: unknown, newValue: string | null) => newValue && setName(newValue)}
               onChange={(_: unknown, newValue: User | null) => handleSelectUser(newValue)}
           />
+          <TextField
+              select
+              label="Role"
+              value={role}
+              onChange={(e) => setRole(e.target.value as ShareRole)}
+              sx={{mt: 2, minWidth: 160}}
+          >
+            <MenuItem value="VIEWER">Viewer</MenuItem>
+            <MenuItem value="EDITOR">Editor</MenuItem>
+          </TextField>
           <Box mt={4} display={"flex"} width={"100%"} justifyContent={"flex-end"}>
             <Button onClick={onClose} variant={"outlined"}>Cancel</Button>
-            <Button disabled={!selectedUser || loading} onClick={() => selectedUser && onShare(selectedUser?.id)} sx={{marginLeft: 2}} variant={"contained"}>Share</Button>
+            <Button disabled={!selectedUser || loading} onClick={() => selectedUser && onShare(selectedUser.id, role)} sx={{marginLeft: 2}} variant={"contained"}>Share</Button>
           </Box>
         </Box>
       </ModalWrapper>

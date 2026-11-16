@@ -89,3 +89,20 @@ export type PaginatedSnippetsResponse = {
     total: number;
     snippets: SnippetSummaryResponse[];
 };
+
+export type UserSummaryResponse = {
+    id: string;
+    name: string;
+};
+
+export type PaginatedUsersResponse = {
+    page: number;
+    page_size: number;
+    count: number;
+    users: UserSummaryResponse[];
+};
+
+export type ShareSnippetRequest = {
+    userId: string;
+    role: string;
+};

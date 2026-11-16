@@ -1,11 +1,12 @@
 import {SnippetOperations} from "../snippetOperations.ts";
-import {ComplianceEnum, CreateSnippet, PaginatedSnippets, Snippet, UpdateSnippet} from "../snippet.ts";
+import {ComplianceEnum, CreateSnippet, PaginatedSnippets, ShareRole, Snippet, UpdateSnippet} from "../snippet.ts";
 import {FileType} from "../../types/FileType.ts";
 import {Rule} from "../../types/Rule.ts";
 import {TestCase} from "../../types/TestCase.ts";
 import {PaginatedUsers} from "../users.ts";
 import type {TestCaseResult} from "../queries.tsx";
 import {createApiClient} from "./apiClient.ts";
+import {PERMISSIONS_URL} from "../constants.ts";
 import {AxiosInstance} from "axios";
 import {FakeSnippetOperations} from "../mock/fakeSnippetOperations.ts";
 import {
@@ -23,6 +24,8 @@ import {
     TestStatusResponse,
     PaginatedSnippetsResponse,
     SnippetSummaryResponse,
+    PaginatedUsersResponse,
+    ShareSnippetRequest,
 } from "./apiResponses.ts";
 
 const toComplianceEnum = (status: string): ComplianceEnum => {
@@ -36,11 +39,15 @@ const toComplianceEnum = (status: string): ComplianceEnum => {
 
 export class RealSnippetOperations implements SnippetOperations {
     private api: AxiosInstance;
+    // snippet-service no expone todo: lo de permisos/usuarios vive en permissions-service,
+    // detrás de otra base URL (en la VM, nginx lo enruta via /api/permissions/*).
+    private permissionsApi: AxiosInstance;
     // Operaciones sin endpoint real en el backend hoy: se delegan al mock para no romper la UI.
     private readonly fallback = new FakeSnippetOperations();
 
     constructor(getAccessTokenSilently: () => Promise<string>) {
         this.api = createApiClient(getAccessTokenSilently)
+        this.permissionsApi = createApiClient(getAccessTokenSilently, PERMISSIONS_URL)
     }
 
     private toSnippet(s: SnippetResponse, extension: string): Snippet {
@@ -110,15 +117,17 @@ export class RealSnippetOperations implements SnippetOperations {
         const res = await this.api.get<TestListItemResponse[]>('/tests', {params: {snippetId}});
         return res.data.map((t, i) => ({
             id: t.id,
-            name: `Test ${i + 1}`,
+            name: `Test ${i + 1}`, // TODO(modificar endpoint para traer nombre del test)
             input: t.inputs,
             output: t.outputs,
         }));
     }
 
-    getUserFriends(name?: string, page?: number, pageSize?: number): Promise<PaginatedUsers> {
-        // falta un endpoint de búsqueda/listado de usuarios (no existe en snippet-service ni permissions-service)
-        return this.fallback.getUserFriends(name, page, pageSize);
+    async getUserFriends(name?: string, page?: number, pageSize?: number): Promise<PaginatedUsers> {
+        const res = await this.permissionsApi.get<PaginatedUsersResponse>('/users', {
+            params: {name, page, pageSize},
+        });
+        return res.data;
     }
 
     async listSnippetDescriptors(page: number, pageSize: number, snippetName?: string): Promise<PaginatedSnippets> {
@@ -179,10 +188,9 @@ export class RealSnippetOperations implements SnippetOperations {
         return this.fallback.removeTestCase(id);
     }
 
-    shareSnippet(snippetId: string): Promise<Snippet> {
-        // falta GET /roles en permissions-service para resolver el roleId (UUID por entorno, no descubrible);
-        // además la firma actual no recibe rol, y permissions-service lo exige en POST /snippets/{id}/members
-        return this.fallback.shareSnippet(snippetId);
+    async shareSnippet(snippetId: string, userId: string, role: ShareRole): Promise<void> {
+        const body: ShareSnippetRequest = {userId, role};
+        await this.permissionsApi.post(`/snippets/${snippetId}/members`, body);
     }
 
     async testSnippet(snippetId: string, testCase: Partial<TestCase>): Promise<TestCaseResult> {
