@@ -1,29 +1,21 @@
 import {useMutation, UseMutationResult, useQuery} from 'react-query';
 import {CreateSnippet, PaginatedSnippets, ShareRole, Snippet, UpdateSnippet} from './snippet.ts';
-import {SnippetOperations} from "./snippetOperations.ts";
 import {PaginatedUsers} from "./users.ts";
 import {RealSnippetOperations} from "./implementation/realSnippetOperations.ts";
 import {TestCase} from "../types/TestCase.ts";
 import {FileType} from "../types/FileType.ts";
 import {Rule} from "../types/Rule.ts";
- import {useAuth0} from "@auth0/auth0-react";
- import {useEffect} from "react";
+import {useAuth0} from "@auth0/auth0-react";
+import {useMemo} from "react";
 
 
 export const useSnippetsOperations = () => {
-   const {getAccessTokenSilently} = useAuth0()
+  const {getAccessTokenSilently} = useAuth0();
 
-   useEffect(() => {
-       getAccessTokenSilently()
-           .then(token => {
-               console.log(token)
-           })
-           .catch(error => console.error(error));
-   });
-
-  const snippetOperations: SnippetOperations = new RealSnippetOperations(getAccessTokenSilently);
-
-  return snippetOperations
+  return useMemo(
+    () => new RealSnippetOperations(getAccessTokenSilently),
+    [getAccessTokenSilently],
+  );
 }
 
 export const useGetSnippets = (page: number = 0, pageSize: number = 10, snippetName?: string) => {
@@ -59,10 +51,12 @@ export const useUpdateSnippetById = ({onSuccess}: {onSuccess: () => void}): UseM
   );
 };
 
-export const useGetUsers = (name: string = "", page: number = 0, pageSize: number = 10) => {
+export const useGetUsers = (name: string = "", page: number = 0, pageSize: number = 10, enabled: boolean = true) => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<PaginatedUsers, Error>(['users',name,page,pageSize], () => snippetOperations.getUserFriends(name,page, pageSize));
+  return useQuery<PaginatedUsers, Error>(['users', name, page, pageSize], () => snippetOperations.getUserFriends(name, page, pageSize), {
+    enabled,
+  });
 };
 
 export const useShareSnippet = () => {
@@ -120,7 +114,9 @@ export const useTestSnippet = () => {
 export const useGetFormatRules = () => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<Rule[], Error>('formatRules', () => snippetOperations.getFormatRules());
+  return useQuery<Rule[], Error>('formatRules', () => snippetOperations.getFormatRules(), {
+    staleTime: 5 * 60_000,
+  });
 }
 
 export const useModifyFormatRules = ({onSuccess}: {onSuccess: () => void}) => {
@@ -136,7 +132,9 @@ export const useModifyFormatRules = ({onSuccess}: {onSuccess: () => void}) => {
 export const useGetLintingRules = () => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<Rule[], Error>('lintingRules', () => snippetOperations.getLintingRules());
+  return useQuery<Rule[], Error>('lintingRules', () => snippetOperations.getLintingRules(), {
+    staleTime: 5 * 60_000,
+  });
 }
 
 
@@ -172,5 +170,7 @@ export const useDeleteSnippet = ({onSuccess}: {onSuccess: () => void}) => {
 export const useGetFileTypes = () => {
   const snippetOperations = useSnippetsOperations()
 
-  return useQuery<FileType[], Error>('fileTypes', () => snippetOperations.getFileTypes());
+  return useQuery<FileType[], Error>('fileTypes', () => snippetOperations.getFileTypes(), {
+    staleTime: 5 * 60_000,
+  });
 }
