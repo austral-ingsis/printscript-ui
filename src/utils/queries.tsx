@@ -118,6 +118,15 @@ export const useTestSnippet = (callbacks?: MutationCallbacks) => {
   )
 }
 
+export const useTestAllSnippets = (callbacks?: MutationCallbacks) => {
+  const snippetOperations = useSnippetsOperations()
+
+  return useMutation<Record<string, TestCaseResult>, Error, string>(
+      (snippetId) => snippetOperations.testAllSnippets(snippetId),
+      callbacks
+  )
+}
+
 
 
 export const useGetFormatRules = () => {
