@@ -113,6 +113,20 @@ export class FakeSnippetOperations implements SnippetOperations {
     })
   }
 
+  testAllSnippets(snippetId: string): Promise<Record<string, TestCaseResult>> {
+    void snippetId;
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const tests = this.fakeStore.getTestCases();
+        const results: Record<string, TestCaseResult> = {};
+        for (const test of tests) {
+          results[test.id] = this.fakeStore.testSnippet();
+        }
+        resolve(results);
+      }, DELAY);
+    });
+  }
+
   deleteSnippet(id: string): Promise<string> {
     return new Promise(resolve => {
       setTimeout(() => resolve(this.fakeStore.deleteSnippet(id)), DELAY)

@@ -243,6 +243,35 @@ export class RealSnippetOperations implements SnippetOperations {
         throw new Error("Timeout esperando el resultado del test");
     }
 
+    async testAllSnippets(snippetId: string): Promise<Record<string, TestCaseResult>> {
+        const runBody: RunTestsRequest = {snippetId, selection: {type: "ALL", testIds: []}};
+        const runRes = await this.api.post<RunTestsResponse>('/tests/run', runBody);
+        const expectedTestIds = new Set(runRes.data.testIds);
+
+        if (expectedTestIds.size === 0) {
+            return {};
+        }
+
+        for (let attempt = 0; attempt < 15; attempt++) {
+            await new Promise(r => setTimeout(r, 1000));
+            const res = await this.api.get<TestStatusResponse[]>('/tests/statuses', {params: {snippetId}});
+            const relevantStatuses = res.data.filter(s => expectedTestIds.has(s.id));
+
+            const allFinished =
+                relevantStatuses.length === expectedTestIds.size &&
+                relevantStatuses.every(s => s.status !== "PENDING" && s.status !== "NOT_RUN");
+
+            if (allFinished) {
+                const results: Record<string, TestCaseResult> = {};
+                for (const item of relevantStatuses) {
+                    results[item.id] = item.status === "PASSED" ? "success" : "fail";
+                }
+                return results;
+            }
+        }
+        throw new Error("Timeout esperando el resultado de los tests");
+    }
+
     async updateSnippetById(id: string, updateSnippet: UpdateSnippet): Promise<Snippet> {
         const body: UpdateSnippetRequest = {content: updateSnippet.content};
         const res = await this.api.put<SnippetResponse>(`/snippet/${id}`, body);
