@@ -44,7 +44,7 @@ export const SnippetTable = (props: SnippetTableProps) => {
   const handleLoadSnippet = async (target: EventTarget & HTMLInputElement) => {
     const files = target.files
     if (!files || !files.length) {
-      createSnackbar('error',"Please select at leat one file")
+      createSnackbar('error', "Please select at least one file")
       return
     }
     const file = files[0]
@@ -62,8 +62,10 @@ export const SnippetTable = (props: SnippetTableProps) => {
         version: "1.1",
         extension: fileType.extension
       })
+      createSnackbar('success', 'File loaded successfully')
     }).catch(e => {
       console.error(e)
+      createSnackbar('error', 'Failed to read file')
     }).finally(() => {
       setAddModalOpened(true)
       target.value = ""

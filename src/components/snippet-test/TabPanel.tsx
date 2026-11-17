@@ -77,6 +77,11 @@ export const TabPanel = ({
             setLocalResult(res);
             onTestResult?.(testData.id, res);
             queryClient.invalidateQueries(['testCases', snippetId]);
+            if (res === 'success') {
+                createSnackbar('success', 'Test passed');
+            } else {
+                createSnackbar('error', 'Test failed');
+            }
         } catch {
             // Handled by onError in useTestSnippet
         }
