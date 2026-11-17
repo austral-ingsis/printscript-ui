@@ -17,6 +17,20 @@ export type ActiveFormatRulesResponse = {
     rules: FormatRuleSelection[];
 };
 
+export type LintRuleSelection = {
+    ruleId: number;
+    value: string | null;
+};
+
+export type LintRulesResponse = {
+    rules: { id: number; name: string; defaultValue: string | null }[];
+    activeRules: LintRuleSelection[];
+};
+
+export type UpdateLintRulesRequest = {
+    rules: LintRuleSelection[];
+};
+
 export type SnippetResponse = {
     id: string;
     version: number;

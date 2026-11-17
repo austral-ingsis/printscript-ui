@@ -11,6 +11,8 @@ import {AxiosInstance} from "axios";
 import {FakeSnippetOperations} from "../mock/fakeSnippetOperations.ts";
 import {
     FormatRulesResponse,
+    LintRulesResponse,
+    UpdateLintRulesRequest,
     FormatJobAcceptedResponse,
     JobStatusResponse,
     UpdateFormatRulesRequest,
@@ -118,9 +120,15 @@ export class RealSnippetOperations implements SnippetOperations {
         }));
     }
 
-    getLintingRules(): Promise<Rule[]> {
-        // falta GET /lint/rules (catálogo) en snippet-service; solo existe PUT /lint/rules (escritura)
-        return this.fallback.getLintingRules();
+    async getLintingRules(): Promise<Rule[]> {
+        const res = await this.api.get<LintRulesResponse>('lint/rules')
+        const activeByRuleId = new Map(res.data.activeRules.map(a => [a.ruleId, a.value]));
+        return res.data.rules.map(r => ({
+            id: String(r.id),
+            name: r.name,
+            isActive: activeByRuleId.has(r.id),
+            value: activeByRuleId.has(r.id) ? activeByRuleId.get(r.id) : r.defaultValue,
+        }));
     }
 
     async getSnippetById(id: string): Promise<Snippet | undefined> {
@@ -183,10 +191,16 @@ export class RealSnippetOperations implements SnippetOperations {
 
     }
 
-    modifyLintingRule(newRules: Rule[]): Promise<Rule[]> {
-        // delegado junto con getLintingRules: sin el catálogo real, los ruleId mostrados en la UI
-        // serían del fake y no matchean los ids reales del backend (el PUT real respondería 400 unknownRuleIds)
-        return this.fallback.modifyLintingRule(newRules);
+    async modifyLintingRule(newRules: Rule[]): Promise<Rule[]> {
+        const selections = newRules
+            .filter(r => r.isActive)
+            .map(r => ({
+                ruleId: Number(r.id),
+                value: typeof r.value === 'string' ? r.value : null,
+            }));
+        const body: UpdateLintRulesRequest = {rules: selections};
+        await this.api.put('/lint/rules', body);
+        return newRules;
     }
 
     async postTestCase(snippetId: string, testCase: Partial<TestCase>): Promise<TestCase> {
