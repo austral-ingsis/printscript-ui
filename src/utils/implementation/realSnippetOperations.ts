@@ -11,6 +11,8 @@ import {AxiosInstance} from "axios";
 import {FakeSnippetOperations} from "../mock/fakeSnippetOperations.ts";
 import {
     FormatRulesResponse,
+    FormatJobAcceptedResponse,
+    JobStatusResponse,
     UpdateFormatRulesRequest,
     ActiveFormatRulesResponse,
     SnippetResponse,
@@ -81,10 +83,23 @@ export class RealSnippetOperations implements SnippetOperations {
         return id;
     }
 
-    formatSnippet(snippet: string): Promise<string> {
-        // POST /format/{id} es asíncrono (202 {jobId}) sin endpoint para consultar el resultado;
-        // no se puede exponer como Promise<string> síncrona todavía
-        return this.fallback.formatSnippet(snippet);
+    async formatSnippet(snippetId: string): Promise<string> {
+        // Formatea el contenido ya guardado en el backend, no lo que haya sin guardar en el editor;
+        // si hay ediciones pendientes, se ignoran (se formatea la última versión persistida).
+        const jobRes = await this.api.post<FormatJobAcceptedResponse>(`/format/${snippetId}`);
+        const jobId = jobRes.data.jobId;
+
+        for (let attempt = 0; attempt < 10; attempt++) {
+            await new Promise(r => setTimeout(r, 1000));
+            const res = await this.api.get<JobStatusResponse>(`/jobs/${jobId}`);
+            if (res.data.status === "DONE") {
+                const snippet = await this.getSnippetById(snippetId);
+                if (!snippet) throw new Error(`Snippet ${snippetId} not found after formatting`);
+                return snippet.content;
+            }
+            if (res.data.status === "FAILED") throw new Error("El formateo falló");
+        }
+        throw new Error("Timeout esperando el resultado del formateo");
     }
 
     getFileTypes(): Promise<FileType[]> {
@@ -94,13 +109,13 @@ export class RealSnippetOperations implements SnippetOperations {
 
     async getFormatRules(): Promise<Rule[]> {
         const res = await this.api.get<FormatRulesResponse>('format/rules')
-        const rules = res.data.rules.map(r => ({
+        const activeByRuleId = new Map(res.data.activeRules.map(a => [a.ruleId, a.value]));
+        return res.data.rules.map(r => ({
             id: String(r.id),
             name: r.name,
-            isActive: false, // falta implementar el endpoint GET activeFormatRules en la api
-            value: r.defaultValue,
+            isActive: activeByRuleId.has(r.id),
+            value: activeByRuleId.has(r.id) ? activeByRuleId.get(r.id) : r.defaultValue,
         }));
-        return rules
     }
 
     getLintingRules(): Promise<Rule[]> {
