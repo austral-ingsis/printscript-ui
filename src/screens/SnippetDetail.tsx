@@ -19,6 +19,8 @@ import {SnippetExecution} from "./SnippetExecution.tsx";
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import {queryClient} from "../App.tsx";
 import {DeleteConfirmationModal} from "../components/snippet-detail/DeleteConfirmationModal.tsx";
+import {useSnackbarContext} from "../contexts/snackbarContext.tsx";
+import {getApiErrorMessage} from "../utils/errorMessage.ts";
 
 type SnippetDetailProps = {
   id: string;
@@ -27,22 +29,21 @@ type SnippetDetailProps = {
 
 const DownloadButton = ({snippet}: { snippet?: Snippet }) => {
   if (!snippet) return null;
-  const file = new Blob([snippet.content], {type: 'text/plain'});
+
+  const handleDownload = () => {
+    const file = new Blob([snippet.content], {type: 'text/plain'});
+    const url = URL.createObjectURL(file);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${snippet.name}.${snippet.extension}`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <Tooltip title={"Download"}>
-      <IconButton sx={{
-        cursor: "pointer"
-      }}>
-        <a download={`${snippet.name}.${snippet.extension}`} target="_blank"
-           rel="noreferrer" href={URL.createObjectURL(file)} style={{
-          textDecoration: "none",
-          color: "inherit",
-          display: 'flex',
-          alignItems: 'center',
-        }}>
-          <Download/>
-        </a>
+      <IconButton onClick={handleDownload} sx={{cursor: "pointer"}}>
+        <Download/>
       </IconButton>
     </Tooltip>
   )
@@ -56,15 +57,32 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
   const [shareModalOppened, setShareModalOppened] = useState(false)
   const [deleteConfirmationModalOpen, setDeleteConfirmationModalOpen] = useState(false)
   const [testModalOpened, setTestModalOpened] = useState(false);
+  const {createSnackbar} = useSnackbarContext();
 
   const {data: snippet, isLoading} = useGetSnippetById(id);
-  const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet()
-  const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet()
+  const {mutate: shareSnippet, isLoading: loadingShare} = useShareSnippet({
+    onSuccess: () => {
+      setShareModalOppened(false);
+      createSnackbar('success', 'Snippet shared');
+    },
+    onError: (error) => {
+      createSnackbar('error', getApiErrorMessage(error, 'Failed to share snippet'));
+    },
+  })
+  const {mutate: formatSnippet, isLoading: isFormatLoading, data: formatSnippetData} = useFormatSnippet({
+    onError: (error) => {
+      createSnackbar('error', getApiErrorMessage(error, 'Failed to format snippet'));
+    },
+  })
   const {mutate: updateSnippet, isLoading: isUpdateSnippetLoading} = useUpdateSnippetById({
     onSuccess: () => {
       queryClient.invalidateQueries(['snippet', id])
       queryClient.invalidateQueries(['listSnippets'])
-    }
+      createSnackbar('success', 'Snippet saved');
+    },
+    onError: (error) => {
+      createSnackbar('error', getApiErrorMessage(error, 'Failed to save snippet'));
+    },
   })
 
   useEffect(() => {

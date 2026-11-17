@@ -22,6 +22,8 @@ import {CreateSnippet, CreateSnippetWithLang} from "../../utils/snippet.ts";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
 import {useCreateSnippet, useGetFileTypes} from "../../utils/queries.tsx";
 import {queryClient} from "../../App.tsx";
+import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
+import {getApiErrorMessage} from "../../utils/errorMessage.ts";
 
 export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     open: boolean,
@@ -33,12 +35,30 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     const [version, setVersion] = useState(defaultSnippet?.version ?? "1.1");
     const [snippetName, setSnippetName] = useState(defaultSnippet?.name ?? "")
     const [description, setDescription] = useState(defaultSnippet?.description ?? "");
-    const {mutateAsync: createSnippet, isLoading: loadingSnippet} = useCreateSnippet({
-        onSuccess: () => queryClient.invalidateQueries('listSnippets')
+    const {createSnackbar} = useSnackbarContext();
+
+    const resetForm = () => {
+        setLanguage("printscript");
+        setCode("");
+        setVersion("1.1");
+        setSnippetName("");
+        setDescription("");
+    };
+
+    const {mutate: createSnippet, isLoading: loadingSnippet} = useCreateSnippet({
+        onSuccess: () => {
+            queryClient.invalidateQueries('listSnippets');
+            createSnackbar('success', 'Snippet created');
+            resetForm();
+            onClose();
+        },
+        onError: (error) => {
+            createSnackbar('error', getApiErrorMessage(error, 'Failed to create snippet'));
+        },
     })
     const {data: fileTypes} = useGetFileTypes();
 
-    const handleCreateSnippet = async () => {
+    const handleCreateSnippet = () => {
         const newSnippet: CreateSnippet = {
             version: version,
             name: snippetName,
@@ -47,9 +67,15 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
             language: language,
             extension: fileTypes?.find((f) => f.language === language)?.extension ?? "prs"
         }
-        await createSnippet(newSnippet);
-        onClose();
+        createSnippet(newSnippet);
     }
+
+    const handleClose = () => {
+        if (!defaultSnippet) {
+            resetForm();
+        }
+        onClose();
+    };
 
     useEffect(() => {
         if (defaultSnippet) {
@@ -62,7 +88,7 @@ export const AddSnippetModal = ({open, onClose, defaultSnippet}: {
     }, [defaultSnippet]);
 
     return (
-        <ModalWrapper open={open} onClose={onClose}>
+        <ModalWrapper open={open} onClose={handleClose}>
             {
                 <Box sx={{display: 'flex', flexDirection: "row", justifyContent: "space-between"}}>
                     <Typography id="modal-modal-title" variant="h5" component="h2"

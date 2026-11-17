@@ -16,7 +16,7 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
   const [name, setName] = useState("")
   const [debouncedName, setDebouncedName] = useState("")
   const {data, isLoading} = useGetUsers(debouncedName, 0, 10, open)
-  const [selectedUser, setSelectedUser] = useState<User | undefined>()
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [role, setRole] = useState<ShareRole>("VIEWER")
 
   useEffect(() => {
@@ -26,8 +26,17 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
     return () => clearTimeout(getData)
   }, [name])
 
+  useEffect(() => {
+    if (!open) {
+      setName("")
+      setDebouncedName("")
+      setSelectedUser(null)
+      setRole("VIEWER")
+    }
+  }, [open])
+
   function handleSelectUser(newValue: User | null) {
-    newValue && setSelectedUser(newValue)
+    setSelectedUser(newValue)
   }
 
   return (
@@ -44,7 +53,8 @@ export const ShareSnippetModal = (props: ShareSnippetModalProps) => {
               getOptionLabel={(option) => option.name}
               loading={isLoading}
               value={selectedUser}
-              onInputChange={(_: unknown, newValue: string | null) => newValue && setName(newValue)}
+              inputValue={name}
+              onInputChange={(_: unknown, newValue: string) => setName(newValue ?? "")}
               onChange={(_: unknown, newValue: User | null) => handleSelectUser(newValue)}
           />
           <TextField

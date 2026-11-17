@@ -76,9 +76,9 @@ export class RealSnippetOperations implements SnippetOperations {
         return this.toSnippet(res.data, createSnippet.extension);
     }
 
-    deleteSnippet(id: string): Promise<string> {
-        // falta DELETE /snippet/{id} en snippet-service
-        return this.fallback.deleteSnippet(id);
+    async deleteSnippet(id: string): Promise<string> {
+        await this.api.delete(`/snippet/${id}`);
+        return id;
     }
 
     formatSnippet(snippet: string): Promise<string> {
