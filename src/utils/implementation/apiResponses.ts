@@ -134,3 +134,9 @@ export type JobStatusResponse = {
     id: string;
     status: string;
 };
+
+export type LanguageResponse = {
+    language: string;
+    fileTypes: string[];
+    versions: string[];
+};
