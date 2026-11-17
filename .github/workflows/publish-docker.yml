@@ -1,0 +1,90 @@
+name: Publish Docker Image to GHCR
+
+on:
+    push:
+        branches:
+            - master
+            - dev
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+        outputs:
+            image_tag: ${{ steps.image_tag.outputs.tag }}
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+
+            -   name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v3
+
+            -   name: Log in to GitHub Container Registry
+                uses: docker/login-action@v3
+                with:
+                    registry: ghcr.io
+                    username: ${{ github.actor }}
+                    password: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Extract Docker metadata (Tags & Labels)
+                id: meta
+                uses: docker/metadata-action@v5
+                with:
+                    images: ghcr.io/${{ github.repository }}
+                    tags: |
+                        type=raw,value=dev,enable=${{ github.ref_name == 'dev' }}
+                        type=sha,prefix=dev-,enable=${{ github.ref_name == 'dev' }}
+                        type=raw,value=prod,enable=${{ github.ref_name == 'master' }}
+                        type=sha,prefix=prod-,enable=${{ github.ref_name == 'master' }}
+                        type=raw,value=latest,enable=${{ github.ref_name == 'master' }}
+
+            -   name: Extract immutable SHA tag
+                id: image_tag
+                env:
+                    TAGS: ${{ steps.meta.outputs.tags }}
+                run: |
+                    set -euo pipefail
+                    TAG=$(echo "$TAGS" | tr ',' '\n' | sed 's/.*://' | grep -E '^(dev|prod)-' | head -n 1)
+                    echo "Resolved immutable tag: $TAG"
+                    echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+            -   name: Build and push Docker image
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    push: true
+                    tags: ${{ steps.meta.outputs.tags }}
+                    labels: ${{ steps.meta.outputs.labels }}
+                    cache-from: type=gha
+                    cache-to: type=gha,mode=max
+                    build-args: |
+                        VITE_AUTH0_DOMAIN=${{ vars.VITE_AUTH0_DOMAIN }}
+                        VITE_AUTH0_CLIENT_ID=${{ github.ref_name == 'master' && vars.VITE_AUTH0_CLIENT_ID_PROD || vars.VITE_AUTH0_CLIENT_ID_DEV }}
+                        VITE_AUTH0_AUDIENCE=${{ github.ref_name == 'master' && vars.VITE_AUTH0_AUDIENCE_PROD || vars.VITE_AUTH0_AUDIENCE_DEV }}
+
+    deploy:
+        needs: publish
+        if: github.event_name != 'pull_request'
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Trigger infrastructure deploy
+                env:
+                    GH_TOKEN: ${{ secrets.INFRA_DEPLOY_TOKEN }}
+                    DEPLOY_ENV: ${{ github.ref_name == 'master' && 'prod' || 'dev' }}
+                    INFRA_REF: ${{ github.ref_name == 'master' && 'main' || 'dev' }}
+                    IMAGE_TAG: ${{ needs.publish.outputs.image_tag }}
+                run: |
+                    set -euo pipefail
+                    echo "Triggering deploy for environment=$DEPLOY_ENV (ref=$INFRA_REF) with ui_tag=$IMAGE_TAG"
+                    gh workflow run infra-deploy.yml \
+                        --repo Age-Of-PrintScript/infrastructure \
+                        --ref "$INFRA_REF" \
+                        -f environment="$DEPLOY_ENV" \
+                        -f ui_tag="$IMAGE_TAG"

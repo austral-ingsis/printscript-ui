@@ -7,11 +7,16 @@ export type ComplianceEnum =
     'not-compliant' |
     'compliant'
 
+// OWNER no es asignable via compartir: lo rechaza permissions-service.
+export type ShareRole = 'EDITOR' | 'VIEWER'
+
 
 export type CreateSnippet = {
   name: string;
+  description?: string;
   content: string;
   language: string;
+  version: string;
   extension: string;
 }
 

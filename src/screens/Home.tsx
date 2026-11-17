@@ -13,11 +13,11 @@ const HomeScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [snippetName, setSnippetName] = useState('');
   const [snippetId, setSnippetId] = useState<string | null>(null)
-  const {page, page_size, count, handleChangeCount} = usePaginationContext()
+  const {page, page_size, count, handleChangeCount, handleGoToPage} = usePaginationContext()
   const {data, isLoading} = useGetSnippets(page, page_size, snippetName)
 
   useEffect(() => {
-    if (data?.count && data.count != count) {
+    if (data?.count !== undefined && data.count !== count) {
       handleChangeCount(data.count)
     }
   }, [count, data?.count, handleChangeCount]);
@@ -33,10 +33,11 @@ const HomeScreen = () => {
 
   // DeBounce Function
   useDebounce(() => {
-        setSnippetName(
-            searchTerm
-        );
-      }, [searchTerm], 800
+        if (searchTerm !== snippetName) {
+          handleGoToPage(0)
+          setSnippetName(searchTerm)
+        }
+      }, [searchTerm, snippetName, handleGoToPage], 800
   );
 
   const handleSearchSnippet = (snippetName: string) => {

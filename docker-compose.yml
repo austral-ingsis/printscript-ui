@@ -1,0 +1,7 @@
+services:
+  ui:
+    build:
+      context: .
+    container_name: printscript-ui
+    ports:
+      - "5173:80"
