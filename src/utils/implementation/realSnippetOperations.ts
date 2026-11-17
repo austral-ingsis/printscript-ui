@@ -184,9 +184,9 @@ export class RealSnippetOperations implements SnippetOperations {
         return {id: res.data.id, name: testCase.name ?? "", input: body.inputs, output: body.outputs};
     }
 
-    removeTestCase(id: string): Promise<string> {
-        // no existe DELETE de test case en el backend
-        return this.fallback.removeTestCase(id);
+    async removeTestCase(id: string): Promise<string> {
+        await this.api.delete(`/snippet/test/${id}`);
+        return id;
     }
 
     async shareSnippet(snippetId: string, userId: string, role: ShareRole): Promise<void> {
