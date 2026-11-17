@@ -160,7 +160,7 @@ export const useFormatSnippet = (callbacks?: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<string, Error, string>(
-      snippetContent => snippetOperations.formatSnippet(snippetContent),
+      snippetId => snippetOperations.formatSnippet(snippetId),
       callbacks
   );
 }

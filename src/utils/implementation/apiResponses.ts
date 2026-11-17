@@ -1,11 +1,12 @@
 
-export type FormatRulesResponse = {
-    rules: { id: number; name: string; defaultValue: number | null }[];
-};
-
 export type FormatRuleSelection = {
     ruleId: number;
     value: number | null;
+};
+
+export type FormatRulesResponse = {
+    rules: { id: number; name: string; defaultValue: number | null }[];
+    activeRules: FormatRuleSelection[];
 };
 
 export type UpdateFormatRulesRequest = {
@@ -14,6 +15,20 @@ export type UpdateFormatRulesRequest = {
 
 export type ActiveFormatRulesResponse = {
     rules: FormatRuleSelection[];
+};
+
+export type LintRuleSelection = {
+    ruleId: number;
+    value: string | null;
+};
+
+export type LintRulesResponse = {
+    rules: { id: number; name: string; defaultValue: string | null }[];
+    activeRules: LintRuleSelection[];
+};
+
+export type UpdateLintRulesRequest = {
+    rules: LintRuleSelection[];
 };
 
 export type SnippetResponse = {
@@ -106,4 +121,13 @@ export type PaginatedUsersResponse = {
 export type ShareSnippetRequest = {
     userId: string;
     role: string;
+};
+
+export type FormatJobAcceptedResponse = {
+    jobId: string;
+};
+
+export type JobStatusResponse = {
+    id: string;
+    status: string;
 };
