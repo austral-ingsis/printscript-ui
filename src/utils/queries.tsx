@@ -118,7 +118,12 @@ export const useTestSnippet = (callbacks?: MutationCallbacks) => {
   )
 }
 
-export const useTestAllSnippets = (callbacks?: MutationCallbacks) => {
+export type TestAllCallbacks = {
+  onSuccess?: (results: Record<string, TestCaseResult>) => void;
+  onError?: (error: Error) => void;
+};
+
+export const useTestAllSnippets = (callbacks?: TestAllCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<Record<string, TestCaseResult>, Error, string>(
