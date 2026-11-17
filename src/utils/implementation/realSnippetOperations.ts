@@ -8,7 +8,6 @@ import type {TestCaseResult} from "../queries.tsx";
 import {createApiClient} from "./apiClient.ts";
 import {PERMISSIONS_URL} from "../constants.ts";
 import {AxiosInstance} from "axios";
-import {FakeSnippetOperations} from "../mock/fakeSnippetOperations.ts";
 import {
     FormatRulesResponse,
     LintRulesResponse,
@@ -30,6 +29,7 @@ import {
     SnippetSummaryResponse,
     PaginatedUsersResponse,
     ShareSnippetRequest,
+    LanguageResponse,
 } from "./apiResponses.ts";
 
 const toComplianceEnum = (status: string): ComplianceEnum => {
@@ -46,8 +46,6 @@ export class RealSnippetOperations implements SnippetOperations {
     // snippet-service no expone todo: lo de permisos/usuarios vive en permissions-service,
     // detrás de otra base URL (en la VM, nginx lo enruta via /api/permissions/*).
     private permissionsApi: AxiosInstance;
-    // Operaciones sin endpoint real en el backend hoy: se delegan al mock para no romper la UI.
-    private readonly fallback = new FakeSnippetOperations();
 
     constructor(getAccessTokenSilently: () => Promise<string>) {
         this.api = createApiClient(getAccessTokenSilently)
@@ -104,9 +102,14 @@ export class RealSnippetOperations implements SnippetOperations {
         throw new Error("Timeout esperando el resultado del formateo");
     }
 
-    getFileTypes(): Promise<FileType[]> {
-        // falta catálogo de lenguajes/extensiones soportadas; hoy solo "printscript" está hardcodeado server-side
-        return this.fallback.getFileTypes();
+    async getFileTypes(): Promise<FileType[]> {
+        const res = await this.api.get<LanguageResponse[]>('/languages');
+        return res.data.flatMap((lang) =>
+            lang.fileTypes.map((extension) => ({
+                language: lang.language,
+                extension,
+            })),
+        );
     }
 
     async getFormatRules(): Promise<Rule[]> {
