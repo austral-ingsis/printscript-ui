@@ -71,7 +71,7 @@ export const TestSnippetModal = ({open, onClose, snippetId}: TestSnippetModalPro
                               removeTestCase={(i) => removeTestCase(i)}
                     />
                 ))}
-                <TabPanel key="new" index={newTabIndex} value={value} snippetId={snippetId}
+                <TabPanel key={`new-${newTabIndex}`} index={newTabIndex} value={value} snippetId={snippetId}
                           saving={isSaving}
                           setTestCase={(tc) => postTestCase({snippetId, testCase: tc})}
                 />
