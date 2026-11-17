@@ -42,6 +42,7 @@ export type UpdateSnippetRequest = {
 export type CreateSnippetTestRequest = {
     inputs: string[];
     outputs: string[];
+    id?: string;
 };
 
 export type SnippetTestResponse = {

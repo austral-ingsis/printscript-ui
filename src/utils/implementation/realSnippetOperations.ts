@@ -178,6 +178,7 @@ export class RealSnippetOperations implements SnippetOperations {
         const body: CreateSnippetTestRequest = {
             inputs: testCase.input ?? [],
             outputs: testCase.output ?? [],
+            id: testCase.id,
         };
         const res = await this.api.post<SnippetTestResponse>(`/snippet/${snippetId}/test`, body);
         return {id: res.data.id, name: testCase.name ?? "", input: body.inputs, output: body.outputs};
