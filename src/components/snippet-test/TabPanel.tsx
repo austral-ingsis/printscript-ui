@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {TestCase} from "../../types/TestCase.ts";
 import {Autocomplete, Box, Button, Chip, CircularProgress, TextField, Typography} from "@mui/material";
 import {BugReport, Delete, Save} from "@mui/icons-material";
-import {useTestSnippet} from "../../utils/queries.tsx";
+import {TestCaseResult, useTestSnippet} from "../../utils/queries.tsx";
 import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
 import {getApiErrorMessage} from "../../utils/errorMessage.ts";
 
@@ -12,6 +12,9 @@ type TabPanelProps = {
     test?: TestCase;
     snippetId: string;
     saving?: boolean;
+    isTestingAll?: boolean;
+    testResult?: TestCaseResult;
+    onTestResult?: (testId: string, result: TestCaseResult) => void;
     setTestCase: (test: Partial<TestCase>) => void;
     removeTestCase?: (testIndex: string) => void;
 }
@@ -23,13 +26,29 @@ const arraysEqual = (a?: string[], b?: string[]) => {
     return arrA.every((val, idx) => val === arrB[idx]);
 };
 
-export const TabPanel = ({value, index, test: initialTest, snippetId, saving, setTestCase, removeTestCase}: TabPanelProps) => {
+export const TabPanel = ({
+    value,
+    index,
+    test: initialTest,
+    snippetId,
+    saving,
+    isTestingAll,
+    testResult,
+    onTestResult,
+    setTestCase,
+    removeTestCase,
+}: TabPanelProps) => {
     const [testData, setTestData] = useState<Partial<TestCase> | undefined>(initialTest);
+    const [localResult, setLocalResult] = useState<TestCaseResult | undefined>(testResult);
     const {createSnackbar} = useSnackbarContext();
 
     useEffect(() => {
         setTestData(initialTest);
     }, [initialTest]);
+
+    useEffect(() => {
+        setLocalResult(testResult);
+    }, [testResult]);
 
     const isExistingTest = Boolean(initialTest?.id);
 
@@ -41,11 +60,22 @@ export const TabPanel = ({value, index, test: initialTest, snippetId, saving, se
           (testData?.input && testData.input.length > 0) ||
           (testData?.output && testData.output.length > 0);
 
-    const {mutateAsync: testSnippet, data, isLoading: isTesting} = useTestSnippet({
+    const {mutateAsync: testSnippet, isLoading: isTesting} = useTestSnippet({
         onError: (error) => {
             createSnackbar('error', getApiErrorMessage(error, 'Failed to run test'));
         },
     });
+
+    const handleTest = async () => {
+        if (!testData?.id) return;
+        try {
+            const res = await testSnippet({snippetId, testCase: testData});
+            setLocalResult(res);
+            onTestResult?.(testData.id, res);
+        } catch {
+            // Handled by onError in useTestSnippet
+        }
+    };
 
 
     return (
@@ -120,11 +150,11 @@ export const TabPanel = ({value, index, test: initialTest, snippetId, saving, se
                                 Save
                             </Button>
                         )}
-                        <Button onClick={() => testSnippet({snippetId, testCase: testData ?? {}})} variant={"contained"}
-                                startIcon={isTesting ? <CircularProgress size={16} color="inherit"/> : <BugReport/>} disabled={!testData?.id || isTesting} disableElevation>
+                        <Button onClick={handleTest} variant={"contained"}
+                                startIcon={isTesting ? <CircularProgress size={16} color="inherit"/> : <BugReport/>} disabled={!testData?.id || isTesting || isTestingAll} disableElevation>
                             Test
                         </Button>
-                        {data && (data === "success" ? <Chip label="Pass" color="success"/> :
+                        {localResult && (localResult === "success" ? <Chip label="Pass" color="success"/> :
                             <Chip label="Fail" color="error"/>)}
                     </Box>
                 </Box>

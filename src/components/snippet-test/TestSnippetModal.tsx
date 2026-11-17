@@ -72,6 +72,10 @@ export const TestSnippetModal = ({open, onClose, snippetId}: TestSnippetModalPro
         testAllSnippets(snippetId);
     };
 
+    const handleTestResult = (testId: string, result: TestCaseResult) => {
+        setTestResults((prev) => ({...prev, [testId]: result}));
+    };
+
     const newTabIndex = testCases?.length ?? 0;
 
     return (
@@ -133,12 +137,16 @@ export const TestSnippetModal = ({open, onClose, snippetId}: TestSnippetModalPro
                 {testCases?.map((testCase, index) => (
                     <TabPanel key={testCase.id} index={index} value={value} test={testCase} snippetId={snippetId}
                               saving={isSaving}
+                              isTestingAll={isTestingAll}
+                              testResult={testResults[testCase.id]}
+                              onTestResult={handleTestResult}
                               setTestCase={(tc) => postTestCase({snippetId, testCase: tc})}
                               removeTestCase={handleRemoveTestCase}
                     />
                 ))}
                 <TabPanel key={`new-${newTabIndex}`} index={newTabIndex} value={value} snippetId={snippetId}
                           saving={isSaving}
+                          isTestingAll={isTestingAll}
                           setTestCase={(tc) => postTestCase({snippetId, testCase: tc})}
                 />
             </Box>
