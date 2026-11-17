@@ -32,13 +32,18 @@ export const useGetSnippetById = (id: string) => {
   });
 };
 
-export const useCreateSnippet = ({onSuccess}: {onSuccess: () => void}): UseMutationResult<Snippet, Error, CreateSnippet> => {
-  const snippetOperations = useSnippetsOperations()
-
-  return useMutation<Snippet, Error, CreateSnippet>(createSnippet => snippetOperations.createSnippet(createSnippet), {onSuccess});
+export type MutationCallbacks = {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
 };
 
-export const useUpdateSnippetById = ({onSuccess}: {onSuccess: () => void}): UseMutationResult<Snippet, Error, {
+export const useCreateSnippet = ({onSuccess, onError}: MutationCallbacks): UseMutationResult<Snippet, Error, CreateSnippet> => {
+  const snippetOperations = useSnippetsOperations()
+
+  return useMutation<Snippet, Error, CreateSnippet>(createSnippet => snippetOperations.createSnippet(createSnippet), {onSuccess, onError});
+};
+
+export const useUpdateSnippetById = ({onSuccess, onError}: MutationCallbacks): UseMutationResult<Snippet, Error, {
   id: string;
   updateSnippet: UpdateSnippet
 }> => {
@@ -47,6 +52,7 @@ export const useUpdateSnippetById = ({onSuccess}: {onSuccess: () => void}): UseM
   return useMutation<Snippet, Error, { id: string; updateSnippet: UpdateSnippet }>(
       ({id, updateSnippet}) => snippetOperations.updateSnippetById(id, updateSnippet),{
         onSuccess,
+        onError,
     }
   );
 };
@@ -59,11 +65,12 @@ export const useGetUsers = (name: string = "", page: number = 0, pageSize: numbe
   });
 };
 
-export const useShareSnippet = () => {
+export const useShareSnippet = (callbacks?: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<void, Error, { snippetId: string; userId: string; role: ShareRole }>(
-      ({snippetId, userId, role}) => snippetOperations.shareSnippet(snippetId, userId, role)
+      ({snippetId, userId, role}) => snippetOperations.shareSnippet(snippetId, userId, role),
+      callbacks
   );
 };
 
@@ -77,17 +84,17 @@ export const useGetTestCases = (snippetId: string) => {
 };
 
 
-export const usePostTestCase = ({onSuccess}: {onSuccess: () => void}) => {
+export const usePostTestCase = ({onSuccess, onError}: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<TestCase, Error, { snippetId: string; testCase: Partial<TestCase> }>(
       ({snippetId, testCase}) => snippetOperations.postTestCase(snippetId, testCase),
-      {onSuccess}
+      {onSuccess, onError}
   );
 };
 
 
-export const useRemoveTestCase = ({onSuccess}: {onSuccess: () => void}) => {
+export const useRemoveTestCase = ({onSuccess, onError}: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<string, Error, string>(
@@ -95,17 +102,19 @@ export const useRemoveTestCase = ({onSuccess}: {onSuccess: () => void}) => {
       (id) => snippetOperations.removeTestCase(id),
       {
         onSuccess,
+        onError,
       }
   );
 };
 
 export type TestCaseResult = "success" | "fail"
 
-export const useTestSnippet = () => {
+export const useTestSnippet = (callbacks?: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<TestCaseResult, Error, { snippetId: string; testCase: Partial<TestCase> }>(
-      ({snippetId, testCase}) => snippetOperations.testSnippet(snippetId, testCase)
+      ({snippetId, testCase}) => snippetOperations.testSnippet(snippetId, testCase),
+      callbacks
   )
 }
 
@@ -119,12 +128,12 @@ export const useGetFormatRules = () => {
   });
 }
 
-export const useModifyFormatRules = ({onSuccess}: {onSuccess: () => void}) => {
+export const useModifyFormatRules = ({onSuccess, onError}: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<Rule[], Error, Rule[]>(
       rule => snippetOperations.modifyFormatRule(rule),
-      {onSuccess}
+      {onSuccess, onError}
   );
 }
 
@@ -138,30 +147,32 @@ export const useGetLintingRules = () => {
 }
 
 
-export const useModifyLintingRules = ({onSuccess}: {onSuccess: () => void}) => {
+export const useModifyLintingRules = ({onSuccess, onError}: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<Rule[], Error, Rule[]>(
       rule => snippetOperations.modifyLintingRule(rule),
-      {onSuccess}
+      {onSuccess, onError}
   );
 }
 
-export const useFormatSnippet = () => {
+export const useFormatSnippet = (callbacks?: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<string, Error, string>(
-      snippetContent => snippetOperations.formatSnippet(snippetContent)
+      snippetContent => snippetOperations.formatSnippet(snippetContent),
+      callbacks
   );
 }
 
-export const useDeleteSnippet = ({onSuccess}: {onSuccess: () => void}) => {
+export const useDeleteSnippet = ({onSuccess, onError}: MutationCallbacks) => {
   const snippetOperations = useSnippetsOperations()
 
   return useMutation<string, Error, string>(
       id => snippetOperations.deleteSnippet(id),
       {
         onSuccess,
+        onError,
       }
   );
 }

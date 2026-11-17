@@ -5,6 +5,8 @@ import {AddRounded} from "@mui/icons-material";
 import {useGetTestCases, usePostTestCase, useRemoveTestCase} from "../../utils/queries.tsx";
 import {TabPanel} from "./TabPanel.tsx";
 import {queryClient} from "../../App.tsx";
+import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
+import {getApiErrorMessage} from "../../utils/errorMessage.ts";
 
 type TestSnippetModalProps = {
     open: boolean
@@ -14,18 +16,33 @@ type TestSnippetModalProps = {
 
 export const TestSnippetModal = ({open, onClose, snippetId}: TestSnippetModalProps) => {
     const [value, setValue] = useState(0);
+    const {createSnackbar} = useSnackbarContext();
 
     const {data: testCases} = useGetTestCases(snippetId);
-    const {mutateAsync: postTestCase} = usePostTestCase({
-        onSuccess: () => queryClient.invalidateQueries(['testCases', snippetId])
+    const {mutateAsync: postTestCase, isLoading: isSaving} = usePostTestCase({
+        onSuccess: () => {
+            queryClient.invalidateQueries(['testCases', snippetId]);
+            createSnackbar('success', 'Test case saved');
+        },
+        onError: (error) => {
+            createSnackbar('error', getApiErrorMessage(error, 'Failed to save test case'));
+        },
     });
     const {mutateAsync: removeTestCase} = useRemoveTestCase({
-        onSuccess: () => queryClient.invalidateQueries('testCases')
+        onSuccess: () => {
+            queryClient.invalidateQueries(['testCases', snippetId]);
+            createSnackbar('success', 'Test case removed');
+        },
+        onError: (error) => {
+            createSnackbar('error', getApiErrorMessage(error, 'Failed to remove test case'));
+        },
     });
 
     const handleChange = (_: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
+
+    const newTabIndex = testCases?.length ?? 0;
 
     return (
         <ModalWrapper open={open} onClose={onClose}>
@@ -41,19 +58,21 @@ export const TestSnippetModal = ({open, onClose, snippetId}: TestSnippetModalPro
                     sx={{borderRight: 1, borderColor: 'divider'}}
                 >
                     {testCases?.map((testCase) => (
-                        <Tab label={testCase.name}/>
+                        <Tab key={testCase.id} label={testCase.name}/>
                     ))}
-                    <IconButton disableRipple onClick={() => setValue((testCases?.length ?? 0) + 1)}>
+                    <IconButton disableRipple onClick={() => setValue(newTabIndex)}>
                         <AddRounded />
                     </IconButton>
                 </Tabs>
                 {testCases?.map((testCase, index) => (
                     <TabPanel key={testCase.id} index={index} value={value} test={testCase} snippetId={snippetId}
+                              saving={isSaving}
                               setTestCase={(tc) => postTestCase({snippetId, testCase: tc})}
                               removeTestCase={(i) => removeTestCase(i)}
                     />
                 ))}
-                <TabPanel key="new" index={(testCases?.length ?? 0) + 1} value={value} snippetId={snippetId}
+                <TabPanel key="new" index={newTabIndex} value={value} snippetId={snippetId}
+                          saving={isSaving}
                           setTestCase={(tc) => postTestCase({snippetId, testCase: tc})}
                 />
             </Box>

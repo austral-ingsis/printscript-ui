@@ -11,13 +11,22 @@ import {
 import {useGetFormatRules, useModifyFormatRules} from "../../utils/queries.tsx";
 import {queryClient} from "../../App.tsx";
 import {Rule} from "../../types/Rule.ts";
+import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
+import {getApiErrorMessage} from "../../utils/errorMessage.ts";
 
 const FormattingRulesList = () => {
   const [rules, setRules] = useState<Rule[] | undefined>([]);
+  const {createSnackbar} = useSnackbarContext();
 
   const {data, isLoading} = useGetFormatRules();
   const {mutateAsync, isLoading: isLoadingMutate} = useModifyFormatRules({
-    onSuccess: () => queryClient.invalidateQueries('formatRules')
+    onSuccess: () => {
+      queryClient.invalidateQueries('formatRules');
+      createSnackbar('success', 'Formatting rules saved');
+    },
+    onError: (error) => {
+      createSnackbar('error', getApiErrorMessage(error, 'Failed to save formatting rules'));
+    },
   })
 
   useEffect(() => {
