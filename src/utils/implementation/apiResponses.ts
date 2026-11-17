@@ -55,6 +55,7 @@ export type UpdateSnippetRequest = {
 }
 
 export type CreateSnippetTestRequest = {
+    name: string;
     inputs: string[];
     outputs: string[];
     id?: string;
@@ -62,12 +63,14 @@ export type CreateSnippetTestRequest = {
 
 export type SnippetTestResponse = {
     id: string;
+    name: string;
     snippetId: string;
     createdAt: string;
 };
 
 export type TestListItemResponse = {
     id: string;
+    name: string;
     snippetId: string;
     createdAt: string;
     inputs: string[];

@@ -138,9 +138,9 @@ export class RealSnippetOperations implements SnippetOperations {
 
     async getTestCases(snippetId: string): Promise<TestCase[]> {
         const res = await this.api.get<TestListItemResponse[]>('/tests', {params: {snippetId}});
-        return res.data.map((t, i) => ({
+        return res.data.map((t) => ({
             id: t.id,
-            name: `Test ${i + 1}`, // TODO(modificar endpoint para traer nombre del test)
+            name: t.name,
             input: t.inputs,
             output: t.outputs,
         }));
@@ -205,12 +205,13 @@ export class RealSnippetOperations implements SnippetOperations {
 
     async postTestCase(snippetId: string, testCase: Partial<TestCase>): Promise<TestCase> {
         const body: CreateSnippetTestRequest = {
+            name: testCase.name ?? "Test",
             inputs: testCase.input ?? [],
             outputs: testCase.output ?? [],
             id: testCase.id,
         };
         const res = await this.api.post<SnippetTestResponse>(`/snippet/${snippetId}/test`, body);
-        return {id: res.data.id, name: testCase.name ?? "", input: body.inputs, output: body.outputs};
+        return {id: res.data.id, name: res.data.name, input: body.inputs, output: body.outputs};
     }
 
     async removeTestCase(id: string): Promise<string> {
