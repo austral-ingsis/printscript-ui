@@ -1,6 +1,6 @@
 import {Box, Button, CircularProgress, Divider, IconButton, Tab, Tabs, Typography} from "@mui/material";
 import {ModalWrapper} from "../common/ModalWrapper.tsx";
-import {SyntheticEvent, useState} from "react";
+import {SyntheticEvent, useEffect, useState} from "react";
 import {AddRounded, CancelRounded, CheckCircleRounded, PlayArrow} from "@mui/icons-material";
 import {
     TestCaseResult,
@@ -26,6 +26,21 @@ export const TestSnippetModal = ({open, onClose, snippetId}: TestSnippetModalPro
     const {createSnackbar} = useSnackbarContext();
 
     const {data: testCases} = useGetTestCases(snippetId);
+
+    useEffect(() => {
+        if (testCases) {
+            const synced: Record<string, TestCaseResult> = {};
+            for (const tc of testCases) {
+                if (tc.status === "PASSED") {
+                    synced[tc.id] = "success";
+                } else if (tc.status === "FAILED" || tc.status === "ERROR") {
+                    synced[tc.id] = "fail";
+                }
+            }
+            setTestResults(synced);
+        }
+    }, [testCases]);
+
     const {mutateAsync: postTestCase, isLoading: isSaving} = usePostTestCase({
         onSuccess: () => {
             queryClient.invalidateQueries(['testCases', snippetId]);
@@ -57,6 +72,7 @@ export const TestSnippetModal = ({open, onClose, snippetId}: TestSnippetModalPro
     const {mutateAsync: testAllSnippets, isLoading: isTestingAll} = useTestAllSnippets({
         onSuccess: (results) => {
             setTestResults((prev) => ({...prev, ...results}));
+            queryClient.invalidateQueries(['testCases', snippetId]);
             createSnackbar('success', 'All tests completed');
         },
         onError: (error) => {

@@ -5,6 +5,7 @@ import {BugReport, Delete, Save} from "@mui/icons-material";
 import {TestCaseResult, useTestSnippet} from "../../utils/queries.tsx";
 import {useSnackbarContext} from "../../contexts/snackbarContext.tsx";
 import {getApiErrorMessage} from "../../utils/errorMessage.ts";
+import {queryClient} from "../../App.tsx";
 
 type TabPanelProps = {
     index: number;
@@ -15,7 +16,7 @@ type TabPanelProps = {
     isTestingAll?: boolean;
     testResult?: TestCaseResult;
     onTestResult?: (testId: string, result: TestCaseResult) => void;
-    setTestCase: (test: Partial<TestCase>) => void;
+    setTestCase: (test: Partial<TestCase>) => void | Promise<unknown>;
     removeTestCase?: (testIndex: string) => void;
 }
 
@@ -69,9 +70,13 @@ export const TabPanel = ({
     const handleTest = async () => {
         if (!testData?.id) return;
         try {
+            if (hasChanges && testData?.name?.trim()) {
+                await setTestCase(testData);
+            }
             const res = await testSnippet({snippetId, testCase: testData});
             setLocalResult(res);
             onTestResult?.(testData.id, res);
+            queryClient.invalidateQueries(['testCases', snippetId]);
         } catch {
             // Handled by onError in useTestSnippet
         }
@@ -151,10 +156,11 @@ export const TabPanel = ({
                             </Button>
                         )}
                         <Button onClick={handleTest} variant={"contained"}
-                                startIcon={isTesting ? <CircularProgress size={16} color="inherit"/> : <BugReport/>} disabled={!testData?.id || isTesting || isTestingAll} disableElevation>
+                                startIcon={isTesting ? <CircularProgress size={16} color="inherit"/> : <BugReport/>}
+                                disabled={!testData?.id || isTesting || isTestingAll || saving || (hasChanges && !testData?.name?.trim())} disableElevation>
                             Test
                         </Button>
-                        {localResult && (localResult === "success" ? <Chip label="Pass" color="success"/> :
+                        {!hasChanges && localResult && (localResult === "success" ? <Chip label="Pass" color="success"/> :
                             <Chip label="Fail" color="error"/>)}
                     </Box>
                 </Box>

@@ -146,6 +146,7 @@ export class RealSnippetOperations implements SnippetOperations {
             name: t.name,
             input: t.inputs,
             output: t.outputs,
+            status: t.status,
         }));
     }
 

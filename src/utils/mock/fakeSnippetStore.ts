@@ -211,6 +211,10 @@ export class FakeSnippetStore {
     }
     this.snippetMap.set(id, newSnippet)
 
+    for (const [key, tc] of this.testCaseMap.entries()) {
+      this.testCaseMap.set(key, {...tc, status: "NOT_RUN"})
+    }
+
     return newSnippet
   }
 
@@ -241,7 +245,7 @@ export class FakeSnippetStore {
 
   postTestCase(testCase: Partial<TestCase>): TestCase {
     const id = testCase.id ?? uuid()
-    const newTestCase = {...testCase, id} as TestCase
+    const newTestCase = {...testCase, id, status: "NOT_RUN"} as TestCase
     this.testCaseMap.set(id,newTestCase)
     return newTestCase
   }

@@ -78,6 +78,7 @@ export const SnippetDetail = (props: SnippetDetailProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries(['snippet', id])
       queryClient.invalidateQueries(['listSnippets'])
+      queryClient.invalidateQueries(['testCases', id])
       createSnackbar('success', 'Snippet saved');
     },
     onError: (error) => {
